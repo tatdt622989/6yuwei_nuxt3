@@ -1,0 +1,1377 @@
+<template>
+  <div>
+    <div class="banner" ref="banner">
+      <div class="wrap">
+        <div class="text-box">
+          <h1>
+            <span>I am Yu Wei,</span><br /><span>a front-end engineer </span>.
+          </h1>
+          <p>Currently dedicated to web front-end, web design, 3D design.</p>
+        </div>
+        <MainVisual />
+      </div>
+      <SocialBar />
+      <button class="scroll-down" @click="scrollDown" />
+    </div>
+    <div class="about">
+      <div class="wrap">
+        <div class="photo">
+          <img src="@/assets/images/my-photo.jpg" alt="my_photo" />
+        </div>
+        <div class="text-box">
+          <h2>About us</h2>
+          <p>
+            I am <b>Yu Wei</b>,an <b>frontend engineer</b> .I graduated from a
+            <b>visual design</b> school and have <b>two years</b> of experience
+            in front-end web development,including web applications, business
+            websites, and e-commerce websites.
+          </p>
+          <p>
+            Technologies used in the works:<br />
+            <b style="color: white"
+              >Vue.js, Nuxt.js, React, TypeScript, JavaScript, Three.js, jQuery,
+              SCSS, PHP, Git, Gulp, Webpack</b
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="advantages">
+      <div class="wrap">
+        <ul class="list">
+          <div class="item">
+            <div class="icon">
+              <img src="@/assets/images/advantages1.svg" alt="advantages" />
+            </div>
+            <div class="num">{{ nowYear }}+</div>
+            <p class="text">years of experience</p>
+          </div>
+          <div class="item">
+            <div class="icon">
+              <img src="@/assets/images/advantages2.svg" alt="advantages" />
+            </div>
+            <div class="num">30+</div>
+            <p class="text">Web projects handled</p>
+          </div>
+          <div class="item">
+            <div class="icon">
+              <img src="@/assets/images/advantages3.svg" alt="advantages" />
+            </div>
+            <div class="num">12+</div>
+            <p class="text">often used techniques</p>
+          </div>
+        </ul>
+      </div>
+    </div>
+    <div class="side-project">
+      <div class="wrap">
+        <div class="content">
+          <div class="item-wrap">
+            <h2>Side project</h2>
+            <div class="item react">
+              <h3 class="title">Topic chat</h3>
+              <client-only>
+                <swiper
+                  :modules="modules"
+                  :slides-per-view="1"
+                  :autoplay="{ delay: 3000 }"
+                  :pagination="{ clickable: true, el: sideProjectPage1 }"
+                  :loop="true"
+                  class="slider swiperReact"
+                >
+                  <swiper-slide>
+                    <img src="@/assets/images/my-topic1.jpg" alt="my-topic" />
+                  </swiper-slide>
+                  <swiper-slide>
+                    <img src="@/assets/images/my-topic2.jpg" alt="my-topic" />
+                  </swiper-slide>
+                  <swiper-slide>
+                    <img src="@/assets/images/my-topic2.jpg" alt="my-topic" />
+                  </swiper-slide>
+                </swiper>
+              </client-only>
+              <!-- <h3>Topic chat</h3> -->
+              <p class="text">
+                An easy to use multiplayer chat web application.
+              </p>
+              <NuxtLink to="/" class="visit"> Visit </NuxtLink>
+              <div ref="sideProjectPage1" class="swiper-pagination" />
+            </div>
+          </div>
+          <div class="item vue">
+            <h3 class="title">Diary box</h3>
+            <client-only>
+              <swiper
+                :modules="modules"
+                :slides-per-view="1"
+                :autoplay="{ delay: 3000 }"
+                :pagination="{ clickable: true, el: sideProjectPage2 }"
+                :loop="true"
+                class="slider swiperVue"
+              >
+                <swiper-slide>
+                  <img src="@/assets/images/diary-box1.jpg" alt="diaryBox" />
+                </swiper-slide>
+                <swiper-slide>
+                  <img src="@/assets/images/my-topic2.jpg" alt="diaryBox" />
+                </swiper-slide>
+                <swiper-slide>Slide 3</swiper-slide>
+              </swiper>
+            </client-only>
+            <!-- <h3>Diary box</h3> -->
+            <p class="text">
+              A web application that combines diary and 3d games.
+            </p>
+            <a href="https://diary-box.6yuwei.com" class="visit" target="_blank"
+              >visit</a
+            >
+            <div ref="sideProjectPage2" class="swiper-pagination" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="other" v-if="false">
+      <div class="wrap">
+        <div class="head">
+          <h2>Other front-end<br />works</h2>
+          <!-- <div class="num">
+            12
+          </div> -->
+        </div>
+      </div>
+      <div class="content">
+        <div v-for="(item, i) in other" :key="item.title" class="item">
+          <a :href="item.url" target="_blank">
+            <img :src="`/images/other${i + 1}.jpg`" :alt="`other${i + 1}`" />
+          </a>
+          <div class="text-box">
+            <p class="enTitle">
+              {{ item.enTitle }}
+            </p>
+            <p class="title">
+              {{ item.title }}
+            </p>
+            <a class="linkBtn" href="item.url" target="_blank">Link</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="blog">
+      <div class="wrap">
+        <h2>Recent posts by Blogs</h2>
+        <div class="content">
+          <div v-for="(obj, i) in posts" :key="i" class="item">
+            <div class="imgBox">
+              <a :href="obj.permalink" target="_blank">
+                <img v-if="obj.imgUrl" :src="obj.imgUrl" :alt="obj.title" />
+              </a>
+            </div>
+            <div class="text-box">
+              <h3>
+                <a :href="obj.permalink" target="_blank">{{ obj.title }}</a>
+              </h3>
+              <p class="description">
+                {{ obj.excerpt }}
+              </p>
+              <a :href="obj.permalink" class="btn" target="_blank"> More </a>
+            </div>
+          </div>
+        </div>
+        <a href="https://blog.6yuwei.com/" class="seeMore" target="_blank"
+          >see more</a
+        >
+      </div>
+    </div>
+    <div class="threedcgs">
+      <div class="wrap">
+        <h2>3DCGs</h2>
+      </div>
+      <div class="content">
+        <client-only>
+          <swiper
+            class="swiper3DCGS"
+            :modules="modules"
+            :loop="true"
+            :slides-per-view="1"
+            :autoplay="{ delay: 3000 }"
+            :pagination="{ clickable: true, el: threeDCGsPage }"
+            :breakpoints="{
+              1600: {
+                slidesPerView: 4
+              },
+              1200: {
+                slidesPerView: 3
+              },
+              720: {
+                slidesPerView: 2
+              }
+            }"
+          >
+            <swiper-slide v-for="(item, i) in threeDCGs" :key="i">
+              <div class="item">
+                <div class="imgBox">
+                  <a href="">
+                    <img :src="`/images/${item.imgName}.jpg`" alt="my-topic" />
+                  </a>
+                </div>
+                <div class="text-box">
+                  <p class="enTitle">
+                    {{ item.enTitle }}
+                  </p>
+                  <h3 class="title">
+                    {{ item.title }}
+                  </h3>
+                </div>
+              </div>
+            </swiper-slide>
+          </swiper>
+        </client-only>
+        <div ref="threeDCGsPage" class="swiper-pagination" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { Pagination, Autoplay } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import "swiper/css";
+
+interface Post {
+  data: string;
+  title: string;
+  excerpt: string;
+  permalink: string;
+  updated: string;
+  imgUrl: string;
+}
+
+useHead({
+  title: "Home",
+  titleTemplate: "%s - 6yuwei",
+  meta: [
+    {
+      hid: "description",
+      name: "description",
+      content: "6yuwei home page",
+    },
+  ],
+});
+
+const banner = ref<HTMLDivElement | null>(null);
+const nowYear = new Date().getFullYear() - 2021;
+const modules = [Pagination, Autoplay];
+const sideProjectPage1 = ref<HTMLDivElement | null>(null);
+const sideProjectPage2 = ref<HTMLDivElement | null>(null);
+const threeDCGsPage = ref<HTMLDivElement | null>(null);
+const other = [
+  {
+    title: "說酒人貿易",
+    enTitle: "DixitWine",
+    url: "https://www.dixitwine.com/",
+  },
+  {
+    title: "拾隱空間設計",
+    enTitle: "Shiyin Space Design",
+    url: "https://www.10yin-design.com.tw/",
+  },
+  {
+    title: "薇閣精品旅館-大直館",
+    enTitle: "Wego Boutique Hotel-Dazhi",
+    url: "https://dazhi.we-go.com.tw/",
+  },
+  {
+    title: "權衡國際",
+    enTitle: "OUTDOOR FUN TAIWAN",
+    url: "https://www.oft.com.tw/",
+  },
+  {
+    title: "旭鴻藥業",
+    enTitle: "XU HONG",
+    url: "https://www.xuhong.tw/",
+  },
+  {
+    title: "太聯事業",
+    enTitle: "AUK CONTRACTORS CO.,LTD.",
+    url: "https://www.aukconnector.com/",
+  },
+  {
+    title: "大塚科技",
+    enTitle: "Otuska",
+    url: "https://www.otsuka-tw.com/",
+  },
+  {
+    title: "喬楀實業有限公司",
+    enTitle: "Auto bruce",
+    url: "https://www.auto-bruce.com/",
+  },
+];
+const threeDCGs = [
+  {
+    title: "人物建模",
+    enTitle: "Character modeling",
+    imgName: "3dcg1",
+  },
+  {
+    title: "小木屋",
+    enTitle: "Cabin",
+    imgName: "3dcg2",
+  },
+  {
+    title: "小木屋",
+    enTitle: "Cabin",
+    imgName: "3dcg3",
+  },
+  {
+    title: "室內場景",
+    enTitle: "Indoor Scenes",
+    imgName: "3dcg4",
+  },
+];
+const { data: blogsJson } = await useFetch("https://blog.6yuwei.com/api.php");
+const posts = ref<Post[] | null>(null);
+
+onMounted(() => {
+  if (blogsJson.value) {
+    posts.value = JSON.parse(blogsJson.value as string).posts as Post[];
+    if (posts.value.length > 3) {
+      posts.value = posts.value.slice(0, 3);
+      getImgLink();
+    }
+  }
+});
+
+const getImgLink = async () => {
+  const resAry: Promise<Boolean>[] = [];
+  if (!posts.value) return;
+  // 檢查圖片是否存在
+  posts.value.forEach((item) => {
+    const img = new Image();
+    img.src = `${item.permalink}cover.jpg`;
+    const res: Promise<Boolean> = new Promise((resolve, reject) => {
+      img.onload = () => {
+        resolve(true);
+      };
+      img.onerror = (err) => {
+        resolve(false);
+      };
+    });
+    resAry.push(res);
+  });
+  await Promise.all(resAry).then((res) => {
+    res.forEach((item, index) => {
+      if (item && posts.value) {
+        posts.value[index].imgUrl = `${posts.value[index].permalink}cover.jpg`;
+      }
+    });
+  });
+};
+const scrollDown = () => {
+  if (banner.value) {
+    const top = banner.value.getBoundingClientRect().height;
+    window.scrollTo({
+      top,
+      behavior: "smooth",
+    });
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.banner {
+  height: 950px;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  @include media(1200) {
+    height: auto;
+  }
+  .text-box {
+    flex-shrink: 0;
+    max-width: 695px;
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    padding-top: 110px;
+    @include media(1600) {
+      max-width: 660px;
+      padding-left: 30px;
+    }
+    @include media(1500) {
+      max-width: 620px;
+    }
+    @include media(1400) {
+      max-width: 40%;
+    }
+    @include media(1300) {
+      max-width: 45%;
+    }
+    @include media(1200) {
+      padding: 0 20px;
+    }
+    @include media(1024) {
+      order: 2;
+      max-width: none;
+      padding: 0;
+      padding-bottom: 30px;
+    }
+    @include media(720) {
+    }
+  }
+  h1 {
+    font-size: 52px;
+    margin: 0;
+    letter-spacing: 0.8px;
+    color: $secColor;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    @include media(1600) {
+      font-size: 48px;
+      line-height: 1.3;
+    }
+    @include media(1400) {
+      font-size: 40px;
+    }
+    @include media(1200) {
+      font-size: 36px;
+    }
+    @include media(720) {
+      font-size: 32px;
+    }
+    span {
+      background: -webkit-linear-gradient(180deg, $mainColor, $secColor);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+  p {
+    margin-top: 0;
+    color: #8e8e8e;
+    font-size: 24px;
+    font-weight: 500;
+    width: 480px;
+    line-height: 36px;
+    letter-spacing: 0.015em;
+    margin-bottom: 24px;
+    @include media(1600) {
+      font-size: 20px;
+    }
+    @include media(1200) {
+      font-size: 18px;
+      word-break: break-all;
+      display: block;
+      width: 100%;
+    }
+  }
+  .visualWrap {
+    flex-grow: 1;
+    padding-top: 145px;
+    padding-bottom: 45px;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    @include media(1200) {
+      height: 550px;
+      padding-top: 105px;
+      padding-bottom: 30px;
+    }
+    @include media(1024) {
+      order: 1;
+      height: 450px;
+    }
+    @include media(540) {
+      order: 1;
+      height: 400px;
+    }
+    @include media(420) {
+      order: 1;
+      height: 340px;
+    }
+    @include media(375) {
+      order: 1;
+      height: 310px;
+    }
+  }
+  .wrap {
+    @include media(1024) {
+      flex-direction: column;
+    }
+  }
+  > .socialList {
+    @include media(1200) {
+      display: none;
+    }
+  }
+}
+
+h2 {
+  font-size: 52px;
+  color: $secColor;
+  line-height: 78px;
+  letter-spacing: 0.015em;
+  // box-shadow: inset 0 -10px $mainColor;
+  @include media(1400) {
+    font-size: 48px;
+    line-height: 1.5;
+  }
+  @include media(1200) {
+    font-size: 45px;
+    line-height: 1.5;
+  }
+  @include media(840) {
+    font-size: 36px;
+  }
+}
+
+.wrap {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.about {
+  // min-height: 696px;
+  background: $secColor;
+  padding: 100px 0;
+  box-sizing: border-box;
+  @include media(1600) {
+    padding: 90px 0 80px;
+  }
+  @include media(1200) {
+    padding: 70px 0 60px;
+  }
+  @include media(840) {
+    padding: 50px 0 40px;
+  }
+  .wrap {
+    display: flex;
+    align-items: stretch;
+    @include media(840) {
+      flex-direction: column;
+      padding: 0 20px;
+    }
+    @include media(540) {
+      padding: 0 20px;
+    }
+  }
+  .photo {
+    border-radius: 20px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    @include media(1024) {
+      // margin-bottom: 30px;
+      width: 300px;
+      margin-right: 20px;
+    }
+    @include media(840) {
+      // max-width: 540px;
+      width: 100%;
+      height: 360px;
+      margin-right: 20px;
+      margin-bottom: 30px;
+    }
+    @include media(540) {
+      height: 200px;
+    }
+    img {
+      opacity: 0.8;
+      object-fit: cover;
+      @include media(1600) {
+        width: 500px;
+      }
+      @include media(1200) {
+        width: 400px;
+      }
+      @include media(1024) {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  .text-box {
+    padding-left: 100px;
+    @include media(1600) {
+      padding-left: 60px;
+    }
+    @include media(1400) {
+      padding-left: 40px;
+    }
+    @include media(1200) {
+      padding-left: 20px;
+    }
+    @include media(1024) {
+      padding-left: 0;
+    }
+    h2 {
+      font-weight: bold;
+      letter-spacing: 0.015em;
+      color: $mainColor;
+      margin-bottom: 10px;
+      @include media(1600) {
+        font-size: 48px;
+        line-height: 52px;
+      }
+      @include media(1400) {
+        font-size: 36px;
+      }
+    }
+    p {
+      font-size: 24px;
+      color: #d3d3d3;
+      font-weight: 500;
+      line-height: 1.5;
+      letter-spacing: 1px;
+      padding-right: 8px;
+      @include media(1600) {
+        font-size: 22px;
+      }
+      @include media(1400) {
+        font-size: 20px;
+      }
+      &:nth-of-type(2) {
+        margin-top: 20px;
+        @include media(1600) {
+          margin-top: 10px;
+        }
+      }
+    }
+    b {
+      color: $mainColor;
+    }
+  }
+}
+
+.advantages {
+  background-color: #edf7f4;
+  padding: 100px 0;
+  @include media(1200) {
+    padding: 85px 0 85px;
+  }
+  @include media(720) {
+    padding: 42px 0 70px;
+  }
+  .list {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    @include media(720) {
+      flex-direction: column;
+    }
+    .item {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      @include media(1200) {
+        margin: 28px 0;
+      }
+      .icon {
+        margin-bottom: 10px;
+        img {
+          width: 130px;
+          height: 130px;
+          @include media(1200) {
+            width: 90px;
+            height: 90px;
+          }
+        }
+      }
+      .num {
+        font-size: 62px;
+        color: $mainColor;
+        font-weight: bold;
+        margin-bottom: 10px;
+        @include media(1200) {
+          font-size: 48px;
+        }
+      }
+      .text {
+        font-size: 30px;
+        font-weight: bold;
+        color: $secColor;
+        @include media(1200) {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+}
+
+.side-project {
+  padding: 130px 0 70px 0;
+  @include media(1400) {
+    padding: 90px 0 90px 0;
+  }
+  @include media(1200) {
+    padding: 60px 0 80px 0;
+  }
+  h2 {
+    color: $secColor;
+    letter-spacing: 0.015em;
+    margin-bottom: 93px;
+    @include media(1400) {
+      margin-bottom: 60px;
+    }
+    @include media(840) {
+      margin-bottom: 40px;
+    }
+  }
+  .item-wrap {
+    width: calc(50% - 60px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    // padding-right: 30px;
+    box-sizing: border-box;
+    margin: 0 30px;
+    flex-grow: 1;
+    @include media(1400) {
+      margin: 0 10px;
+      width: calc(50% - 20px);
+    }
+    @include media(840) {
+      width: calc(100% - 20px);
+      margin-bottom: 40px;
+    }
+  }
+  .item {
+    padding: 45px 45px 80px 45px;
+    // min-height: 800px;
+    box-shadow: 0 0 52px rgba(40, 203, 146, 0.3);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    flex-grow: 1;
+    position: relative;
+    @include media(1400) {
+      padding: 30px 20px 30px 20px;
+    }
+    > p.title {
+      font-size: 45px;
+      font-weight: bold;
+      line-height: 1.5;
+      margin-bottom: 28px;
+      @include media(1400) {
+        font-size: 36px;
+      }
+    }
+    > p.text {
+      font-size: 20px;
+      color: #fff;
+      min-height: 60px;
+      font-size: 20px;
+      line-height: 30px;
+      letter-spacing: 0.015em;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+    :deep(.swiper-pagination) {
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: auto;
+      @include media(1400) {
+        bottom: 45px;
+        left: 10px;
+        transform: none;
+        max-width: calc(100% - 120px);
+      }
+    }
+    border-radius: 16px;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    .slider {
+      width: 100%;
+      height: 305px;
+      background-color: #e1e1e1;
+      border-radius: 10px;
+      @include media(1200) {
+        height: 280px;
+      }
+      @include media(840) {
+        height: 240px;
+      }
+    }
+    .swiper-slide {
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    h3 {
+      font-size: 36px;
+      color: #fff;
+      margin-top: 24px;
+      margin-bottom: 16px;
+      @include media(1200) {
+        font-size: 28px;
+      }
+    }
+    .visit {
+      width: 180px;
+      height: 52px;
+      border-radius: 999px;
+      font-size: 24px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      align-self: flex-end;
+      justify-content: center;
+      @extend %ts;
+      @include media(1400) {
+        height: 44px;
+        font-size: 20px;
+        width: 120px;
+      }
+    }
+  }
+  .react {
+    width: auto;
+    display: flex;
+    background-color: #1f2229;
+    :deep(.swiper-pagination-bullet-active) {
+      background-color: #60dbfa;
+    }
+    .title {
+      color: #60dbfa;
+    }
+    .visit {
+      background-color: #60dbfa;
+      color: #1f2229;
+      &:hover {
+        background-color: darken(#60dbfa, 15%);
+      }
+    }
+  }
+  .vue {
+    margin-left: 30px;
+    margin-top: 12px;
+    background: #34495e;
+    width: calc(50% - 60px);
+    margin: 0 30px;
+    min-width: 0;
+    @include media(1400) {
+      margin: 0 10px;
+      width: calc(50% - 20px);
+    }
+    @include media(840) {
+      width: calc(100% - 20px);
+    }
+    :deep(.swiper-pagination-bullet-active) {
+      background-color: #41b883;
+    }
+    .title {
+      color: #41b883;
+    }
+    .visit {
+      background-color: #41b883;
+      color: #34495e;
+      &:hover {
+        background-color: saturate(#41b883, 15%);
+      }
+    }
+  }
+  .content {
+    display: flex;
+    margin: 0 -30px;
+    align-items: flex-start;
+    @include media(1400) {
+      margin: 0 -10px;
+    }
+    @include media(840) {
+      flex-direction: column;
+    }
+  }
+  .wrap {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    max-width: 1360px;
+  }
+}
+
+.other {
+  padding-bottom: 90px;
+  @include media(1400) {
+    padding-bottom: 60px;
+  }
+  @include media(840) {
+    padding-bottom: 40px;
+  }
+  .head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    .num {
+      font-weight: bold;
+      font-size: 80px;
+      line-height: 120px;
+      color: $mainColor;
+    }
+  }
+  h2 {
+    font-weight: bold;
+    color: $secColor;
+    text-align: right;
+    margin-bottom: 60px;
+    @include media(840) {
+      margin-bottom: 40px;
+    }
+  }
+  .wrap {
+    display: block;
+    max-width: 1360px;
+  }
+  .content {
+    margin: 0 -2px;
+    display: flex;
+    flex-wrap: wrap;
+    .item {
+      width: calc(25% - 4px);
+      margin: 0 2px 4px 2px;
+      position: relative;
+      box-sizing: border-box;
+      @include media(1400) {
+        width: calc(33.33% - 4px);
+      }
+      @include media(1024) {
+        width: calc(50% - 4px);
+      }
+      @include media(640) {
+        width: calc(100% - 4px);
+      }
+      > a {
+        display: block;
+        width: 100%;
+        height: 340px;
+        overflow: hidden;
+        img {
+          height: 100%;
+          object-fit: cover;
+          object-position: top center;
+          width: 100%;
+          @extend %ts;
+        }
+        &:hover {
+          & + .text-box {
+            opacity: 1;
+          }
+          img {
+            transform: scale(1.1);
+          }
+        }
+      }
+      .text-box {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        background-color: rgba($secColor, 0.7);
+        color: $terColor;
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: 0.8px;
+        box-sizing: border-box;
+        flex-direction: column;
+        text-align: left;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 32px 20px;
+        @extend %ts;
+        .enTitle {
+          font-size: 30px;
+          margin-bottom: 20px;
+          font-weight: bold;
+          line-height: 1.2;
+        }
+        .title {
+          font-size: 18px;
+          flex-grow: 1;
+        }
+        .linkBtn {
+          padding: 8px 16px;
+          background-color: $terColor;
+          align-self: flex-end;
+          width: auto;
+          height: auto;
+          color: $secColor;
+          border-radius: 99px;
+          font-size: 20px;
+          color: $mainColor;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}
+
+.blog {
+  padding: 70px 0 130px 0;
+  padding-bottom: 60px;
+  background: linear-gradient($terColor, lighten($terColor, 10%));
+  @include media(1400) {
+    padding-top: 90px;
+  }
+  @include media(1200) {
+    padding-bottom: 40px;
+    padding-top: 60px;
+  }
+  @include media(840) {
+    padding-top: 40px;
+  }
+  h2 {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 75px;
+    @include media(1200) {
+      margin-bottom: 40px;
+    }
+  }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    max-width: 1360px;
+  }
+  .content {
+    display: flex;
+    margin: 0 -20px;
+    margin-bottom: 60px;
+    @include media(720) {
+      flex-wrap: wrap;
+    }
+    @include media(1200) {
+      margin: 0 -10px;
+      margin-bottom: 45px;
+    }
+    @include media(840) {
+      margin-bottom: 20px;
+    }
+    .item {
+      width: 33.33%;
+      margin: 0 20px;
+      background-color: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0px 0px 16px rgba(40, 203, 146, 0.3);
+      @extend %ts;
+      @include media(1200) {
+        margin: 0 10px;
+      }
+      @include media(720) {
+        width: 100%;
+        margin-bottom: 40px;
+      }
+      &:hover {
+        box-shadow: 0px 18px 36px rgba(40, 203, 146, 0.3);
+      }
+      .imgBox {
+        overflow: hidden;
+        background: no-repeat url(@/assets/images/default.svg) center $mainColor;
+        display: flex;
+        height: 300px;
+        @include media(1200) {
+          height: 240px;
+        }
+        @include media(840) {
+          height: 200px;
+        }
+        @include media(720) {
+          height: 260px;
+        }
+        a {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          &:hover {
+            img {
+              transform: scale(1.1);
+            }
+          }
+        }
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          @extend %ts;
+          @include media(1200) {
+            height: auto;
+          }
+        }
+      }
+      .text-box {
+        padding: 32px;
+        display: flex;
+        width: 100%;
+        box-sizing: border-box;
+        color: $secColor;
+        flex-direction: column;
+        @include media(1200) {
+          padding: 20px;
+        }
+        h3 {
+          font-weight: bold;
+          font-size: 28px;
+          line-height: 42px;
+          letter-spacing: 0.015em;
+          margin: 0;
+          margin-bottom: 16px;
+          width: 100%;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          @include media(1200) {
+            font-size: 24px;
+            margin-bottom: 8px;
+          }
+          @include media(840) {
+            font-size: 20px;
+            margin-bottom: 0px;
+          }
+          a {
+            color: $secColor;
+            @extend %ts;
+            &:hover {
+              color: $mainColor;
+            }
+          }
+        }
+        p {
+          display: -webkit-box;
+          font-style: normal;
+          font-weight: 500;
+          font-size: 20px;
+          line-height: 30px;
+          letter-spacing: 0.015em;
+          width: 100%;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          margin-bottom: 32px;
+          @include media(1200) {
+            margin-bottom: 20px;
+          }
+          @include media(840) {
+            font-size: 16px;
+          }
+        }
+      }
+      // .more {
+      //   width: 180px;
+      //   height: 52px;
+      //   border-radius: 99px;
+      //   background-color: $mainColor;
+      //   font-weight: bold;
+      //   font-size: 24px;
+      //   line-height: 36px;
+      //   letter-spacing: 0.015em;
+      //   display: flex;
+      //   color: $secColor;
+      //   @include center;
+      //   align-self: flex-end;
+      //   @extend %ts;
+      //   @include media(1200) {
+      //     width: 120px;
+      //     font-size: 20px;
+      //     height: 44px;
+      //   }
+      //   &:hover {
+      //     background-color: $secColor;
+      //     color: $mainColor;
+      //   }
+      // }
+    }
+  }
+  .seeMore {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 32px;
+    line-height: 48px;
+    color: $mainColor;
+    text-align: center;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    &:hover {
+      &::after {
+        width: 100%;
+      }
+    }
+    &::after {
+      content: "";
+      width: 0;
+      height: 5px;
+      background: $mainColor;
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      @extend %ts;
+    }
+  }
+}
+
+.threedcgs {
+  background-color: lighten($terColor, 10%);
+  padding-bottom: 160px;
+  padding-top: 90px;
+  overflow: hidden;
+  @include media(1600) {
+    padding: 60px 0 100px;
+  }
+  @include media(1200) {
+    padding-top: 40px;
+    padding-bottom: 90px;
+  }
+  @include media(840) {
+    padding-top: 20px;
+    padding-bottom: 80px;
+  }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    max-width: 1360px;
+  }
+  h2 {
+    margin-bottom: 75px;
+    @include media(1200) {
+      margin-bottom: 40px;
+    }
+  }
+  .content {
+    position: relative;
+    // margin: 0 -45px;
+    // height: 415px;
+    margin-right: -90px;
+    @include media(1600) {
+      height: auto;
+    }
+    @include media(1200) {
+      margin: 0;
+    }
+  }
+  .swiper-wrapper {
+    padding: 20px 0;
+  }
+  :deep(.swiper-slide) {
+    display: flex;
+    padding: 0 20px;
+    box-sizing: border-box;
+    width: 672px;
+    position: relative;
+    @include media(1600) {
+      width: auto;
+    }
+    .imgBox {
+      border-radius: 16px;
+      overflow: hidden;
+      width: 100%;
+      // border: 1px solid #b3b3b3;
+      box-shadow: 0px 0px 16px rgba(40, 203, 146, 0.3);
+      display: flex;
+      align-items: stretch;
+      a {
+        display: flex;
+        cursor: pointer;
+        width: 100%;
+      }
+    }
+    img {
+      object-fit: cover;
+      width: 100%;
+      height: 360px;
+      @extend %ts;
+      @include media(1600) {
+        height: 300px;
+      }
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+    .item {
+      position: relative;
+      display: flex;
+      width: 100%;
+      &:hover {
+        .text-box {
+          opacity: 1;
+        }
+      }
+    }
+    .text-box {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: rgba($mainColor, 0.5);
+      top: 0;
+      left: 0;
+      border-radius: 16px;
+      padding: 32px 20px;
+      box-sizing: border-box;
+      color: #fff;
+      opacity: 0;
+      pointer-events: none;
+      @extend %ts;
+      .enTitle {
+        font-size: 30px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        line-height: 1.2;
+      }
+      .title {
+        font-size: 18px;
+        flex-grow: 1;
+      }
+    }
+  }
+}
+
+.scroll-down {
+  position: absolute;
+  bottom: 0;
+  @include center(transform, x);
+  background: no-repeat url(@/assets/images/scroll.svg) center/cover;
+  width: 53px;
+  height: 128px;
+  border: 0;
+  cursor: pointer;
+  @include media(1200) {
+    display: none;
+  }
+}
+
+:deep(.swiper-pagination) {
+  display: flex;
+  @include center(transform, x);
+  bottom: -50px;
+  span {
+    display: flex;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    border-radius: 99px;
+    margin: 0 10px;
+    @extend %ts;
+    &.swiper-pagination-bullet {
+      background-color: $secColor;
+      opacity: 1;
+      &-active {
+        background-color: $mainColor;
+        width: 40px;
+      }
+    }
+  }
+}
+</style>

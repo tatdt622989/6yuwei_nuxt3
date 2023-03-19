@@ -1,0 +1,130 @@
+$mainColor: #28cb92;
+$secColor: #3f3f3f;
+$terColor: #dfeeea;
+
+$dangerColor: #e75e5e;
+
+// 填入數字即可產生相應寬度的@media
+// 正數為max-width、負數為min-width
+// $w: int
+@mixin media($w) {
+    @if ($w < 0) {
+        @media (min-width: (-$w + px)) {
+            @content;
+        }
+    } @else {
+        @media (max-width: ($w + px)) {
+            @content;
+        }
+    }
+}
+
+// $type(option): flex, transform, margin
+// $axis(option): x, y, all
+@mixin center($type: flex, $axis: all) {
+    @if ($type == flex) {
+        display: flex;
+        @if ($axis == x or $axis == all) {
+            justify-content: center;
+        }
+        @if ($axis == y or $axis == all) {
+            align-items: center;
+        }
+    }
+    @if ($type == transform) {
+        position: absolute;
+        @if ($axis == x) {
+            right: auto;
+            left: 50%;
+            transform: translateX(-50%);
+            @content;
+        }
+        @if ($axis == y) {
+            bottom: auto;
+            top: 50%;
+            transform: translateY(-50%);
+            @content;
+        }
+        @if ($axis == all) {
+            top: 50%;
+            bottom: auto;
+            left: 50%;
+            right: auto;
+            transform: translate(-50%, -50%);
+            @content;
+        }
+    }
+    @if ($type == margin) {
+        margin: 0 auto;
+    }
+}
+
+@keyframes swingY {
+    from {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@mixin swingY($speed: 1s) {
+    animation: swingY $speed ease-in-out infinite;
+}
+
+@mixin beats($speed: 1s, $addStyle: "") {
+    @keyframes beats {
+        from {
+            transform: scale(1) $addStyle;
+        }
+        50% {
+            transform: scale(1.1) $addStyle;
+        }
+        to {
+            transform: scale(1) $addStyle;
+        }
+    }
+    animation: beats $speed ease-in-out infinite;
+}
+
+@mixin after($text: "", $pos: "absolute") {
+    &::after {
+        content: $text;
+        position: $pos;
+        @content;
+    }
+}
+
+@mixin before($text: "", $pos: "absolute") {
+    &::before {
+        content: $text;
+        position: $pos;
+        @content;
+    }
+}
+
+%ts {
+    transition: all 0.2s ease-out;
+}
+
+@mixin btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0;
+    background-color: transparent;
+    // border: 2px solid $secColor;
+    cursor: pointer;
+    @extend %ts;
+    width: 44px;
+    height: 44px;
+    border-radius: 99px;
+    background-color: lighten($terColor, 10%);
+    &:hover {
+        background-color: $mainColor;
+    }
+    @content;
+}
