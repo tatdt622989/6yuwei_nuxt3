@@ -16,7 +16,11 @@ onMounted(async () => {
 
 watchEffect(() => {
   if (route.path.includes('/admin')) {
-    layout.value = 'admin-default';
+    if (route.path.includes('/admin/login') || route.path.includes('/admin/signup')) {
+      layout.value = 'no-layout';
+    } else {
+      layout.value = 'admin-default';
+    }
   } else {
     layout.value = 'default';
   }
