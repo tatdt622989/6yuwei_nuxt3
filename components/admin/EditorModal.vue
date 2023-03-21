@@ -93,7 +93,7 @@
               </div>
               <div class="col-12">
                 <client-only>
-                  <TheTextEditor />
+                  <AdminTextEditor />
                 </client-only>
               </div>
               <div class="col-12">
@@ -163,6 +163,7 @@
 <script lang="ts" setup>
 import { Pagination, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
+import "swiper/css";
 
 const props = defineProps({
   isOpenProp: {
@@ -193,7 +194,6 @@ const closeModal = () => {
 
 <style lang="scss" scoped>
 @import "bootstrap/scss/bootstrap";
-@import "swiper/swiper.scss";
 
 #editorModal {
   @extend %ts;
@@ -211,6 +211,7 @@ const closeModal = () => {
   .modal-content {
     border-radius: 12px;
     box-shadow: 0 0 10px rgba($terColor, 0.5);
+    background: #fff;
   }
   .modal-footer {
     border-top: 1px solid $terColor;
@@ -219,6 +220,13 @@ const closeModal = () => {
       padding: 10px 20px;
       border-radius: 12px;
       border: 0;
+      background-color: $mainColor;
+      color: $secColor;
+      font-weight: bold;
+      &:hover {
+        color: $mainColor;
+        background-color: $secColor;
+      }
     }
   }
   &.open {
@@ -307,6 +315,7 @@ const closeModal = () => {
   }
   .files-list {
     margin-bottom: 20px;
+    padding-left: 0;
     .file-item {
       display: flex;
       align-items: center;

@@ -96,7 +96,7 @@
         <AdminPagination />
       </div>
     </div>
-    <EditorModal :is-open-prop="editorModal" :action="editorModalAction" @close-modal="closeModal" />
+    <AdminEditorModal :is-open-prop="editorModal" :action="editorModalAction" @close-modal="closeModal" />
   </div>
 </template>
 

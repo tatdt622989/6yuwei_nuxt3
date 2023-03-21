@@ -18,11 +18,13 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.4.7",
+    "@tiptap/extension-code-block-lowlight": "^2.0.0-beta.220",
     "@tiptap/pm": "^2.0.0-beta.220",
     "@tiptap/starter-kit": "^2.0.0-beta.220",
     "@tiptap/vue-3": "^2.0.0-beta.220",
     "bootstrap": "^5.3.0-alpha1",
     "bootstrap-icons": "^1.10.3",
+    "lowlight": "^2.8.1",
     "pinia": "^2.0.33",
     "swiper": "^8.4.7"
   }
