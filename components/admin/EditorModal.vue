@@ -7,7 +7,6 @@
       tabindex="-1"
       aria-labelledby="editorModalLabel"
       aria-hidden="true"
-      @click="closeModal"
     >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" @click="(e) => e.stopPropagation()">
@@ -200,6 +199,11 @@ const closeModal = () => {
   display: block;
   backdrop-filter: blur(5px);
   background-color: rgba($mainColor, 0.1);
+  .btn-close {
+    &:focus, &:focus-visible {
+      box-shadow: none;
+    }
+  }
   .modal-dialog {
     max-width: 1000px;
   }
@@ -240,15 +244,11 @@ const closeModal = () => {
     transition: all .5s ease-out !important;
   }
 
-  &.modal-fade-enter,
+  &.modal-fade-enter-from,
   &.modal-fade-leave-to {
     opacity: 0 !important;
   }
 
-  &.modal-fade-enter-to,
-  &.modal-fade-leave {
-    opacity: 1 !important;
-  }
   form {
     input, select, textarea {
       border: 2px solid darken($terColor, 10%);

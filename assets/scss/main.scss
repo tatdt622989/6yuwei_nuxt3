@@ -68,3 +68,16 @@ a {
     color: $mainColor;
   }
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: $terColor;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $mainColor;
+  border-radius: 99px;
+}

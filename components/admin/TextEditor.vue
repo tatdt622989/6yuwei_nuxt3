@@ -28,22 +28,37 @@
       >
         <span class="material-icons"> terminal </span>
       </button>
-      <select class="form-control" name="" id="">
-        <option value="">Normal</option>
-        <option value="h1">H1</option>
-        <option value="h2">H2</option>
-        <option value="h3">H3</option>
-        <option value="h4">H4</option>
-        <option value="h5">H5</option>
-        <option value="h6">H6</option>
+      <label id="color-selector">
+        <input
+          type="color"
+          @input="(e) => setColor(e)"
+          :value="editor.getAttributes('textStyle').color"
+        />
+        <span class="material-icons"> format_color_text </span>
+      </label>
+      <select
+        class="form-control"
+        id="text-selector"
+        v-model="textSelector"
+        @change="changeTextSelector"
+      >
+        <option value="Normal">Normal</option>
+        <option value="1">H1</option>
+        <option value="2">H2</option>
+        <option value="3">H3</option>
+        <option value="4">H4</option>
+        <option value="5">H5</option>
+        <option value="6">H6</option>
       </select>
     </div>
-    <editor-content :editor="editor" />
+    <editor-content class="text-editor-content" :editor="editor" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import TextStyle from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
 import StarterKit from "@tiptap/starter-kit";
 import css from "highlight.js/lib/languages/css";
@@ -56,6 +71,8 @@ lowlight.registerLanguage("html", html);
 lowlight.registerLanguage("css", css);
 lowlight.registerLanguage("js", js);
 lowlight.registerLanguage("ts", ts);
+
+const textSelector = ref("");
 
 const editor = useEditor({
   content: `
@@ -79,10 +96,49 @@ const editor = useEditor({
       `,
   extensions: [
     StarterKit,
+    Color,
+    TextStyle,
     CodeBlockLowlight.configure({
       lowlight,
     }),
   ],
+});
+
+const changeTextSelector = () => {
+  if (editor.value) {
+    if (textSelector.value === "Normal") {
+      editor.value.chain().focus().setParagraph().run();
+    } else {
+      console.log(parseInt(textSelector.value, 10) as 1 | 2 | 3 | 4 | 5 | 6);
+      editor.value
+        .chain()
+        .focus()
+        .setHeading({
+          level: parseInt(textSelector.value, 10) as 1 | 2 | 3 | 4 | 5 | 6,
+        })
+        .run();
+    }
+  }
+};
+
+const setColor = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (editor.value) {
+    editor.value.chain().focus().setColor(target.value).run();
+  }
+};
+
+// check if it's a heading and set the textSelector
+watchEffect(() => {
+  if (editor.value) {
+    if (editor.value.isActive("heading")) {
+      textSelector.value = editor.value
+        .getAttributes("heading")
+        .level.toString();
+    } else {
+      textSelector.value = "Normal";
+    }
+  }
 });
 </script>
 
@@ -96,6 +152,8 @@ const editor = useEditor({
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  align-content: stretch;
+  box-sizing: content-box;
 }
 :deep(.ProseMirror) {
   box-sizing: border-box;
@@ -103,6 +161,7 @@ const editor = useEditor({
   overflow: auto;
   min-width: 0;
   height: 248px;
+  width: 100%;
   &:focus-visible {
     outline: 0;
     box-shadow: none;
@@ -210,7 +269,10 @@ const editor = useEditor({
     }
   }
 }
+.text-editor-content {
+}
 .toolbar {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-start;
   padding: 5px 5px;
@@ -218,6 +280,8 @@ const editor = useEditor({
   background-color: lighten($terColor, 5%);
   margin: 0 -2.5px;
   align-items: center;
+  box-sizing: border-box;
+  min-width: 0;
   button {
     border: none;
     background: none;
@@ -239,6 +303,47 @@ const editor = useEditor({
     &.is-active {
       background-color: $mainColor;
     }
+  }
+}
+#text-selector {
+  height: 36px;
+  border-radius: 12px;
+  padding: 0 10px;
+  border: 0;
+  margin: 0 2.5px;
+  &:focus-visible {
+    outline: 0;
+    box-shadow: none;
+  }
+}
+#color-selector {
+  display: flex;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  @include center;
+  border-radius: 12px;
+  margin: 0 2.5px;
+  cursor: pointer;
+  z-index: 1;
+  &:hover {
+    background-color: darken($terColor, 10%);
+  }
+  span {
+    color: $secColor;
+    cursor: pointer;
+  }
+  input {
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    opacity: 0;
+    position: absolute;
+    z-index: 0;
   }
 }
 </style>
