@@ -5,7 +5,7 @@
         <span class="material-icons"> arrow_back </span>
       </NuxtLink>
     </div>
-    <form method="POST" action="">
+    <form method="POST" @submit.prevent="submit">
       <div class="logo">
         <img src="@/assets/images/logo.svg" alt="6yuwei">
         <!-- <h1>6yuwei</h1> -->
@@ -17,6 +17,7 @@
           type="text"
           name="name"
           class="form-control name"
+          v-model="username"
         >
       </div>
       <div class="inputBox">
@@ -27,6 +28,7 @@
           name="email"
           class="form-control account"
           aria-describedby="emailHelp"
+          v-model="email"
         >
       </div>
       <div class="inputBox mb-5">
@@ -36,6 +38,7 @@
           type="password"
           name="password"
           class="form-control password"
+          v-model="password"
         >
       </div>
       <div class="error_message" />
@@ -50,6 +53,28 @@
 </template>
 
 <script lang="ts" setup>
+const username = ref('');
+const email = ref('');
+const password = ref('');
+
+const submit = async () => {
+  const json = {
+    username: username.value,
+    email: email.value,
+    password: password.value,
+  };
+  const api = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://6yuwei.com';
+  useFetch(`${api}/signup/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(json),
+  })
+    .then((res) => {
+      console.log(res);
+    });
+}
 </script>
 
 <style scoped lang="scss">
