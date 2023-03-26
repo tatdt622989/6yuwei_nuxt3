@@ -41,6 +41,7 @@
       margin: 0;
       line-height: 52px;
       padding-left: 6px;
+      letter-spacing: 0.8px;
     }
   }
 }

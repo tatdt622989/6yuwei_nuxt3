@@ -42,7 +42,7 @@
         >
       </div>
       <div class="error_message" />
-      <button type="submit" class="btn btn-primary submit">
+      <button type="submit" class="btn btn-primary submit" :disabled="isLoading">
         Signup
       </button>
       <p class="note text-center mt-3">
@@ -53,27 +53,62 @@
 </template>
 
 <script lang="ts" setup>
+import { useStore } from '~/store';
+const store = useStore();
+const router = useRouter();
 const username = ref('');
 const email = ref('');
 const password = ref('');
+const isLoading = computed(() => store.isLoading);
 
 const submit = async () => {
+  store.setLoading(true);
   const json = {
     username: username.value,
     email: email.value,
     password: password.value,
   };
   const api = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://6yuwei.com';
-  useFetch(`${api}/signup/`, {
+  const res = await useFetch(`${api}/signup/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(json),
-  })
-    .then((res) => {
-      console.log(res);
+  });
+  store.setLoading(false);
+  if (res.data.value) {
+    interface SignupRes {
+      code: number;
+      msg: string;
+    }
+    const data = res.data.value as SignupRes;
+    const { code } = data;
+    if (code === 200) {
+      store.pushNotification({
+        id: Date.now(),
+        type: 'success',
+        message: 'Register successfully!',
+        timeout: 5000,
+      });
+      router.push('/admin/');
+    } else {
+      store.pushNotification({
+        id: Date.now(),
+        type: 'error',
+        message: data.msg,
+        timeout: 5000,
+      });
+    }
+  } else {
+    store.pushNotification({
+      id: Date.now(),
+      type: 'error',
+      message: 'Something went wrong, please try again later.',
+      timeout: 5000,
     });
+  }
+
 }
 </script>
 
@@ -86,6 +121,7 @@ const submit = async () => {
   justify-content: center;
   align-items: center;
   padding: 20px;
+  background-color: $terColor;
 }
 
 .head {

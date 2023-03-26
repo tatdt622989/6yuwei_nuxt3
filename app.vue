@@ -1,15 +1,17 @@
 <template>
   <div>
+    <LoadingBar />
     <NuxtLayout :name="layout">
       <NuxtPage />
     </NuxtLayout>
+    <Toast/>
   </div>
 </template>
 
 <script setup lang="ts">
 const layout = ref('default');
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
 onMounted(async () => {
 })

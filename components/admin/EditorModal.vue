@@ -216,6 +216,7 @@ const closeModal = () => {
     border-radius: 12px;
     box-shadow: 0 0 10px rgba($terColor, 0.5);
     background: #fff;
+    border: 0;
   }
   .modal-footer {
     border-top: 1px solid $terColor;

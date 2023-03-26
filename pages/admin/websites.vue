@@ -29,6 +29,7 @@
                 <th scope="col" width="90">
                   <label class="selector">
                     <input type="checkbox" name="">
+                    <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </th>
@@ -54,6 +55,7 @@
                 <td>
                   <label class="selector">
                     <input type="checkbox" name="">
+                    <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </td>
@@ -133,12 +135,14 @@ const closeModal = (name: string) => {
     border-top: 0;
     border-bottom: 1px solid lighten($terColor, 5%);
     background-color: lighten($terColor, 5%);
+    letter-spacing: 0.8px;
   }
   td {
     border-width: 0 0 1px 0;
     border-color: lighten($terColor, 5%);
     padding: 10px 20px;
     vertical-align: middle;
+    letter-spacing: 0.8px;
   }
   .preview-box {
     cursor: pointer;
@@ -188,12 +192,14 @@ const closeModal = (name: string) => {
       @extend %ts;
       vertical-align: middle;
       color: darken($terColor, 30%);
+      margin-right: 6px;
     }
 
     .text {
       @extend %ts;
       vertical-align: middle;
       font-weight: bold;
+      letter-spacing: 0.8px;
     }
   }
 }
@@ -201,12 +207,21 @@ const closeModal = (name: string) => {
 .selector {
   width: 24px;
   height: 24px;
-  border-radius: 6px;
-  background-color: #fff;
   position: relative;
   overflow: hidden;
-  border: 1px solid darken($terColor, 10%);
+  vertical-align: middle;
+  .bg {
+    border-radius: 6px;
+    background-color: #fff;    
+    display: flex;
+    width: 100%;
+    height: 100%;
+    border: 1px solid darken($terColor, 10%);
+    position: relative;
+  }
   .mark {
+    border-radius: 6px;
+    background-color: transparent;
     padding: 0;
     position: absolute;
     top: 50%;
@@ -215,8 +230,8 @@ const closeModal = (name: string) => {
     color: transparent;
     user-select: none;
     cursor: pointer;
-    width: calc(100% + 2px);
-    height: calc(100% + 2px);
+    width: 100%;
+    height: 100%;
   }
   input {
     opacity: 0;
@@ -224,12 +239,13 @@ const closeModal = (name: string) => {
     height: 0;
     position: absolute;
     &:checked {
-      & + .mark {
+      & ~ .mark {
         display: flex;
         width: 100%;
         height: 100%;
         color: #fff;
         background-color: $mainColor;
+        border-color: $mainColor;
         @include center;
       }
     }
@@ -288,6 +304,7 @@ const closeModal = (name: string) => {
   text-transform: capitalize;
   border-bottom: 1px solid lighten($terColor, 5%);
   padding: 8px 20px;
+  letter-spacing: 0.8px;
   .total,
   .selected {
     margin: 0;
@@ -296,6 +313,7 @@ const closeModal = (name: string) => {
   .total {
     font-weight: bold;
     font-size: 20px;
+    letter-spacing: 0.8px;
   }
   .right {
     align-items: center;
@@ -319,6 +337,8 @@ const closeModal = (name: string) => {
       background-color: transparent;
       color: #e75e5e;
       height: 44px;
+      display: flex;
+      align-items: center;
       &:hover {
         color: darken(#e75e5e, 10%);
       }

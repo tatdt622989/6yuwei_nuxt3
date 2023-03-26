@@ -32,6 +32,7 @@ const openModal = (name: string) => {
   width: auto;
   padding: 0 16px;
   margin: 0 8px;
+  letter-spacing: 0.8px;
   span {
     margin-right: 6px;
   }
