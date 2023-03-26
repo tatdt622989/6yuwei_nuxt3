@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { User } from "~/types";
 
 interface Toast {
   id: number;
@@ -9,9 +10,10 @@ interface Toast {
 
 export const useStore = defineStore("main", {
   state: () => ({
-    user: null,
+    user: null as User | null,
     notifications: [] as Toast[],
     isLoading: false,
+    api:  process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://6yuwei.com',
   }),
   getters: {},
   actions: {
@@ -21,7 +23,9 @@ export const useStore = defineStore("main", {
     pushNotification(notification: Toast) {
       this.notifications.push(notification);
       setTimeout(() => {
-        this.notifications = this.notifications.filter((n) => n.id !== notification.id);
+        this.notifications = this.notifications.filter(
+          (n) => n.id !== notification.id
+        );
       }, notification.timeout);
     },
     removeNotification(id: number) {
@@ -29,6 +33,9 @@ export const useStore = defineStore("main", {
     },
     setLoading(isLoading: boolean) {
       this.isLoading = isLoading;
+    },
+    setUser(user: User) {
+      this.user = user;
     },
   },
 });

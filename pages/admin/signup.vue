@@ -53,13 +53,19 @@
 </template>
 
 <script lang="ts" setup>
+import { User } from '~/types';
 import { useStore } from '~/store';
 const store = useStore();
-const router = useRouter();
 const username = ref('');
 const email = ref('');
 const password = ref('');
 const isLoading = computed(() => store.isLoading);
+
+interface SignupRes {
+  code: number;
+  msg: string;
+  user?: User;
+}
 
 const submit = async () => {
   store.setLoading(true);
@@ -68,8 +74,7 @@ const submit = async () => {
     email: email.value,
     password: password.value,
   };
-  const api = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://6yuwei.com';
-  const res = await useFetch(`${api}/signup/`, {
+  const res = await useFetch(`${store.api}/signup/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -78,20 +83,18 @@ const submit = async () => {
   });
   store.setLoading(false);
   if (res.data.value) {
-    interface SignupRes {
-      code: number;
-      msg: string;
-    }
     const data = res.data.value as SignupRes;
     const { code } = data;
-    if (code === 200) {
+    const { user } = data;
+    if (code === 200 && user) {
+      store.setUser(user);
       store.pushNotification({
         id: Date.now(),
         type: 'success',
         message: 'Register successfully!',
         timeout: 5000,
       });
-      router.push('/admin/');
+      await navigateTo('/admin/');
     } else {
       store.pushNotification({
         id: Date.now(),
@@ -108,7 +111,6 @@ const submit = async () => {
       timeout: 5000,
     });
   }
-
 }
 </script>
 
