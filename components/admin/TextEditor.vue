@@ -72,6 +72,15 @@ lowlight.registerLanguage("css", css);
 lowlight.registerLanguage("js", js);
 lowlight.registerLanguage("ts", ts);
 
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(["set-text-editor"]);
+
 const textSelector = ref("");
 
 const editor = useEditor({
@@ -128,6 +137,12 @@ const setColor = (e: Event) => {
   }
 };
 
+const generateEditorJson = () => {
+  if (editor.value) {
+    emit('set-text-editor', editor.value.getJSON());
+  }
+};
+
 // check if it's a heading and set the textSelector
 watchEffect(() => {
   if (editor.value) {
@@ -140,6 +155,15 @@ watchEffect(() => {
     }
   }
 });
+
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (!isOpen) {
+      generateEditorJson();
+    }
+  }
+);
 </script>
 
 <style scoped lang="scss">

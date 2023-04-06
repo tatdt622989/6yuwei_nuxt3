@@ -1,22 +1,16 @@
 <template>
   <div>
     <div class="titleWrap">
-      <h2 class="title">
-        Websites
-      </h2>
+      <h2 class="title">Websites</h2>
       <AdminContentToolbar @open-modal="openModal" />
     </div>
     <div class="container-fluid">
       <div class="row">
         <div class="table-responsive">
           <div class="table-tool">
-            <p class="total">
-              Total: 9
-            </p>
+            <p class="total">Total: 9</p>
             <div class="right">
-              <p class="selected">
-                9 item selected
-              </p>
+              <p class="selected">9 item selected</p>
               <button class="delete btn">
                 <span class="material-symbols-outlined"> delete </span>
                 Delete
@@ -28,40 +22,30 @@
               <tr>
                 <th scope="col" width="90">
                   <label class="selector">
-                    <input type="checkbox" name="">
+                    <input type="checkbox" name="" />
                     <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </th>
-                <th scope="col">
-                  Preview
-                </th>
-                <th scope="col">
-                  Title
-                </th>
-                <th scope="col">
-                  Updated
-                </th>
-                <th scope="col">
-                  Off/On
-                </th>
-                <th scope="col">
-                  Action
-                </th>
+                <th scope="col">Preview</th>
+                <th scope="col">Title</th>
+                <th scope="col">Updated</th>
+                <th scope="col">Off/On</th>
+                <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>
                   <label class="selector">
-                    <input type="checkbox" name="">
+                    <input type="checkbox" name="" />
                     <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </td>
                 <td>
                   <div class="preview-box">
-                    <img src="" alt="">
+                    <img src="" alt="" />
                     <span class="material-symbols-outlined">nature_people</span>
                   </div>
                 </td>
@@ -69,7 +53,7 @@
                 <td>@mdo</td>
                 <td>
                   <label class="switch">
-                    <input id="" type="checkbox" name="">
+                    <input id="" type="checkbox" name="" />
                     <span class="bg">
                       <span class="toggler" />
                     </span>
@@ -98,13 +82,23 @@
         <AdminPagination />
       </div>
     </div>
-    <AdminEditorModal :is-open-prop="editorModal" :action="editorModalAction" @close-modal="closeModal" />
+    <AdminEditorModal
+      :is-open="editorModal"
+      :action="editorModalAction"
+      @close-modal="closeModal"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
+import { Website } from "~/types";
+import { useStore } from "~/store";
+const store = useStore();
+const user = computed(() => store.user);
+
 const editorModal = ref(false);
-const editorModalAction = ref('add');
+const editorModalAction = ref("add");
+const websites = ref<Array<Website>>([]);
 
 const openModal = (name: string) => {
   editorModal.value = true;
@@ -113,6 +107,17 @@ const openModal = (name: string) => {
 
 const closeModal = (name: string) => {
   editorModal.value = false;
+};
+
+const addWebsite = async (website: Website) => {
+  const api = `${store.api}/websites/admin/add/`;
+  const data = {
+    title: website.title,
+    description: website.description,
+    externalLink: website.externalLink,
+    textEditor: website.textEditor,
+    category: website.category,
+  };
 };
 </script>
 
@@ -212,7 +217,7 @@ const closeModal = (name: string) => {
   vertical-align: middle;
   .bg {
     border-radius: 6px;
-    background-color: #fff;    
+    background-color: #fff;
     display: flex;
     width: 100%;
     height: 100%;

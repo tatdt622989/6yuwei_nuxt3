@@ -38,22 +38,24 @@
                   <label
                     for="FormControlInput1"
                     class="form-label"
-                  >Link</label>
+                  >Title</label>
                   <input
                     id="FormControlInput1"
                     type="text"
                     class="form-control"
+                    v-model="title"
                   >
                 </div>
                 <div class="mb-3">
                   <label
                     for="FormControlInput1"
                     class="form-label"
-                  >Title</label>
+                  >Link</label>
                   <input
                     id="FormControlInput1"
                     type="text"
                     class="form-control"
+                    v-model="externalLink"
                   >
                 </div>
                 <div class="mb-3">
@@ -61,7 +63,7 @@
                     for="FormControlInput1"
                     class="form-label"
                   >Category</label>
-                  <select class="form-select" aria-label="Default select example">
+                  <select class="form-select" aria-label="Default select example" v-model="category">
                     <option selected>
                       Open this select menu
                     </option>
@@ -87,12 +89,13 @@
                     id="FormControlTextarea1"
                     class="form-control"
                     rows="3"
+                    v-model="description"
                   />
                 </div>
               </div>
               <div class="col-12">
                 <client-only>
-                  <AdminTextEditor />
+                  <AdminTextEditor :text-editor="textEditor" :is-open="isOpen" @set-text-editor="setTextEditor" />
                 </client-only>
               </div>
               <div class="col-12">
@@ -165,7 +168,7 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 
 const props = defineProps({
-  isOpenProp: {
+  isOpen: {
     type: Boolean,
     default: false,
   },
@@ -176,10 +179,15 @@ const props = defineProps({
 });
 const emit = defineEmits(["close-modal"]);
 
-const isOpen = ref(props.isOpenProp);
+const isOpen = ref(props.isOpen);
+const title = ref("");
+const externalLink = ref("");
+const category = ref("");
+const description = ref("");
+const textEditor = ref("");
 
 watch(
-  () => props.isOpenProp,
+  () => props.isOpen,
   (val) => {
     isOpen.value = val;
   }
@@ -188,6 +196,10 @@ watch(
 const closeModal = () => {
   isOpen.value = false;
   emit("close-modal", "editorModal");
+};
+
+const setTextEditor = (editor: string) => {
+  textEditor.value = editor;
 };
 </script>
 

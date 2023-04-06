@@ -59,6 +59,15 @@ interface LoginRes {
 }
 
 const submit = async () => {
+  if (!email.value || !password.value) {
+    store.pushNotification({
+      id: Date.now(),
+      type: 'error',
+      message: 'Please fill in all the fields.',
+      timeout: 5000,
+    });
+    return;
+  }
   store.setLoading(true);
   const json = {
     email: email.value,
