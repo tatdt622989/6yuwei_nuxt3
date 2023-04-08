@@ -36,6 +36,30 @@
         />
         <span class="material-icons"> format_color_text </span>
       </label>
+      <button
+        @click="editor?.chain().focus().setTextAlign('left').run()"
+        :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }"
+      >
+        <span class="material-symbols-outlined"> format_align_left </span>
+      </button>
+      <button
+        @click="editor?.chain().focus().setTextAlign('center').run()"
+        :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }"
+      >
+        <span class="material-symbols-outlined"> format_align_center </span>
+      </button>
+      <button
+        @click="editor?.chain().focus().setTextAlign('right').run()"
+        :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }"
+      >
+        <span class="material-symbols-outlined"> format_align_right </span>
+      </button>
+      <button
+        @click="editor?.chain().focus().setTextAlign('justify').run()"
+        :class="{ 'is-active': editor.isActive({ textAlign: 'justify' }) }"
+      >
+        <span class="material-symbols-outlined"> format_align_justify </span>
+      </button>
       <select
         class="form-control"
         id="text-selector"
@@ -57,10 +81,17 @@
 
 <script lang="ts" setup>
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import Document from "@tiptap/extension-document";
+import Heading from "@tiptap/extension-heading";
+import Paragraph from "@tiptap/extension-paragraph";
+import Text from "@tiptap/extension-text";
+import Bold from "@tiptap/extension-bold";
+import Italic from "@tiptap/extension-italic";
+import Strike from "@tiptap/extension-strike";
+import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
 import css from "highlight.js/lib/languages/css";
 import js from "highlight.js/lib/languages/javascript";
 import ts from "highlight.js/lib/languages/typescript";
@@ -73,10 +104,6 @@ lowlight.registerLanguage("js", js);
 lowlight.registerLanguage("ts", ts);
 
 const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 const emit = defineEmits(["set-text-editor"]);
@@ -104,9 +131,18 @@ const editor = useEditor({
         </p>
       `,
   extensions: [
-    StarterKit,
+    Document,
+    Paragraph,
+    Text,
+    Heading,
+    Bold,
+    Italic,
+    Strike,
     Color,
     TextStyle,
+    TextAlign.configure({
+      types: ["heading", "paragraph"],
+    }),
     CodeBlockLowlight.configure({
       lowlight,
     }),
@@ -139,7 +175,7 @@ const setColor = (e: Event) => {
 
 const generateEditorJson = () => {
   if (editor.value) {
-    emit('set-text-editor', editor.value.getJSON());
+    emit("set-text-editor", JSON.stringify(editor.value.getJSON()));
   }
 };
 
@@ -156,14 +192,9 @@ watchEffect(() => {
   }
 });
 
-watch(
-  () => props.isOpen,
-  (isOpen) => {
-    if (!isOpen) {
-      generateEditorJson();
-    }
-  }
-);
+onBeforeUnmount(() => {
+  generateEditorJson();
+});
 </script>
 
 <style scoped lang="scss">

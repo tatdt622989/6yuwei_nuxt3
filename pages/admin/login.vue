@@ -75,6 +75,7 @@ const submit = async () => {
   };
   const res = await useFetch(`${store.api}/login/`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -92,7 +93,7 @@ const submit = async () => {
         id: Date.now(),
         type: 'success',
         message: 'Login successfully!',
-        timeout: 5000,
+        timeout: 3000,
       });
       await navigateTo('/admin/');
     } else {

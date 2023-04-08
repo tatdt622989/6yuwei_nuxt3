@@ -22,14 +22,18 @@
               <tr>
                 <th scope="col" width="90">
                   <label class="selector">
-                    <input type="checkbox" name="" />
+                    <input
+                      type="checkbox"
+                      v-model="isAllSelected"
+                      @change="selectAllItem"
+                    />
                     <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </th>
                 <th scope="col">Preview</th>
                 <th scope="col">Title</th>
-                <th scope="col">Updated</th>
+                <th scope="col">Category</th>
                 <th scope="col">Off/On</th>
                 <th scope="col">Action</th>
               </tr>
@@ -79,7 +83,7 @@
             </tbody>
           </table>
         </div>
-        <AdminPagination />
+        <AdminPagination :total="totalPage" :current-page="currentPage" />
       </div>
     </div>
     <AdminEditorModal
@@ -93,12 +97,51 @@
 <script lang="ts" setup>
 import { Website } from "~/types";
 import { useStore } from "~/store";
+
+definePageMeta({
+  middleware: ["auth"],
+});
+
 const store = useStore();
 const user = computed(() => store.user);
 
 const editorModal = ref(false);
 const editorModalAction = ref("add");
 const websites = ref<Array<Website>>([]);
+const selector = ref<Array<string>>([]);
+const isAllSelected = computed(() => {
+  const allId = websites.value.map((item) => item.id);
+  return selector.value.length === allId.length;
+});
+const currentPage = ref(1);
+const totalPage = ref(1);
+
+onMounted(async () => {
+  const api = `${store.api}/websites/admin/list/?page=${currentPage.value}`;
+  const res = await $fetch(api, {
+    method: "GET",
+    credentials: "include",
+  }).catch((error) => {
+    return store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error,
+      timeout: 5000,
+    });
+  });
+  const data = res as { list: Array<Website>; totalPage: number; code: number };
+  if (data && data.code === 200) {
+    totalPage.value = data.totalPage;
+    websites.value = data.list;
+  } else {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: "Something went wrong",
+      timeout: 5000,
+    });
+  }
+});
 
 const openModal = (name: string) => {
   editorModal.value = true;
@@ -107,6 +150,24 @@ const openModal = (name: string) => {
 
 const closeModal = (name: string) => {
   editorModal.value = false;
+};
+
+const selectItem = (id: string) => {
+  if (selector.value.includes(id)) {
+    selector.value = selector.value.filter((item) => item !== id);
+  } else {
+    selector.value.push(id);
+  }
+};
+
+const selectAllItem = () => {
+  if (websites.value) {
+    if (isAllSelected.value) {
+      selector.value = [];
+    } else {
+      selector.value = websites.value.map((item) => item.id);
+    }
+  }
 };
 
 const addWebsite = async (website: Website) => {
