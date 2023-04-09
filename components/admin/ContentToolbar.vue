@@ -1,6 +1,6 @@
 <template>
   <div class="toolbar">
-    <button class="add btn" @click="openModal('editorModal')">
+    <button class="add btn" @click="emit('open-editor-modal', 'add')">
       <span class="material-symbols-outlined"> add </span>
       New Post
     </button>
@@ -8,11 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-const emit = defineEmits(["open-modal"]);
-
-const openModal = (name: string) => {
-  emit("open-modal", name);
-};
+const emit = defineEmits(["open-editor-modal"]);
 </script>
 
 <style lang="scss" scoped>

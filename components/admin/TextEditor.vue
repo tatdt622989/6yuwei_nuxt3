@@ -104,9 +104,10 @@ lowlight.registerLanguage("js", js);
 lowlight.registerLanguage("ts", ts);
 
 const props = defineProps({
+  textEditor: String,
 });
 
-const emit = defineEmits(["set-text-editor"]);
+const emit = defineEmits(["set-text-editor-output"]);
 
 const textSelector = ref("");
 
@@ -175,7 +176,7 @@ const setColor = (e: Event) => {
 
 const generateEditorJson = () => {
   if (editor.value) {
-    emit("set-text-editor", JSON.stringify(editor.value.getJSON()));
+    emit("set-text-editor-output", JSON.stringify(editor.value.getJSON()));
   }
 };
 
@@ -349,6 +350,7 @@ onBeforeUnmount(() => {
     width: 40px;
     height: 40px;
     border-radius: 12px;
+    @extend %ts;
     &:hover {
       background-color: darken($terColor, 10%);
     }

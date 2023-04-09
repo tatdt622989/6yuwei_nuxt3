@@ -2,15 +2,15 @@
   <div>
     <div class="titleWrap">
       <h2 class="title">Websites</h2>
-      <AdminContentToolbar @open-modal="openModal" />
+      <AdminContentToolbar @open-editor-modal="openEditorModal" />
     </div>
     <div class="container-fluid">
       <div class="row">
         <div class="table-responsive">
           <div class="table-tool">
-            <p class="total">Total: 9</p>
-            <div class="right">
-              <p class="selected">9 item selected</p>
+            <p class="total">Total: {{ total }}</p>
+            <div v-if="selector.length > 0" class="right">
+              <p class="selected">{{ selector.length }} item selected</p>
               <button class="delete btn">
                 <span class="material-symbols-outlined"> delete </span>
                 Delete
@@ -39,25 +39,25 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr v-for="website in websites" :key="website._id">
                 <td>
                   <label class="selector">
-                    <input type="checkbox" name="" />
+                    <input type="checkbox" v-model="selector" :value="website._id" />
                     <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </td>
                 <td>
                   <div class="preview-box">
-                    <img src="" alt="" />
+                    <img v-if="website.photos[0]" :src="`${store.api}/admin/uploads/${website.photos[0].url}`" :alt="website.title" />
                     <span class="material-symbols-outlined">nature_people</span>
                   </div>
                 </td>
-                <td>Otto</td>
-                <td>@mdo</td>
+                <td>{{ website.title }}</td>
+                <td>{{ website.category }}</td>
                 <td>
                   <label class="switch">
-                    <input id="" type="checkbox" name="" />
+                    <input type="checkbox" v-model="website.visible" />
                     <span class="bg">
                       <span class="toggler" />
                     </span>
@@ -87,17 +87,20 @@
       </div>
     </div>
     <AdminEditorModal
-      :is-open="editorModal"
-      :action="editorModalAction"
-      @close-modal="closeModal"
+      :is-open="editorModal.open"
+      :action="editorModal.action"
+      :data="editorModal.data"
+      @close-modal="closeEditorModal"
+      @reload-list="getList"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Website } from "~/types";
+import { Editor, Website } from "~/types";
 import { useStore } from "~/store";
 
+// 需要驗證身份
 definePageMeta({
   middleware: ["auth"],
 });
@@ -105,67 +108,34 @@ definePageMeta({
 const store = useStore();
 const user = computed(() => store.user);
 
-const editorModal = ref(false);
-const editorModalAction = ref("add");
+const editorModal = reactive({
+  open: false,
+  action: "add" as 'add' | 'edit',
+  data: null as Editor | null,
+});
 const websites = ref<Array<Website>>([]);
 const selector = ref<Array<string>>([]);
-const isAllSelected = computed(() => {
-  const allId = websites.value.map((item) => item.id);
-  return selector.value.length === allId.length;
-});
+const isAllSelected = ref(false);
 const currentPage = ref(1);
+const total = ref(0);
 const totalPage = ref(1);
 
-onMounted(async () => {
-  const api = `${store.api}/websites/admin/list/?page=${currentPage.value}`;
-  const res = await $fetch(api, {
-    method: "GET",
-    credentials: "include",
-  }).catch((error) => {
-    return store.pushNotification({
-      id: Date.now(),
-      type: "error",
-      message: error,
-      timeout: 5000,
-    });
-  });
-  const data = res as { list: Array<Website>; totalPage: number; code: number };
-  if (data && data.code === 200) {
-    totalPage.value = data.totalPage;
-    websites.value = data.list;
-  } else {
-    store.pushNotification({
-      id: Date.now(),
-      type: "error",
-      message: "Something went wrong",
-      timeout: 5000,
-    });
-  }
-});
-
-const openModal = (name: string) => {
-  editorModal.value = true;
-  editorModalAction.value = name;
+const openEditorModal = (action: 'add' | 'edit', data: Website|null = null) => {
+  editorModal.open = true;
+  editorModal.action = action;
+  editorModal.data = data;
 };
 
-const closeModal = (name: string) => {
-  editorModal.value = false;
-};
-
-const selectItem = (id: string) => {
-  if (selector.value.includes(id)) {
-    selector.value = selector.value.filter((item) => item !== id);
-  } else {
-    selector.value.push(id);
-  }
+const closeEditorModal = (name: string) => {
+  editorModal.open = false;
 };
 
 const selectAllItem = () => {
   if (websites.value) {
-    if (isAllSelected.value) {
+    if (!isAllSelected.value) {
       selector.value = [];
     } else {
-      selector.value = websites.value.map((item) => item.id);
+      selector.value = websites.value.map((item) => item._id as string);
     }
   }
 };
@@ -180,6 +150,54 @@ const addWebsite = async (website: Website) => {
     category: website.category,
   };
 };
+
+const getList = async () => {
+  const api = `${store.api}/websites/admin/list/?page=${currentPage.value}`;
+  const res = await $fetch(api, {
+    method: "GET",
+    credentials: "include",
+  }).catch((error) => {
+    return store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error,
+      timeout: 5000,
+    });
+  });
+  const data = res as {
+    msg: string;
+    list: Array<Website>;
+    total: number;
+    totalPage: number;
+    code: number;
+  };
+  if (data && data.code === 200) {
+    total.value = data.total;
+    totalPage.value = data.totalPage;
+    websites.value = data.list;
+  } else {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: "Something went wrong",
+      timeout: 5000,
+    });
+  }
+  editorModal.open = false;
+};
+
+onMounted(async () => {
+  getList();
+});
+
+watch(
+  () => selector.value,
+  (val) => {
+    const allId = websites.value.map((item) => item._id);
+    const isChecked = val.length === allId.length;
+    isAllSelected.value = isChecked;
+  }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -218,7 +236,21 @@ const addWebsite = async (website: Website) => {
     border-radius: 12px;
     display: flex;
     @include center;
+    position: relative;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+      position: relative;
+      z-index: 1;
+    }
     span {
+      position: absolute;
+      z-index: 0;
+      display: block;
+      margin: auto;
+      @include center(transform, all);
       font-size: 60px;
       color: darken($terColor, 15%);
     }
@@ -380,6 +412,7 @@ const addWebsite = async (website: Website) => {
     font-weight: bold;
     font-size: 20px;
     letter-spacing: 0.8px;
+    line-height: 50px;
   }
   .right {
     align-items: center;

@@ -12,14 +12,16 @@
         <div class="modal-content" @click="(e) => e.stopPropagation()">
           <div class="modal-header">
             <h1 class="modal-title fs-5">
-              Create a new website
+              {{
+                props.action === "add" ? "Create a new data" : "Editorial Data"
+              }}
             </h1>
             <button
               type="button"
               class="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
-              @click="closeModal"
+              @click="emit('close-modal')"
             />
           </div>
           <div class="modal-body container">
@@ -28,7 +30,7 @@
                 <div class="img-previewer">
                   <div class="imgList">
                     <div class="imgItem">
-                      <img src="" alt="">
+                      <img src="" alt="" />
                     </div>
                   </div>
                 </div>
@@ -38,53 +40,49 @@
                   <label
                     for="FormControlInput1"
                     class="form-label"
-                  >Title</label>
+                    :class="{ 'is-invalid': validation.title }"
+                    >Title</label
+                  >
                   <input
                     id="FormControlInput1"
                     type="text"
                     class="form-control"
                     v-model="title"
-                  >
+                  />
                 </div>
                 <div class="mb-3">
-                  <label
-                    for="FormControlInput1"
-                    class="form-label"
-                  >Link</label>
+                  <label for="FormControlInput1" class="form-label">Link</label>
                   <input
                     id="FormControlInput1"
                     type="text"
                     class="form-control"
                     v-model="externalLink"
-                  >
+                  />
                 </div>
                 <div class="mb-3">
-                  <label
-                    for="FormControlInput1"
-                    class="form-label"
-                  >Category</label>
-                  <select class="form-select" aria-label="Default select example" v-model="category">
-                    <option selected>
-                      Open this select menu
-                    </option>
-                    <option value="1">
-                      One
-                    </option>
-                    <option value="2">
-                      Two
-                    </option>
-                    <option value="3">
-                      Three
-                    </option>
-                  </select>
+                  <label for="FormControlInput1" class="form-label"
+                    >Category</label
+                  >
+                  <input
+                    type="text"
+                    v-model="category"
+                    list="category"
+                    class="form-select"
+                    aria-label="Default select example"
+                    :class="{ 'is-invalid': validation.category }"
+                  />
+                  <datalist id="category">
+                    <option value="1"></option>
+                    <option value="2"></option>
+                    <option value="3"></option>
+                  </datalist>
                 </div>
               </div>
               <div class="col-12">
                 <div class="mb-4">
-                  <label
-                    for="FormControlTextarea1"
-                    class="form-label"
-                  >Describe</label>
+                  <label for="FormControlTextarea1" class="form-label"
+                    >Describe</label
+                  >
                   <textarea
                     id="FormControlTextarea1"
                     class="form-control"
@@ -94,9 +92,11 @@
                 </div>
               </div>
               <div class="col-12">
-                <client-only>
-                  <AdminTextEditor :text-editor="textEditor" :is-open="isOpen" @set-text-editor="setTextEditor" />
-                </client-only>
+                <AdminTextEditor
+                  :text-editor="textEditorOutput"
+                  :is-open="isOpen"
+                  @set-text-editor="setTextEditorOutput"
+                />
               </div>
               <div class="col-12">
                 <label class="upload-area mb-4">
@@ -115,36 +115,39 @@
                     />
                   </svg>
                   <span class="material-symbols-outlined">cloud_upload</span>
-                  <p class="note">Click to upload or drag and Drop files to upload</p>
+                  <p class="note">
+                    Click to upload or drag and Drop files to upload
+                  </p>
                   <p class="limit">Max file size: 10MB</p>
                   <input
                     id="fileInput"
                     type="file"
                     class="form-control"
                     multiple
-                  >
+                  />
                 </label>
                 <ul class="files-list">
                   <li class="file-item">
                     <div class="file-info">
                       <span class="material-symbols-outlined">image</span>
-                      <div class="file-name">
-                        my-work.jpg
-                      </div>
-                      <div class="file-size">
-                        1.2MB
-                      </div>
+                      <div class="file-name">my-work.jpg</div>
+                      <div class="file-size">1.2MB</div>
                     </div>
                     <div class="file-actions">
                       <button class="btn btn-sm done">
-                        <span class="material-symbols-outlined">cloud_done</span>
+                        <span class="material-symbols-outlined"
+                          >cloud_done</span
+                        >
                       </button>
                       <button class="btn btn-sm remove">
                         <span class="material-symbols-outlined">delete</span>
                       </button>
                     </div>
                     <div class="progress-bar">
-                      <div class="progress-bar-inner" :style="{ width : '50%' }" />
+                      <div
+                        class="progress-bar-inner"
+                        :style="{ width: '50%' }"
+                      />
                     </div>
                   </li>
                 </ul>
@@ -152,7 +155,11 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary">
+            <button v-if="action === 'edit'" type="button" class="btn delete">
+              Delete
+            </button>
+            <button type="button" class="btn cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @click="save">
               Save
             </button>
           </div>
@@ -163,9 +170,15 @@
 </template>
 
 <script lang="ts" setup>
+import { useStore } from "~/store";
+import { Photo, Editor } from "~~/types";
 import { Pagination, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
+
+interface Validation {
+  [K: string]: boolean;
+}
 
 const props = defineProps({
   isOpen: {
@@ -173,18 +186,39 @@ const props = defineProps({
     default: false,
   },
   action: {
-    type: String,
+    type: String as PropType<"add" | "edit">,
     default: "add",
   },
+  data: {
+    type: Object as PropType<Editor | null>,
+    default: {},
+  },
 });
-const emit = defineEmits(["close-modal"]);
+const emit = defineEmits(["close-modal", "reload-list"]);
 
 const isOpen = ref(props.isOpen);
 const title = ref("");
 const externalLink = ref("");
 const category = ref("");
 const description = ref("");
-const textEditor = ref("");
+const textEditorOutput = ref("");
+const photos = reactive<Photo[]>([]);
+const store = useStore();
+const validation = reactive<Validation>({
+  title: false,
+  category: false,
+});
+
+const updateData = (data: Editor) => {
+  if (props.action === "edit" && data) {
+    title.value = data.title;
+    externalLink.value = data.externalLink;
+    category.value = data.category;
+    description.value = data.description;
+    textEditorOutput.value = data.textEditor;
+    photos.splice(0, photos.length, ...data.photos);
+  }
+};
 
 watch(
   () => props.isOpen,
@@ -193,13 +227,102 @@ watch(
   }
 );
 
-const closeModal = () => {
-  isOpen.value = false;
-  emit("close-modal", "editorModal");
+watch(
+  () => props.data,
+  (val) => {
+    if (val) {
+      updateData(val);
+    }
+  }
+);
+
+const setTextEditorOutput = (content: string) => {
+  textEditorOutput.value = content;
 };
 
-const setTextEditor = (editor: string) => {
-  textEditor.value = editor;
+const verify = () => {
+  let errMsg = "";
+  if (!title.value) {
+    validation.title = true;
+    errMsg += "Title is required. ";
+  }
+  if (!category.value) {
+    validation.category = true;
+    errMsg += "Category is required. ";
+  }
+  if (errMsg) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: errMsg,
+      timeout: 5000,
+    });
+    return false;
+  }
+  return true;
+};
+
+const save = async () => {
+  const api = {
+    add: `${store.api}/websites/add/`,
+    edit: `${store.api}/websites/update/`,
+  };
+  const data = {
+    title: title.value,
+    externalLink: externalLink.value,
+    category: category.value,
+    description: description.value,
+    textEditor: textEditorOutput.value,
+    photos: photos,
+  };
+  store.isLoading = true;
+  if (!verify()) {
+    store.isLoading = false;
+    return;
+  }
+  const method = {
+    add: async () => {
+      const res = await useFetch(api[props.action], {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const error = res.error.value as Error | null;
+      const resData = res.data.value as Object | null;
+      return { error, resData };
+    },
+    edit: async () => {
+      const res = await useFetch(api[props.action], {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const error = res.error.value as Error | null;
+      const resData = res.data.value as Object | null;
+      return { error, resData };
+    },
+  };
+  const res = await method[props.action]();
+  if (res.error) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: res.error.message,
+      timeout: 5000,
+    });
+  } else {
+    store.pushNotification({
+      id: Date.now(),
+      type: "success",
+      message: "Saved successfully",
+      timeout: 5000,
+    });
+    emit("reload-list");
+  }
 };
 </script>
 
@@ -212,7 +335,8 @@ const setTextEditor = (editor: string) => {
   backdrop-filter: blur(5px);
   background-color: rgba($mainColor, 0.1);
   .btn-close {
-    &:focus, &:focus-visible {
+    &:focus,
+    &:focus-visible {
       box-shadow: none;
     }
   }
@@ -240,6 +364,12 @@ const setTextEditor = (editor: string) => {
       background-color: $mainColor;
       color: $secColor;
       font-weight: bold;
+      &.cancel {
+        background-color: $terColor;
+      }
+      &.delete {
+        background-color: $dangerColor;
+      }
       &:hover {
         color: $mainColor;
         background-color: $secColor;
@@ -254,7 +384,7 @@ const setTextEditor = (editor: string) => {
   }
   &.modal-fade-enter-active,
   &.modal-fade-leave-active {
-    transition: all .5s ease-out !important;
+    transition: all 0.5s ease-out !important;
   }
 
   &.modal-fade-enter-from,
@@ -263,7 +393,9 @@ const setTextEditor = (editor: string) => {
   }
 
   form {
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       border: 2px solid darken($terColor, 10%);
       color: $secColor;
       border-radius: 12px;
@@ -272,13 +404,17 @@ const setTextEditor = (editor: string) => {
         border-color: $mainColor;
       }
     }
-    input, select {
+    input,
+    select {
       letter-spacing: 1px;
       height: 44px;
     }
     label {
       letter-spacing: 1px;
       font-weight: bold;
+    }
+    datalist {
+      display: none;
     }
   }
   .img-previewer {

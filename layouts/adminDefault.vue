@@ -1,4 +1,5 @@
 <template>
+  <ClientOnly>
   <div class="main">
     <AdminSideMenu />
     <div class="layout">
@@ -8,6 +9,7 @@
       </div>
     </div>
   </div>
+</ClientOnly>
 </template>
 
 <script lang="ts" setup>
