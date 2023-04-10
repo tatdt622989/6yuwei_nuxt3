@@ -193,8 +193,8 @@ watchEffect(() => {
   }
 });
 
-onBeforeUnmount(() => {
-  generateEditorJson();
+defineExpose({
+  generateEditorJson,
 });
 </script>
 

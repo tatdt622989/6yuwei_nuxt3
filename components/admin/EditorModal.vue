@@ -95,7 +95,8 @@
                 <AdminTextEditor
                   :text-editor="textEditorOutput"
                   :is-open="isOpen"
-                  @set-text-editor="setTextEditorOutput"
+                  @set-text-editor-output="setTextEditorOutput"
+                  ref="textEditorRef"
                 />
               </div>
               <div class="col-12">
@@ -180,6 +181,10 @@ interface Validation {
   [K: string]: boolean;
 }
 
+interface TextEditorRef {
+  generateEditorJson(): void;
+}
+
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -202,6 +207,7 @@ const externalLink = ref("");
 const category = ref("");
 const description = ref("");
 const textEditorOutput = ref("");
+const textEditorRef = ref<TextEditorRef | null>(null);
 const photos = reactive<Photo[]>([]);
 const store = useStore();
 const validation = reactive<Validation>({
@@ -237,6 +243,7 @@ watch(
 );
 
 const setTextEditorOutput = (content: string) => {
+  console.log('content', content);
   textEditorOutput.value = content;
 };
 
@@ -264,9 +271,13 @@ const verify = () => {
 
 const save = async () => {
   const api = {
-    add: `${store.api}/websites/add/`,
-    edit: `${store.api}/websites/update/`,
+    add: `${store.api}/websites/admin/add/`,
+    edit: `${store.api}/websites/admin/update/`,
   };
+  if (textEditorRef.value)  {
+    textEditorRef.value.generateEditorJson();
+  }
+  
   const data = {
     title: title.value,
     externalLink: externalLink.value,
@@ -285,6 +296,7 @@ const save = async () => {
       const res = await useFetch(api[props.action], {
         method: "POST",
         body: JSON.stringify(data),
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -297,6 +309,7 @@ const save = async () => {
       const res = await useFetch(api[props.action], {
         method: "PUT",
         body: JSON.stringify(data),
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -323,6 +336,7 @@ const save = async () => {
     });
     emit("reload-list");
   }
+  store.isLoading = false;
 };
 </script>
 
