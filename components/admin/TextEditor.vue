@@ -193,6 +193,7 @@ watchEffect(() => {
   }
 });
 
+// 將generateEditorJson方法暴露出去
 defineExpose({
   generateEditorJson,
 });

@@ -100,7 +100,14 @@
                 />
               </div>
               <div class="col-12">
-                <label class="upload-area mb-4">
+                <label
+                  class="upload-area mb-4"
+                  @drop.prevent="handleDrop"
+                  @dragover.prevent
+                  @dragenter="inDropZone = true"
+                  @dragleave="inDropZone = false"
+                  :class="{ 'active': inDropZone }"
+                  >>
                   <svg width="100%" height="200">
                     <rect
                       x="2"
@@ -207,9 +214,10 @@ const externalLink = ref("");
 const category = ref("");
 const description = ref("");
 const textEditorOutput = ref("");
-const textEditorRef = ref<TextEditorRef | null>(null);
+const textEditorRef = ref<TextEditorRef | null>(null); // 取得text editor 暴露的方法
 const photos = reactive<Photo[]>([]);
 const store = useStore();
+const inDropZone = ref(false);
 const validation = reactive<Validation>({
   title: false,
   category: false,
@@ -226,24 +234,8 @@ const updateData = (data: Editor) => {
   }
 };
 
-watch(
-  () => props.isOpen,
-  (val) => {
-    isOpen.value = val;
-  }
-);
-
-watch(
-  () => props.data,
-  (val) => {
-    if (val) {
-      updateData(val);
-    }
-  }
-);
-
 const setTextEditorOutput = (content: string) => {
-  console.log('content', content);
+  console.log("content", content);
   textEditorOutput.value = content;
 };
 
@@ -274,10 +266,9 @@ const save = async () => {
     add: `${store.api}/websites/admin/add/`,
     edit: `${store.api}/websites/admin/update/`,
   };
-  if (textEditorRef.value)  {
+  if (textEditorRef.value) {
     textEditorRef.value.generateEditorJson();
   }
-  
   const data = {
     title: title.value,
     externalLink: externalLink.value,
@@ -338,6 +329,26 @@ const save = async () => {
   }
   store.isLoading = false;
 };
+
+const handleDrop = () => {
+
+};
+
+watch(
+  () => props.isOpen,
+  (val) => {
+    isOpen.value = val;
+  }
+);
+
+watch(
+  () => props.data,
+  (val) => {
+    if (val) {
+      updateData(val);
+    }
+  }
+);
 </script>
 
 <style lang="scss" scoped>
