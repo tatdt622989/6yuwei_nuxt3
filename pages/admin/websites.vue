@@ -92,6 +92,8 @@
       :data="editorModal.data"
       @close-modal="closeEditorModal"
       @reload-list="getList"
+      @set-editor-data="setEditorData"
+      :unit="'Websites'"
     />
   </div>
 </template>
@@ -128,6 +130,11 @@ const openEditorModal = (action: 'add' | 'edit', data: Website|null = null) => {
 
 const closeEditorModal = (name: string) => {
   editorModal.open = false;
+  getList();
+};
+
+const setEditorData = (data: Website) => {
+  editorModal.data = data;
 };
 
 const selectAllItem = () => {

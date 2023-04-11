@@ -11,11 +11,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" @click="(e) => e.stopPropagation()">
           <div class="modal-header">
-            <h1 class="modal-title fs-5">
-              {{
-                props.action === "add" ? "Create a new data" : "Editorial Data"
-              }}
-            </h1>
+            <h1 class="modal-title fs-5">{{ props.unit }} Editor</h1>
             <button
               type="button"
               class="btn-close"
@@ -106,8 +102,8 @@
                   @dragover.prevent
                   @dragenter="inDropZone = true"
                   @dragleave="inDropZone = false"
-                  :class="{ 'active': inDropZone }"
-                  >>
+                  :class="{ active: inDropZone }"
+                >
                   <svg width="100%" height="200">
                     <rect
                       x="2"
@@ -122,9 +118,15 @@
                       ry="12"
                     />
                   </svg>
-                  <span class="material-symbols-outlined">cloud_upload</span>
+                  <span class="material-symbols-outlined">{{
+                    inDropZone ? "place_item" : "cloud_upload"
+                  }}</span>
                   <p class="note">
-                    Click to upload or drag and Drop files to upload
+                    {{
+                      inDropZone
+                        ? "Drop here"
+                        : "Click to upload or drag and Drop files to upload"
+                    }}
                   </p>
                   <p class="limit">Max file size: 10MB</p>
                   <input
@@ -205,8 +207,11 @@ const props = defineProps({
     type: Object as PropType<Editor | null>,
     default: {},
   },
+  unit: {
+    type: String,
+  },
 });
-const emit = defineEmits(["close-modal", "reload-list"]);
+const emit = defineEmits(["close-modal", "reload-list", "set-editor-data"]);
 
 const isOpen = ref(props.isOpen);
 const title = ref("");
@@ -293,7 +298,7 @@ const save = async () => {
         },
       });
       const error = res.error.value as Error | null;
-      const resData = res.data.value as Object | null;
+      const resData = res.data.value as { code: number, data: Editor } | null;
       return { error, resData };
     },
     edit: async () => {
@@ -306,7 +311,7 @@ const save = async () => {
         },
       });
       const error = res.error.value as Error | null;
-      const resData = res.data.value as Object | null;
+      const resData = res.data.value as { code: number, data: Editor } | null;
       return { error, resData };
     },
   };
@@ -318,20 +323,49 @@ const save = async () => {
       message: res.error.message,
       timeout: 5000,
     });
-  } else {
-    store.pushNotification({
-      id: Date.now(),
-      type: "success",
-      message: "Saved successfully",
-      timeout: 5000,
-    });
-    emit("reload-list");
+  }
+  if (res.resData) {
+    if (res.resData.code === 200) {
+      store.pushNotification({
+        id: Date.now(),
+        type: "success",
+        message: "Saved successfully",
+        timeout: 5000,
+      });
+      emit("set-editor-data", res.resData.data);
+    } else if (res.resData.code === 403) {
+      store.pushNotification({
+        id: Date.now(),
+        type: "error",
+        message: "You don't have permission to do this",
+        timeout: 5000,
+      });
+      navigateTo("/admin/login");
+    } else {
+      store.pushNotification({
+        id: Date.now(),
+        type: "error",
+        message: "Something went wrong",
+        timeout: 5000,
+      });
+    }
   }
   store.isLoading = false;
 };
 
-const handleDrop = () => {
-
+const handleDrop = (e: DragEvent) => {
+  inDropZone.value = false;
+  if (!props.data) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: "Please save the data first",
+      timeout: 5000,
+    });
+  }
+  if (!e.dataTransfer) return;
+  const files = e.dataTransfer.files;
+  console.log("files", files);
 };
 
 watch(
@@ -455,6 +489,11 @@ watch(
     flex-direction: column;
     height: 200px;
     text-align: center;
+    overflow: hidden;
+    @extend %ts;
+    &.active {
+      background-color: lighten($terColor, 5%);
+    }
     svg {
       position: absolute;
       pointer-events: none;
