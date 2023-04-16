@@ -48,7 +48,7 @@
                   </label>
                 </td>
                 <td>
-                  <div class="preview-box">
+                  <div class="preview-box" @click="openEditorModal('edit', website)">
                     <img v-if="website.photos[0]" :src="`${store.api}/admin/uploads/${website.photos[0].url}`" :alt="website.title" />
                     <span class="material-symbols-outlined">nature_people</span>
                   </div>
@@ -178,10 +178,21 @@ const getList = async () => {
     totalPage: number;
     code: number;
   };
-  if (data && data.code === 200) {
-    total.value = data.total;
-    totalPage.value = data.totalPage;
-    websites.value = data.list;
+  if (data) {
+    if (data.code === 200) {
+      total.value = data.total;
+      totalPage.value = data.totalPage;
+      websites.value = data.list;
+    }
+    if (data.code === 403) {
+      store.pushNotification({
+        id: Date.now(),
+        type: "error",
+        message: data.msg,
+        timeout: 5000,
+      });
+      navigateTo("/admin/login");
+    }
   } else {
     store.pushNotification({
       id: Date.now(),

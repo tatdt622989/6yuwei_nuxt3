@@ -89,9 +89,10 @@
               </div>
               <div class="col-12">
                 <AdminTextEditor
-                  :text-editor="textEditorOutput"
+                  :text-editor="textEditorJson"
                   :is-open="isOpen"
-                  @set-text-editor-output="setTextEditorOutput"
+                  @set-text-editor-output="setTextEditorJson"
+                  :action="props.action"
                   ref="textEditorRef"
                 />
               </div>
@@ -194,6 +195,14 @@ interface TextEditorRef {
   generateEditorJson(): void;
 }
 
+interface FileInfoList {
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  progress: number;
+}
+
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -218,9 +227,10 @@ const title = ref("");
 const externalLink = ref("");
 const category = ref("");
 const description = ref("");
-const textEditorOutput = ref("");
+const textEditorJson = ref("");
 const textEditorRef = ref<TextEditorRef | null>(null); // 取得text editor 暴露的方法
 const photos = reactive<Photo[]>([]);
+const fileInfoList = ref<FileInfoList | []>([]);
 const store = useStore();
 const inDropZone = ref(false);
 const validation = reactive<Validation>({
@@ -234,14 +244,14 @@ const updateData = (data: Editor) => {
     externalLink.value = data.externalLink;
     category.value = data.category;
     description.value = data.description;
-    textEditorOutput.value = data.textEditor;
+    textEditorJson.value = data.textEditor;
     photos.splice(0, photos.length, ...data.photos);
   }
 };
 
-const setTextEditorOutput = (content: string) => {
+const setTextEditorJson = (content: string) => {
   console.log("content", content);
-  textEditorOutput.value = content;
+  textEditorJson.value = content;
 };
 
 const verify = () => {
@@ -271,6 +281,7 @@ const save = async () => {
     add: `${store.api}/websites/admin/add/`,
     edit: `${store.api}/websites/admin/update/`,
   };
+  console.log("textEditorRef", textEditorRef);
   if (textEditorRef.value) {
     textEditorRef.value.generateEditorJson();
   }
@@ -279,8 +290,8 @@ const save = async () => {
     externalLink: externalLink.value,
     category: category.value,
     description: description.value,
-    textEditor: textEditorOutput.value,
-    photos: photos,
+    textEditor: textEditorJson.value,
+    photos,
   };
   store.isLoading = true;
   if (!verify()) {
@@ -353,6 +364,10 @@ const save = async () => {
   store.isLoading = false;
 };
 
+const uploadImg = async (files) => {
+  
+};
+
 const handleDrop = (e: DragEvent) => {
   inDropZone.value = false;
   if (!props.data) {
@@ -366,6 +381,16 @@ const handleDrop = (e: DragEvent) => {
   if (!e.dataTransfer) return;
   const files = e.dataTransfer.files;
   console.log("files", files);
+  uploadImg(files);
+};
+
+const reset = () => {
+  title.value = "";
+  externalLink.value = "";
+  category.value = "";
+  description.value = "";
+  textEditorJson.value = "";
+  photos.splice(0, photos.length);
 };
 
 watch(
@@ -380,6 +405,8 @@ watch(
   (val) => {
     if (val) {
       updateData(val);
+    } else {
+      reset();
     }
   }
 );

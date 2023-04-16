@@ -105,6 +105,8 @@ lowlight.registerLanguage("ts", ts);
 
 const props = defineProps({
   textEditor: String,
+  action: String,
+  isOpen: Boolean,
 });
 
 const emit = defineEmits(["set-text-editor-output"]);
@@ -112,25 +114,7 @@ const emit = defineEmits(["set-text-editor-output"]);
 const textSelector = ref("");
 
 const editor = useEditor({
-  content: `
-        <p>
-          That’s a boring paragraph followed by a fenced code block:
-        </p>
-        <pre><code class="language-javascript">for (var i=1; i <= 20; i++)
-{
-  if (i % 15 == 0)
-    console.log("FizzBuzz");
-  else if (i % 3 == 0)
-    console.log("Fizz");
-  else if (i % 5 == 0)
-    console.log("Buzz");
-  else
-    console.log(i);
-}</code></pre>
-        <p>
-          Press Command/Ctrl + Enter to leave the fenced code block and continue typing in boring paragraphs.
-        </p>
-      `,
+  content: ``,
   extensions: [
     Document,
     Paragraph,
@@ -180,6 +164,13 @@ const generateEditorJson = () => {
   }
 };
 
+const setEditorContent = () => {
+  if (editor.value && props.textEditor) {
+    const json = JSON.parse(props.textEditor);
+    editor.value.commands.setContent(json);
+  }
+};
+
 // check if it's a heading and set the textSelector
 watchEffect(() => {
   if (editor.value) {
@@ -190,6 +181,12 @@ watchEffect(() => {
     } else {
       textSelector.value = "Normal";
     }
+  }
+});
+
+onMounted(() => {
+  if (props.textEditor) {
+    setEditorContent();
   }
 });
 
