@@ -135,6 +135,7 @@
                     type="file"
                     class="form-control"
                     multiple
+                    @change="handleFileChange"
                   />
                 </label>
                 <ul class="files-list">
@@ -185,6 +186,7 @@ import { useStore } from "~/store";
 import { Photo, Editor } from "~~/types";
 import { Pagination, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
+import axios from 'axios';
 import "swiper/css";
 
 interface Validation {
@@ -195,11 +197,8 @@ interface TextEditorRef {
   generateEditorJson(): void;
 }
 
-interface FileInfoList {
-  name: string;
-  size: number;
-  type: string;
-  url: string;
+interface FileInfo {
+  data: Photo | null,
   progress: number;
 }
 
@@ -229,8 +228,7 @@ const category = ref("");
 const description = ref("");
 const textEditorJson = ref("");
 const textEditorRef = ref<TextEditorRef | null>(null); // 取得text editor 暴露的方法
-const photos = reactive<Photo[]>([]);
-const fileInfoList = ref<FileInfoList | []>([]);
+const fileInfoList = ref<FileInfo[] | []>([]);
 const store = useStore();
 const inDropZone = ref(false);
 const validation = reactive<Validation>({
@@ -245,7 +243,12 @@ const updateData = (data: Editor) => {
     category.value = data.category;
     description.value = data.description;
     textEditorJson.value = data.textEditor;
-    photos.splice(0, photos.length, ...data.photos);
+    fileInfoList.value = data.photos.map((item) => {
+      return {
+        data: item,
+        progress: 100,
+      };
+    });
   }
 };
 
@@ -291,7 +294,7 @@ const save = async () => {
     category: category.value,
     description: description.value,
     textEditor: textEditorJson.value,
-    photos,
+    photos: fileInfoList.value.map((item) => item.data),
   };
   store.isLoading = true;
   if (!verify()) {
@@ -364,8 +367,49 @@ const save = async () => {
   store.isLoading = false;
 };
 
-const uploadImg = async (files) => {
-  
+const uploadImg = async (files: FileList, websiteId: string) => {
+  const resList = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const formData = new FormData();
+    formData.append("file", files[i]);
+    formData.append("websiteId", websiteId);
+    fileInfoList.value[i] = {
+      data: null,
+      progress: 0,
+    };
+    const res = new Promise((resolve, reject) => {
+      axios.post(`${store.api}/websites/admin/photo/`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
+            );
+            console.log("percentCompleted", percentCompleted, fileInfoList.value[i]);
+            fileInfoList.value[i].progress = percentCompleted;
+          },
+        })
+        .then((res) => {
+          console.log("res", res);
+          if (res.data.code === 200) {
+            fileInfoList.value[i].data = res.data.data;
+            fileInfoList.value[i].progress = 100;
+            resolve(res.data.data);
+          } else {
+            reject(res.data.msg);
+          }
+        })
+        .catch((err) => {
+          console.log("err", err);
+          reject(err);
+        });
+    });
+    resList.push(res);
+  }
+  const res = await Promise.all(resList);
+  console.log("res", res);
 };
 
 const handleDrop = (e: DragEvent) => {
@@ -381,7 +425,24 @@ const handleDrop = (e: DragEvent) => {
   if (!e.dataTransfer) return;
   const files = e.dataTransfer.files;
   console.log("files", files);
-  uploadImg(files);
+  if (!props.data) return;
+  uploadImg(files, props.data._id);
+};
+
+const handleFileChange = (e: Event) => {
+  if (!props.data) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: "Please save the data first",
+      timeout: 5000,
+    });
+  }
+  if (!e.target) return;
+  const files = (e.target as HTMLInputElement).files;
+  console.log("files", files);
+  if (!props.data || !files) return;
+  uploadImg(files, props.data._id);
 };
 
 const reset = () => {
@@ -390,7 +451,7 @@ const reset = () => {
   category.value = "";
   description.value = "";
   textEditorJson.value = "";
-  photos.splice(0, photos.length);
+  fileInfoList.value = [];
 };
 
 watch(

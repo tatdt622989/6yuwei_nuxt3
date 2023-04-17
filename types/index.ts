@@ -5,12 +5,14 @@ export interface User {
 }
 
 export interface Photo {
+  _id?: string;
   url: string;
   updatedAt: string;
   createdAt: string;
 }
 
 export interface Editor {
+  _id: string;
   title: string;
   externalLink: string;
   category: string;
