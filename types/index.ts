@@ -7,6 +7,7 @@ export interface User {
 export interface Photo {
   _id?: string;
   url: string;
+  size: number;
   updatedAt: string;
   createdAt: string;
 }

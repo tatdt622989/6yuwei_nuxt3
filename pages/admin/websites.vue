@@ -125,7 +125,7 @@ const totalPage = ref(1);
 const openEditorModal = (action: 'add' | 'edit', data: Website|null = null) => {
   editorModal.open = true;
   editorModal.action = action;
-  editorModal.data = data;
+  editorModal.data = data as Editor;
 };
 
 const closeEditorModal = (name: string) => {
@@ -134,7 +134,7 @@ const closeEditorModal = (name: string) => {
 };
 
 const setEditorData = (data: Website) => {
-  editorModal.data = data;
+  editorModal.data = data as Editor;
 };
 
 const selectAllItem = () => {

@@ -139,11 +139,11 @@
                   />
                 </label>
                 <ul class="files-list">
-                  <li class="file-item">
+                  <li class="file-item" v-for="info in fileInfoList" :key="info.data?._id">
                     <div class="file-info">
                       <span class="material-symbols-outlined">image</span>
-                      <div class="file-name">my-work.jpg</div>
-                      <div class="file-size">1.2MB</div>
+                      <div class="file-name">{{ info.data?.url }}</div>
+                      <div class="file-size">{{ info.data && convertFileSize(info.data.size) }}</div>
                     </div>
                     <div class="file-actions">
                       <button class="btn btn-sm done">
@@ -383,6 +383,7 @@ const uploadImg = async (files: FileList, websiteId: string) => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          withCredentials: true,
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
@@ -396,7 +397,7 @@ const uploadImg = async (files: FileList, websiteId: string) => {
           if (res.data.code === 200) {
             fileInfoList.value[i].data = res.data.data;
             fileInfoList.value[i].progress = 100;
-            resolve(res.data.data);
+            resolve(res.data);
           } else {
             reject(res.data.msg);
           }
@@ -408,8 +409,8 @@ const uploadImg = async (files: FileList, websiteId: string) => {
     });
     resList.push(res);
   }
-  const res = await Promise.all(resList);
-  console.log("res", res);
+  const allRes = await Promise.all(resList);
+  console.log("res", allRes);
 };
 
 const handleDrop = (e: DragEvent) => {
@@ -452,6 +453,18 @@ const reset = () => {
   description.value = "";
   textEditorJson.value = "";
   fileInfoList.value = [];
+};
+
+const convertFileSize = (size: number) => {
+  if (size < 1024) {
+    return `${size} B`;
+  } else if (size < 1024 * 1024) {
+    return `${(size / 1024).toFixed(2)} KB`;
+  } else if (size < 1024 * 1024 * 1024) {
+    return `${(size / 1024 / 1024).toFixed(2)} MB`;
+  } else {
+    return `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`;
+  }
 };
 
 watch(
@@ -626,6 +639,7 @@ watch(
       background-color: lighten($terColor, 5%);
       overflow: hidden;
       border-radius: 12px;
+      margin-bottom: 20px;
       .file-info {
         display: flex;
         align-items: center;
