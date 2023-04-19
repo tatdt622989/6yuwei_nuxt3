@@ -139,26 +139,39 @@
                   />
                 </label>
                 <ul class="files-list">
-                  <li class="file-item" v-for="info in fileInfoList" :key="info.data?._id">
+                  <li
+                    class="file-item"
+                    v-for="info in fileInfoList"
+                    :key="info.data?._id"
+                  >
                     <div class="file-info">
                       <span class="material-symbols-outlined">image</span>
-                      <div class="file-name">{{ info.data?.url }}</div>
-                      <div class="file-size">{{ info.data && convertFileSize(info.data.size) }}</div>
+                      <div class="file-name">
+                        <span>{{ info.data?.url }}</span>
+                      </div>
+                      <div class="file-size">
+                        <span>{{
+                          info.data && convertFileSize(info.data.size)
+                        }}</span>
+                      </div>
                     </div>
                     <div class="file-actions">
-                      <button class="btn btn-sm done">
+                      <button
+                        class="btn btn-sm done"
+                        v-if="info.progress === 100"
+                      >
                         <span class="material-symbols-outlined"
                           >cloud_done</span
                         >
                       </button>
-                      <button class="btn btn-sm remove">
-                        <span class="material-symbols-outlined">delete</span>
+                      <button class="btn btn-sm remove" @click="">
+                        <span class="material-symbols-outlined">close</span>
                       </button>
                     </div>
                     <div class="progress-bar">
                       <div
                         class="progress-bar-inner"
-                        :style="{ width: '50%' }"
+                        :style="{ width: info.progress + '%' }"
                       />
                     </div>
                   </li>
@@ -186,7 +199,7 @@ import { useStore } from "~/store";
 import { Photo, Editor } from "~~/types";
 import { Pagination, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
-import axios from 'axios';
+import axios from "axios";
 import "swiper/css";
 
 interface Validation {
@@ -198,7 +211,7 @@ interface TextEditorRef {
 }
 
 interface FileInfo {
-  data: Photo | null,
+  data: Photo | null;
   progress: number;
 }
 
@@ -219,7 +232,7 @@ const props = defineProps({
     type: String,
   },
 });
-const emit = defineEmits(["close-modal", "reload-list", "set-editor-data"]);
+const emit = defineEmits(["close-modal", "reload-list", "set-editor-data", "open-confirm-modal"]);
 
 const isOpen = ref(props.isOpen);
 const title = ref("");
@@ -312,7 +325,7 @@ const save = async () => {
         },
       });
       const error = res.error.value as Error | null;
-      const resData = res.data.value as { code: number, data: Editor } | null;
+      const resData = res.data.value as { code: number; data: Editor } | null;
       return { error, resData };
     },
     edit: async () => {
@@ -325,7 +338,7 @@ const save = async () => {
         },
       });
       const error = res.error.value as Error | null;
-      const resData = res.data.value as { code: number, data: Editor } | null;
+      const resData = res.data.value as { code: number; data: Editor } | null;
       return { error, resData };
     },
   };
@@ -369,17 +382,29 @@ const save = async () => {
 
 const uploadImg = async (files: FileList, websiteId: string) => {
   const resList = [];
+  const tempFileInfoList: FileInfo[] = [];
+
+  if (files.length === 0) {
+    return;
+  }
+
+  if (fileInfoList.value.length + files.length > 5) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: "You can only upload 5 photos at a time",
+      timeout: 5000,
+    });
+    return;
+  }
 
   for (let i = 0; i < files.length; i++) {
     const formData = new FormData();
     formData.append("file", files[i]);
     formData.append("websiteId", websiteId);
-    fileInfoList.value[i] = {
-      data: null,
-      progress: 0,
-    };
     const res = new Promise((resolve, reject) => {
-      axios.post(`${store.api}/websites/admin/photo/`, formData, {
+      axios
+        .post(`${store.api}/websites/admin/photo/`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -388,15 +413,21 @@ const uploadImg = async (files: FileList, websiteId: string) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
             );
-            console.log("percentCompleted", percentCompleted, fileInfoList.value[i]);
+            console.log(
+              "percentCompleted",
+              percentCompleted,
+              fileInfoList.value[i]
+            );
             fileInfoList.value[i].progress = percentCompleted;
           },
         })
         .then((res) => {
           console.log("res", res);
           if (res.data.code === 200) {
-            fileInfoList.value[i].data = res.data.data;
-            fileInfoList.value[i].progress = 100;
+            tempFileInfoList.push({
+              data: res.data.data,
+              progress: 100,
+            });
             resolve(res.data);
           } else {
             reject(res.data.msg);
@@ -409,8 +440,8 @@ const uploadImg = async (files: FileList, websiteId: string) => {
     });
     resList.push(res);
   }
-  const allRes = await Promise.all(resList);
-  console.log("res", allRes);
+  await Promise.all(resList);
+  fileInfoList.value = [...fileInfoList.value, ...tempFileInfoList];
 };
 
 const handleDrop = (e: DragEvent) => {
@@ -444,6 +475,10 @@ const handleFileChange = (e: Event) => {
   console.log("files", files);
   if (!props.data || !files) return;
   uploadImg(files, props.data._id);
+};
+
+const openConfirmModal = (id: string) => {
+  emit('open-confirm-modal');
 };
 
 const reset = () => {
@@ -632,10 +667,11 @@ watch(
     padding-left: 0;
     .file-item {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       position: relative;
       justify-content: space-between;
       padding: 10px;
+      padding-bottom: 14px;
       background-color: lighten($terColor, 5%);
       overflow: hidden;
       border-radius: 12px;
@@ -655,19 +691,33 @@ watch(
         }
         .file-name {
           flex-grow: 1;
+          display: inline-block;
+          span {
+            line-height: 1.2;
+            font-size: 16px;
+          }
         }
         .file-size {
           flex-shrink: 0;
-          color: $mainColor;
           margin-left: 10px;
+          display: flex;
+          align-items: center;
+          span {
+            font-size: 16px;
+            color: $mainColor;
+            line-height: 1.2;
+          }
         }
       }
       .file-actions {
         display: flex;
         .btn {
           border: 0;
-          width: auto;
+          border-radius: 99px;
+          width: 44px;
+          height: 44px;
           background: none;
+          @include center;
           span {
             font-size: 28px;
           }
@@ -676,7 +726,11 @@ watch(
           color: $mainColor;
         }
         .remove {
-          color: $dangerColor;
+          color: $secColor;
+          &:hover {
+            color: $dangerColor;
+            background-color: #fff;
+          }
         }
       }
       .progress-bar {
@@ -684,8 +738,13 @@ watch(
         bottom: 0;
         width: 100%;
         height: 4px;
-        background-color: $mainColor;
+        background-color: $terColor;
         left: 0;
+        .progress-bar-inner {
+          height: 100%;
+          background-color: $mainColor;
+          @extend %ts;
+        }
       }
     }
   }

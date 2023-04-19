@@ -42,14 +42,25 @@
               <tr v-for="website in websites" :key="website._id">
                 <td>
                   <label class="selector">
-                    <input type="checkbox" v-model="selector" :value="website._id" />
+                    <input
+                      type="checkbox"
+                      v-model="selector"
+                      :value="website._id"
+                    />
                     <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </td>
                 <td>
-                  <div class="preview-box" @click="openEditorModal('edit', website)">
-                    <img v-if="website.photos[0]" :src="`${store.api}/admin/uploads/${website.photos[0].url}`" :alt="website.title" />
+                  <div
+                    class="preview-box"
+                    @click="openEditorModal('edit', website)"
+                  >
+                    <img
+                      v-if="website.photos[0]"
+                      :src="`${store.api}/admin/uploads/${website.photos[0].url}`"
+                      :alt="website.title"
+                    />
                     <span class="material-symbols-outlined">nature_people</span>
                   </div>
                 </td>
@@ -88,12 +99,18 @@
     </div>
     <AdminEditorModal
       :is-open="editorModal.open"
+      :is-confirm="confirmModal.isConfirm"
       :action="editorModal.action"
       :data="editorModal.data"
       @close-modal="closeEditorModal"
       @reload-list="getList"
       @set-editor-data="setEditorData"
+      @open-confirm-modal="openConfirmModal"
       :unit="'Websites'"
+    />
+    <AdminConfirm
+      :is-open="confirmModal.open"
+      :is-confirm="confirmModal.isConfirm"
     />
   </div>
 </template>
@@ -112,8 +129,12 @@ const user = computed(() => store.user);
 
 const editorModal = reactive({
   open: false,
-  action: "add" as 'add' | 'edit',
+  action: "add" as "add" | "edit",
   data: null as Editor | null,
+});
+const confirmModal = reactive({
+  open: false,
+  isConfirm: false,
 });
 const websites = ref<Array<Website>>([]);
 const selector = ref<Array<string>>([]);
@@ -122,10 +143,18 @@ const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
 
-const openEditorModal = (action: 'add' | 'edit', data: Website|null = null) => {
+const openEditorModal = (
+  action: "add" | "edit",
+  data: Website | null = null
+) => {
   editorModal.open = true;
   editorModal.action = action;
   editorModal.data = data as Editor;
+};
+
+const openConfirmModal = () => {
+  confirmModal.isConfirm = false;
+  confirmModal.open = true;
 };
 
 const closeEditorModal = (name: string) => {

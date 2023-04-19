@@ -43,4 +43,15 @@ const isOpen = ref(props.isOpen);
 </script>
 
 <style lang="scss" scoped>
+#confirmModal {
+  &.modal-fade-enter-active,
+  &.modal-fade-leave-active {
+    transition: all 0.5s ease-out !important;
+  }
+
+  &.modal-fade-enter-from,
+  &.modal-fade-leave-to {
+    opacity: 0 !important;
+  }
+}
 </style>
