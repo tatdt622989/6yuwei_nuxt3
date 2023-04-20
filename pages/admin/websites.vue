@@ -108,9 +108,10 @@
       @open-confirm-modal="openConfirmModal"
       :unit="'Websites'"
     />
-    <AdminConfirm
+    <AdminConfirmModal
       :is-open="confirmModal.open"
       :is-confirm="confirmModal.isConfirm"
+      @close-modal="confirmModal.open = false"
     />
   </div>
 </template>
@@ -135,6 +136,7 @@ const editorModal = reactive({
 const confirmModal = reactive({
   open: false,
   isConfirm: false,
+  id: "",
 });
 const websites = ref<Array<Website>>([]);
 const selector = ref<Array<string>>([]);
@@ -152,9 +154,11 @@ const openEditorModal = (
   editorModal.data = data as Editor;
 };
 
-const openConfirmModal = () => {
+const openConfirmModal = (id: string) => {
+  console.log(confirmModal);
   confirmModal.isConfirm = false;
   confirmModal.open = true;
+  confirmModal.id = id;
 };
 
 const closeEditorModal = (name: string) => {

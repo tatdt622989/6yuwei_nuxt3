@@ -164,7 +164,12 @@
                           >cloud_done</span
                         >
                       </button>
-                      <button class="btn btn-sm remove" @click="">
+                      <button
+                        class="btn btn-sm remove"
+                        @click="
+                          emit('open-confirm-modal', info.data?._id ?? '')
+                        "
+                      >
                         <span class="material-symbols-outlined">close</span>
                       </button>
                     </div>
@@ -220,6 +225,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isConfirm: {
+    type: Boolean,
+    default: false,
+  },
   action: {
     type: String as PropType<"add" | "edit">,
     default: "add",
@@ -232,7 +241,12 @@ const props = defineProps({
     type: String,
   },
 });
-const emit = defineEmits(["close-modal", "reload-list", "set-editor-data", "open-confirm-modal"]);
+const emit = defineEmits([
+  "close-modal",
+  "reload-list",
+  "set-editor-data",
+  "open-confirm-modal",
+]);
 
 const isOpen = ref(props.isOpen);
 const title = ref("");
@@ -477,10 +491,6 @@ const handleFileChange = (e: Event) => {
   uploadImg(files, props.data._id);
 };
 
-const openConfirmModal = (id: string) => {
-  emit('open-confirm-modal');
-};
-
 const reset = () => {
   title.value = "";
   externalLink.value = "";
@@ -541,6 +551,7 @@ watch(
   .modal-header {
     .modal-title {
       font-weight: bold;
+      color: $secColor;
     }
   }
   .modal-content {
@@ -612,6 +623,7 @@ watch(
       display: none;
     }
   }
+
   .img-previewer {
     display: flex;
     width: 100%;
