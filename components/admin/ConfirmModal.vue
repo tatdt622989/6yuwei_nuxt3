@@ -32,7 +32,7 @@
             >
               Cancel
             </button>
-            <button type="button" class="btn btn-primary">Apply</button>
+            <button type="button" class="btn btn-primary" @click="confirm">Apply</button>
           </div>
         </div>
       </div>
@@ -51,21 +51,12 @@ const props = defineProps({
     default: false,
   },
 });
-const emit = defineEmits(["close-modal"]);
+const emit = defineEmits(["close-modal", "confirm"]);
 
-onMounted(() => {
-  console.log("mounted");
-});
-
-watch(
-  () => props.isConfirm,
-  (newVal) => {
-    console.log(newVal);
-    if (newVal) {
-      emit("close-modal");
-    }
-  }
-);
+const confirm = () => {
+  emit("confirm");
+  emit("close-modal");
+};
 </script>
 
 <style lang="scss" scoped>

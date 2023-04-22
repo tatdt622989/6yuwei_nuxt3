@@ -151,7 +151,7 @@
                       </div>
                       <div class="file-size">
                         <span>{{
-                          info.data && convertFileSize(info.data.size)
+                          info.data && fileSizeConverter(info.data.size)
                         }}</span>
                       </div>
                     </div>
@@ -170,7 +170,7 @@
                           emit('open-confirm-modal', info.data?._id ?? '')
                         "
                       >
-                        <span class="material-symbols-outlined">close</span>
+                        <span class="material-symbols-outlined">delete</span>
                       </button>
                     </div>
                     <div class="progress-bar">
@@ -188,7 +188,7 @@
             <button v-if="action === 'edit'" type="button" class="btn delete">
               Delete
             </button>
-            <button type="button" class="btn cancel">Cancel</button>
+            <button type="button" class="btn cancel" @click="emit('close-modal')">Cancel</button>
             <button type="button" class="btn btn-primary" @click="save">
               Save
             </button>
@@ -240,6 +240,14 @@ const props = defineProps({
   unit: {
     type: String,
   },
+  confirmModal: {
+    type: Object as PropType<{
+      open: boolean;
+      isConfirm: boolean;
+      id: string;
+    }>,
+    default: {},
+  },
 });
 const emit = defineEmits([
   "close-modal",
@@ -255,8 +263,9 @@ const category = ref("");
 const description = ref("");
 const textEditorJson = ref("");
 const textEditorRef = ref<TextEditorRef | null>(null); // 取得text editor 暴露的方法
-const fileInfoList = ref<FileInfo[] | []>([]);
+const fileInfoList = ref<FileInfo[]>([]);
 const store = useStore();
+const fileSizeConverter = useFileSizeConverter();
 const inDropZone = ref(false);
 const validation = reactive<Validation>({
   title: false,
@@ -358,7 +367,7 @@ const save = async () => {
   };
   const res = await method[props.action]();
   if (res.error) {
-    store.pushNotification({
+    return store.pushNotification({
       id: Date.now(),
       type: "error",
       message: res.error.message,
@@ -395,8 +404,7 @@ const save = async () => {
 };
 
 const uploadImg = async (files: FileList, websiteId: string) => {
-  const resList = [];
-  const tempFileInfoList: FileInfo[] = [];
+  const reqList = [];
 
   if (files.length === 0) {
     return;
@@ -412,50 +420,83 @@ const uploadImg = async (files: FileList, websiteId: string) => {
     return;
   }
 
-  for (let i = 0; i < files.length; i++) {
-    const formData = new FormData();
-    formData.append("file", files[i]);
-    formData.append("websiteId", websiteId);
-    const res = new Promise((resolve, reject) => {
-      axios
-        .post(`${store.api}/websites/admin/photo/`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
-            );
-            console.log(
-              "percentCompleted",
-              percentCompleted,
-              fileInfoList.value[i]
-            );
-            fileInfoList.value[i].progress = percentCompleted;
-          },
-        })
-        .then((res) => {
-          console.log("res", res);
-          if (res.data.code === 200) {
-            tempFileInfoList.push({
-              data: res.data.data,
-              progress: 100,
-            });
+  try {
+    for (let i = 0; i < files.length; i++) {
+      console.log(files[i]["name"]);
+      const formData = new FormData();
+      formData.append("file", files[i]);
+      formData.append("websiteId", websiteId);
+      console.log("formData", files);
+      const tempFileInfo: FileInfo = {
+        data: {
+          _id: "",
+          url: files[i].name,
+          size: files[i].size,
+          updatedAt: "",
+          createdAt: "",
+        },
+        progress: 0,
+      };
+      fileInfoList.value.push(tempFileInfo);
+      const index = fileInfoList.value.length - 1;
+      const res = new Promise((resolve, reject) => {
+        axios
+          .post(`${store.api}/websites/admin/photo/`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true,
+            onUploadProgress: (progressEvent) => {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
+              );
+              fileInfoList.value[index].progress = percentCompleted;
+            },
+          })
+          .then((res) => {
+            fileInfoList.value[index].data = res.data.data;
             resolve(res.data);
-          } else {
-            reject(res.data.msg);
-          }
-        })
-        .catch((err) => {
-          console.log("err", err);
-          reject(err);
-        });
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      });
+      reqList.push(res);
+    }
+    interface ResData {
+      code: number;
+      data: Photo;
+      msg: string;
+    }
+    const resList = await Promise.all(reqList) as ResData[];
+    const errList = resList.filter((item) => item.code !== 200);
+    if (errList.some((item) => item.code === 403)) {
+      return navigateTo("/admin/login");
+    }
+    if (errList.length > 0) {
+      store.pushNotification({
+        id: Date.now(),
+        type: "error",
+        message: errList[0].msg,
+        timeout: 5000,
+      });
+    } else {
+      store.pushNotification({
+        id: Date.now(),
+        type: "success",
+        message: "Upload successfully",
+        timeout: 5000,
+      });
+    }
+  } catch (err) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: err as string,
+      timeout: 5000,
     });
-    resList.push(res);
   }
-  await Promise.all(resList);
-  fileInfoList.value = [...fileInfoList.value, ...tempFileInfoList];
+  fileInfoList.value.filter((fileInfo) => fileInfo.progress === 100);
 };
 
 const handleDrop = (e: DragEvent) => {
@@ -470,7 +511,6 @@ const handleDrop = (e: DragEvent) => {
   }
   if (!e.dataTransfer) return;
   const files = e.dataTransfer.files;
-  console.log("files", files);
   if (!props.data) return;
   uploadImg(files, props.data._id);
 };
@@ -491,6 +531,53 @@ const handleFileChange = (e: Event) => {
   uploadImg(files, props.data._id);
 };
 
+const handleFileDelete = async () => {
+  const api = `${store.api}/websites/admin/photo/`;
+  const res = await useFetch(api, {
+    method: "DELETE",
+    body: JSON.stringify({
+      websiteId: props.data?._id,
+      photoId: props.confirmModal?.id,
+    }),
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const error = res.error.value as Error | null;
+  const resData = res.data.value as {
+    code: number;
+    data: Editor;
+    msg: string;
+  } | null;
+  if (error) {
+    return store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error.message,
+      timeout: 5000,
+    });
+  }
+  if (resData) {
+    if (resData.code === 200) {
+      store.pushNotification({
+        id: Date.now(),
+        type: "success",
+        message: "Deleted successfully",
+        timeout: 5000,
+      });
+      emit("set-editor-data", resData.data);
+    } else {
+      store.pushNotification({
+        id: Date.now(),
+        type: "error",
+        message: resData.msg,
+        timeout: 5000,
+      });
+    }
+  }
+};
+
 const reset = () => {
   title.value = "";
   externalLink.value = "";
@@ -498,18 +585,6 @@ const reset = () => {
   description.value = "";
   textEditorJson.value = "";
   fileInfoList.value = [];
-};
-
-const convertFileSize = (size: number) => {
-  if (size < 1024) {
-    return `${size} B`;
-  } else if (size < 1024 * 1024) {
-    return `${(size / 1024).toFixed(2)} KB`;
-  } else if (size < 1024 * 1024 * 1024) {
-    return `${(size / 1024 / 1024).toFixed(2)} MB`;
-  } else {
-    return `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`;
-  }
 };
 
 watch(
@@ -526,6 +601,16 @@ watch(
       updateData(val);
     } else {
       reset();
+    }
+  }
+);
+
+watch(
+  () => props.isConfirm,
+  (newVal) => {
+    console.log(newVal);
+    if (newVal) {
+      handleFileDelete();
     }
   }
 );
@@ -574,6 +659,7 @@ watch(
         background-color: $terColor;
       }
       &.delete {
+        color: #fff;
         background-color: $dangerColor;
       }
       &:hover {

@@ -106,12 +106,14 @@
       @reload-list="getList"
       @set-editor-data="setEditorData"
       @open-confirm-modal="openConfirmModal"
+      :confirm-modal="confirmModal"
       :unit="'Websites'"
     />
     <AdminConfirmModal
       :is-open="confirmModal.open"
       :is-confirm="confirmModal.isConfirm"
       @close-modal="confirmModal.open = false"
+      @confirm="confirmModal.isConfirm = true"
     />
   </div>
 </template>
@@ -155,7 +157,6 @@ const openEditorModal = (
 };
 
 const openConfirmModal = (id: string) => {
-  console.log(confirmModal);
   confirmModal.isConfirm = false;
   confirmModal.open = true;
   confirmModal.id = id;
@@ -212,19 +213,29 @@ const getList = async () => {
     code: number;
   };
   if (data) {
-    if (data.code === 200) {
-      total.value = data.total;
-      totalPage.value = data.totalPage;
-      websites.value = data.list;
-    }
-    if (data.code === 403) {
-      store.pushNotification({
-        id: Date.now(),
-        type: "error",
-        message: data.msg,
-        timeout: 5000,
-      });
-      navigateTo("/admin/login");
+    switch (data.code) {
+      case 200:
+        total.value = data.total;
+        totalPage.value = data.totalPage;
+        websites.value = data.list;
+        break;
+      case 403:
+        store.pushNotification({
+          id: Date.now(),
+          type: "error",
+          message: data.msg,
+          timeout: 5000,
+        });
+        navigateTo("/admin/login");
+        break;
+      default:
+        store.pushNotification({
+          id: Date.now(),
+          type: "error",
+          message: data.msg,
+          timeout: 5000,
+        });
+        break;
     }
   } else {
     store.pushNotification({
