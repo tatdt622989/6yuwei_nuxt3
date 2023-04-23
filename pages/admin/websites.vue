@@ -162,9 +162,12 @@ const openConfirmModal = (id: string) => {
   confirmModal.id = id;
 };
 
-const closeEditorModal = (name: string) => {
+const closeEditorModal = async () => {
+  // console.log("close");
+  // if (!store.isLoading) return;
+  // await getList();
+  // store.setLoading(false);
   editorModal.open = false;
-  getList();
 };
 
 const setEditorData = (data: Website) => {
@@ -245,7 +248,7 @@ const getList = async () => {
       timeout: 5000,
     });
   }
-  editorModal.open = false;
+  store.setLoading(false);
 };
 
 onMounted(async () => {

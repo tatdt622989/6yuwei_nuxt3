@@ -17,19 +17,35 @@
               class="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
-              @click="emit('close-modal')"
+              @click="closeModal"
             />
           </div>
           <div class="modal-body container">
             <form action="" class="row" @submit.prevent>
-              <div class="col-6 d-flex align-stretch">
+              <div class="col-6 d-flex align-stretch flex-column">
                 <div class="img-previewer">
-                  <div class="imgList">
-                    <div class="imgItem">
-                      <img src="" alt="" />
-                    </div>
-                  </div>
+                  <swiper
+                    :modules="modules"
+                    :slides-per-view="1"
+                    :space-between="0"
+                    :loop="true"
+                    :pagination="{
+                      clickable: true,
+                      el: pagination,
+                    }"
+                  >
+                    <swiper-slide
+                      v-for="file in fileInfoList"
+                      :key="file.data?._id"
+                    >
+                      <img
+                        :src="`${store.api}/admin/uploads/${file.data?.url}`"
+                        :alt="file.data?.url"
+                      />
+                    </swiper-slide>
+                  </swiper>
                 </div>
+                <div class="pagination" ref="pagination"></div>
               </div>
               <div class="col-6">
                 <div class="mb-3">
@@ -188,7 +204,9 @@
             <button v-if="action === 'edit'" type="button" class="btn delete">
               Delete
             </button>
-            <button type="button" class="btn cancel" @click="emit('close-modal')">Cancel</button>
+            <button type="button" class="btn cancel" @click="closeModal">
+              Cancel
+            </button>
             <button type="button" class="btn btn-primary" @click="save">
               Save
             </button>
@@ -205,7 +223,9 @@ import { Photo, Editor } from "~~/types";
 import { Pagination, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import axios from "axios";
+
 import "swiper/css";
+import "swiper/css/pagination";
 
 interface Validation {
   [K: string]: boolean;
@@ -219,6 +239,9 @@ interface FileInfo {
   data: Photo | null;
   progress: number;
 }
+
+const modules = [Pagination, Autoplay];
+const pagination = ref(null);
 
 const props = defineProps({
   isOpen: {
@@ -325,6 +348,7 @@ const save = async () => {
     textEditorRef.value.generateEditorJson();
   }
   const data = {
+    _id: "",
     title: title.value,
     externalLink: externalLink.value,
     category: category.value,
@@ -352,6 +376,7 @@ const save = async () => {
       return { error, resData };
     },
     edit: async () => {
+      data._id = props.data?._id!;
       const res = await useFetch(api[props.action], {
         method: "PUT",
         body: JSON.stringify(data),
@@ -383,24 +408,18 @@ const save = async () => {
         timeout: 5000,
       });
       emit("set-editor-data", res.resData.data);
-    } else if (res.resData.code === 403) {
-      store.pushNotification({
-        id: Date.now(),
-        type: "error",
-        message: "You don't have permission to do this",
-        timeout: 5000,
-      });
-      navigateTo("/admin/login");
+      emit("reload-list");
     } else {
+      res.resData.code === 403 && navigateTo("/admin/login");
       store.pushNotification({
         id: Date.now(),
         type: "error",
         message: "Something went wrong",
         timeout: 5000,
       });
+      store.isLoading = false;
     }
   }
-  store.isLoading = false;
 };
 
 const uploadImg = async (files: FileList, websiteId: string) => {
@@ -468,7 +487,7 @@ const uploadImg = async (files: FileList, websiteId: string) => {
       data: Photo;
       msg: string;
     }
-    const resList = await Promise.all(reqList) as ResData[];
+    const resList = (await Promise.all(reqList)) as ResData[];
     const errList = resList.filter((item) => item.code !== 200);
     if (errList.some((item) => item.code === 403)) {
       return navigateTo("/admin/login");
@@ -568,6 +587,7 @@ const handleFileDelete = async () => {
       });
       emit("set-editor-data", resData.data);
     } else {
+      resData.code === 403 && navigateTo("/admin/login");
       store.pushNotification({
         id: Date.now(),
         type: "error",
@@ -585,6 +605,11 @@ const reset = () => {
   description.value = "";
   textEditorJson.value = "";
   fileInfoList.value = [];
+};
+
+const closeModal = () => {
+  // store.setLoading(true);
+  emit("close-modal");
 };
 
 watch(
@@ -715,6 +740,21 @@ watch(
     width: 100%;
     background-color: lighten($terColor, 5%);
     border-radius: 16px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    position: relative;
+    .swiper {
+    }
+    .swiper-slide {
+      img {
+        width: 100%;
+      }
+    }
+  }
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     margin-bottom: 16px;
   }
   .upload-area {

@@ -89,7 +89,7 @@ $dangerColor: #e75e5e;
     animation: beats $speed ease-in-out infinite;
 }
 
-@mixin after($text: "", $pos: "absolute") {
+@mixin after($text: "", $pos: absolute) {
     &::after {
         content: $text;
         position: $pos;
@@ -97,7 +97,7 @@ $dangerColor: #e75e5e;
     }
 }
 
-@mixin before($text: "", $pos: "absolute") {
+@mixin before($text: "", $pos: absolute) {
     &::before {
         content: $text;
         position: $pos;

@@ -85,3 +85,17 @@ datalist {
   background-color: $mainColor;
   border-radius: 99px;
 }
+
+.img-previewer {
+  & + .pagination {
+    .swiper-pagination-bullet {
+      opacity: 1;
+      width: 10px;
+      height: 10px;
+      @extend %ts;
+      &-active {
+        background: $mainColor;
+      }
+    }
+  }
+}
