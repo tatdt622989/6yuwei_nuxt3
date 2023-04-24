@@ -29,6 +29,10 @@
                     :slides-per-view="1"
                     :space-between="0"
                     :loop="true"
+                    :autoplay="{
+                      delay: 3000,
+                      disableOnInteraction: true,
+                    }"
                     :pagination="{
                       clickable: true,
                       el: pagination,
@@ -45,7 +49,7 @@
                     </swiper-slide>
                   </swiper>
                 </div>
-                <div class="pagination" ref="pagination"></div>
+                <div v-if="fileInfoList.length>0" class="pagination" ref="pagination"></div>
               </div>
               <div class="col-6">
                 <div class="mb-3">
@@ -84,9 +88,11 @@
                     :class="{ 'is-invalid': validation.category }"
                   />
                   <datalist id="category">
-                    <option value="1"></option>
-                    <option value="2"></option>
-                    <option value="3"></option>
+                    <option
+                      v-for="(item, index) in props.category"
+                      :value="item"
+                      :key="Date.now() + index"
+                    ></option>
                   </datalist>
                 </div>
               </div>
@@ -271,12 +277,17 @@ const props = defineProps({
     }>,
     default: {},
   },
+  category: {
+    type: Array as PropType<string[]>,
+    default: [],
+  },
 });
 const emit = defineEmits([
   "close-modal",
   "reload-list",
   "set-editor-data",
   "open-confirm-modal",
+  "update-category",
 ]);
 
 const isOpen = ref(props.isOpen);
@@ -422,7 +433,7 @@ const save = async () => {
   }
 };
 
-const uploadImg = async (files: FileList, websiteId: string) => {
+const uploadImg = async (files: FileList, id: string) => {
   const reqList = [];
 
   if (files.length === 0) {
@@ -441,11 +452,9 @@ const uploadImg = async (files: FileList, websiteId: string) => {
 
   try {
     for (let i = 0; i < files.length; i++) {
-      console.log(files[i]["name"]);
       const formData = new FormData();
       formData.append("file", files[i]);
-      formData.append("websiteId", websiteId);
-      console.log("formData", files);
+      formData.append("unitId", id);
       const tempFileInfo: FileInfo = {
         data: {
           _id: "",
@@ -460,7 +469,7 @@ const uploadImg = async (files: FileList, websiteId: string) => {
       const index = fileInfoList.value.length - 1;
       const res = new Promise((resolve, reject) => {
         axios
-          .post(`${store.api}/websites/admin/photo/`, formData, {
+          .post(`${store.api}/${props.unit}/admin/photo/`, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -551,50 +560,52 @@ const handleFileChange = (e: Event) => {
 };
 
 const handleFileDelete = async () => {
-  const api = `${store.api}/websites/admin/photo/`;
-  const res = await useFetch(api, {
-    method: "DELETE",
-    body: JSON.stringify({
-      websiteId: props.data?._id,
-      photoId: props.confirmModal?.id,
-    }),
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const error = res.error.value as Error | null;
-  const resData = res.data.value as {
-    code: number;
-    data: Editor;
-    msg: string;
-  } | null;
-  if (error) {
+  const api = `${store.api}/${props.unit}/admin/photo/`;
+  const data: { [key: string]: string } = {
+    photoId: props.confirmModal?.id,
+    unitId: props.data?._id ?? "",
+  };
+  console.log("data", data);
+  try {
+    const res = await useFetch(api, {
+      method: "DELETE",
+      body: JSON.stringify(data),
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const resData = res.data.value as {
+      code: number;
+      data: Editor;
+      msg: string;
+    } | null;
+    if (resData) {
+      if (resData.code === 200) {
+        store.pushNotification({
+          id: Date.now(),
+          type: "success",
+          message: "Deleted successfully",
+          timeout: 5000,
+        });
+        emit("set-editor-data", resData.data);
+      } else {
+        resData.code === 403 && navigateTo("/admin/login");
+        store.pushNotification({
+          id: Date.now(),
+          type: "error",
+          message: resData.msg,
+          timeout: 5000,
+        });
+      }
+    }
+  } catch (error) {
     return store.pushNotification({
       id: Date.now(),
       type: "error",
-      message: error.message,
+      message: error as string,
       timeout: 5000,
     });
-  }
-  if (resData) {
-    if (resData.code === 200) {
-      store.pushNotification({
-        id: Date.now(),
-        type: "success",
-        message: "Deleted successfully",
-        timeout: 5000,
-      });
-      emit("set-editor-data", resData.data);
-    } else {
-      resData.code === 403 && navigateTo("/admin/login");
-      store.pushNotification({
-        id: Date.now(),
-        type: "error",
-        message: resData.msg,
-        timeout: 5000,
-      });
-    }
   }
 };
 
@@ -616,6 +627,7 @@ watch(
   () => props.isOpen,
   (val) => {
     isOpen.value = val;
+    emit("update-category");
   }
 );
 
@@ -633,7 +645,6 @@ watch(
 watch(
   () => props.isConfirm,
   (newVal) => {
-    console.log(newVal);
     if (newVal) {
       handleFileDelete();
     }
@@ -662,6 +673,7 @@ watch(
     .modal-title {
       font-weight: bold;
       color: $secColor;
+      text-transform: capitalize;
     }
   }
   .modal-content {
@@ -743,6 +755,7 @@ watch(
     margin-bottom: 10px;
     overflow: hidden;
     position: relative;
+    flex-grow: 1;
     .swiper {
     }
     .swiper-slide {

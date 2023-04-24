@@ -98,16 +98,18 @@
       </div>
     </div>
     <AdminEditorModal
+      :unit="'websites'"
       :is-open="editorModal.open"
       :is-confirm="confirmModal.isConfirm"
       :action="editorModal.action"
       :data="editorModal.data"
+      :confirm-modal="confirmModal"
+      :category="category"
+      @open-confirm-modal="openConfirmModal"
       @close-modal="closeEditorModal"
       @reload-list="getList"
       @set-editor-data="setEditorData"
-      @open-confirm-modal="openConfirmModal"
-      :confirm-modal="confirmModal"
-      :unit="'Websites'"
+      @update-category="getCategory"
     />
     <AdminConfirmModal
       :is-open="confirmModal.open"
@@ -146,6 +148,7 @@ const isAllSelected = ref(false);
 const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
+const category = ref([]);
 
 const openEditorModal = (
   action: "add" | "edit",
@@ -163,10 +166,6 @@ const openConfirmModal = (id: string) => {
 };
 
 const closeEditorModal = async () => {
-  // console.log("close");
-  // if (!store.isLoading) return;
-  // await getList();
-  // store.setLoading(false);
   editorModal.open = false;
 };
 
@@ -184,7 +183,7 @@ const selectAllItem = () => {
   }
 };
 
-const addWebsite = async (website: Website) => {
+const copyWebsite = async (website: Website) => {
   const api = `${store.api}/websites/admin/add/`;
   const data = {
     title: website.title,
@@ -196,6 +195,7 @@ const addWebsite = async (website: Website) => {
 };
 
 const getList = async () => {
+  store.setLoading(true);
   const api = `${store.api}/websites/admin/list/?page=${currentPage.value}`;
   const res = await $fetch(api, {
     method: "GET",
@@ -216,29 +216,18 @@ const getList = async () => {
     code: number;
   };
   if (data) {
-    switch (data.code) {
-      case 200:
-        total.value = data.total;
-        totalPage.value = data.totalPage;
-        websites.value = data.list;
-        break;
-      case 403:
-        store.pushNotification({
-          id: Date.now(),
-          type: "error",
-          message: data.msg,
-          timeout: 5000,
-        });
-        navigateTo("/admin/login");
-        break;
-      default:
-        store.pushNotification({
-          id: Date.now(),
-          type: "error",
-          message: data.msg,
-          timeout: 5000,
-        });
-        break;
+    if (data.code === 200) {
+      total.value = data.total;
+      totalPage.value = data.totalPage;
+      websites.value = data.list;
+    } else {
+      data.code === 403 && navigateTo("/admin/login");
+      store.pushNotification({
+        id: Date.now(),
+        type: "error",
+        message: data.msg,
+        timeout: 5000,
+      });
     }
   } else {
     store.pushNotification({
@@ -251,8 +240,47 @@ const getList = async () => {
   store.setLoading(false);
 };
 
+const getCategory = async () => {
+  store.setLoading(true);
+  const api = `${store.api}/websites/admin/category/`;
+  try {
+    const res = await useFetch(api, {
+      method: "GET",
+      credentials: "include",
+    });
+    const data = res.data.value as {
+      msg: string;
+      list: Array<string>;
+      code: number;
+      category: [];
+    };
+    if (data.code === 200) {
+      category.value = data.category;
+    } else {
+      data.code === 403 && navigateTo("/admin/login");
+      store.pushNotification({
+        id: Date.now(),
+        type: "error",
+        message: data.msg,
+        timeout: 5000,
+      });
+    }
+  } catch (err) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: err as string,
+      timeout: 5000,
+    });
+  }
+  store.setLoading(false);
+};
+
 onMounted(async () => {
-  getList();
+  store.setLoading(true);
+  await getList();
+  await getCategory();
+  store.setLoading(false);
 });
 
 watch(
