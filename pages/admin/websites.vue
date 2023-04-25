@@ -110,6 +110,7 @@
       @reload-list="getList"
       @set-editor-data="setEditorData"
       @update-category="getCategory"
+      @delete-data="deleteData"
     />
     <AdminConfirmModal
       :is-open="confirmModal.open"
@@ -197,45 +198,34 @@ const copyWebsite = async (website: Website) => {
 const getList = async () => {
   store.setLoading(true);
   const api = `${store.api}/websites/admin/list/?page=${currentPage.value}`;
-  const res = await $fetch(api, {
+  const res = await useFetch(api, {
     method: "GET",
     credentials: "include",
-  }).catch((error) => {
-    return store.pushNotification({
+  });
+  const error = res.error.value;
+
+  if (error) {
+    const status = error.status;
+    status === 403 && navigateTo("/admin/login");
+    store.pushNotification({
       id: Date.now(),
       type: "error",
-      message: error,
+      message: error.data,
       timeout: 5000,
     });
-  });
-  const data = res as {
+    return store.setLoading(false);
+  }
+
+  const data = res.data.value as {
     msg: string;
     list: Array<Website>;
     total: number;
     totalPage: number;
-    code: number;
   };
   if (data) {
-    if (data.code === 200) {
-      total.value = data.total;
-      totalPage.value = data.totalPage;
-      websites.value = data.list;
-    } else {
-      data.code === 403 && navigateTo("/admin/login");
-      store.pushNotification({
-        id: Date.now(),
-        type: "error",
-        message: data.msg,
-        timeout: 5000,
-      });
-    }
-  } else {
-    store.pushNotification({
-      id: Date.now(),
-      type: "error",
-      message: "Something went wrong",
-      timeout: 5000,
-    });
+    total.value = data.total;
+    totalPage.value = data.totalPage;
+    websites.value = data.list;
   }
   store.setLoading(false);
 };
@@ -248,22 +238,27 @@ const getCategory = async () => {
       method: "GET",
       credentials: "include",
     });
-    const data = res.data.value as {
-      msg: string;
-      list: Array<string>;
-      code: number;
-      category: [];
-    };
-    if (data.code === 200) {
-      category.value = data.category;
-    } else {
-      data.code === 403 && navigateTo("/admin/login");
+
+    const error = res.error.value;
+    if (error) {
+      const status = error.status;
+      status === 403 && navigateTo("/admin/login");
       store.pushNotification({
         id: Date.now(),
         type: "error",
-        message: data.msg,
+        message: error.data,
         timeout: 5000,
       });
+      return store.setLoading(false);
+    }
+
+    const data = res.data.value as {
+      msg: string;
+      list: Array<string>;
+      category: [];
+    };
+    if (data) {
+      category.value = data.category;
     }
   } catch (err) {
     store.pushNotification({
@@ -273,6 +268,17 @@ const getCategory = async () => {
       timeout: 5000,
     });
   }
+  store.setLoading(false);
+};
+
+const deleteData = async (ids: string[]) => {
+  store.setLoading(true);
+  const api = `${store.api}/websites/admin/delete/`;
+  const res = await useFetch(api, {
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify({ ids }),
+  });
   store.setLoading(false);
 };
 

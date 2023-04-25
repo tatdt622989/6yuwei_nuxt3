@@ -51,7 +51,7 @@
                 </div>
                 <div v-if="fileInfoList.length>0" class="pagination" ref="pagination"></div>
               </div>
-              <div class="col-6">
+              <div class="col-6 pt-3">
                 <div class="mb-3">
                   <label
                     for="FormControlInput1"
@@ -157,7 +157,7 @@
                     type="file"
                     class="form-control"
                     multiple
-                    @change="handleFileChange"
+                    @change="fileChange"
                   />
                 </label>
                 <ul class="files-list">
@@ -383,7 +383,7 @@ const save = async () => {
         },
       });
       const error = res.error.value as Error | null;
-      const resData = res.data.value as { code: number; data: Editor } | null;
+      const resData = res.data.value as { data: Editor } | null;
       return { error, resData };
     },
     edit: async () => {
@@ -397,12 +397,13 @@ const save = async () => {
         },
       });
       const error = res.error.value as Error | null;
-      const resData = res.data.value as { code: number; data: Editor } | null;
+      const resData = res.data.value as { data: Editor } | null;
       return { error, resData };
     },
   };
   const res = await method[props.action]();
   if (res.error) {
+    navigateTo("/admin/login");
     return store.pushNotification({
       id: Date.now(),
       type: "error",
@@ -411,26 +412,16 @@ const save = async () => {
     });
   }
   if (res.resData) {
-    if (res.resData.code === 200) {
-      store.pushNotification({
-        id: Date.now(),
-        type: "success",
-        message: "Saved successfully",
-        timeout: 5000,
-      });
-      emit("set-editor-data", res.resData.data);
-      emit("reload-list");
-    } else {
-      res.resData.code === 403 && navigateTo("/admin/login");
-      store.pushNotification({
-        id: Date.now(),
-        type: "error",
-        message: "Something went wrong",
-        timeout: 5000,
-      });
-      store.isLoading = false;
-    }
+    store.pushNotification({
+      id: Date.now(),
+      type: "success",
+      message: "Saved successfully",
+      timeout: 5000,
+    });
+    emit("set-editor-data", res.resData.data);
+    emit("reload-list");
   }
+  store.isLoading = false;
 };
 
 const uploadImg = async (files: FileList, id: string) => {
@@ -450,73 +441,64 @@ const uploadImg = async (files: FileList, id: string) => {
     return;
   }
 
+  for (let i = 0; i < files.length; i++) {
+    const formData = new FormData();
+    formData.append("file", files[i]);
+    formData.append("unitId", id);
+    const tempFileInfo: FileInfo = {
+      data: {
+        _id: "",
+        url: files[i].name,
+        size: files[i].size,
+        updatedAt: "",
+        createdAt: "",
+      },
+      progress: 0,
+    };
+    fileInfoList.value.unshift(tempFileInfo);
+    const index = 0;
+    const res = new Promise((resolve, reject) => {
+      axios
+        .post(`${store.api}/${props.unit}/admin/photo/`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
+            );
+            fileInfoList.value[index].progress = percentCompleted;
+          },
+        })
+        .then((res) => {
+          fileInfoList.value[index].data = res.data.data;
+          resolve(res.data);
+        })
+        .catch((err) => {
+          fileInfoList.value[index].progress = 0;
+          reject(err);
+        });
+    });
+    reqList.push(res);
+  }
+
   try {
-    for (let i = 0; i < files.length; i++) {
-      const formData = new FormData();
-      formData.append("file", files[i]);
-      formData.append("unitId", id);
-      const tempFileInfo: FileInfo = {
-        data: {
-          _id: "",
-          url: files[i].name,
-          size: files[i].size,
-          updatedAt: "",
-          createdAt: "",
-        },
-        progress: 0,
-      };
-      fileInfoList.value.push(tempFileInfo);
-      const index = fileInfoList.value.length - 1;
-      const res = new Promise((resolve, reject) => {
-        axios
-          .post(`${store.api}/${props.unit}/admin/photo/`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            withCredentials: true,
-            onUploadProgress: (progressEvent) => {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
-              );
-              fileInfoList.value[index].progress = percentCompleted;
-            },
-          })
-          .then((res) => {
-            fileInfoList.value[index].data = res.data.data;
-            resolve(res.data);
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      });
-      reqList.push(res);
-    }
     interface ResData {
-      code: number;
       data: Photo;
       msg: string;
     }
-    const resList = (await Promise.all(reqList)) as ResData[];
-    const errList = resList.filter((item) => item.code !== 200);
-    if (errList.some((item) => item.code === 403)) {
-      return navigateTo("/admin/login");
-    }
-    if (errList.length > 0) {
-      store.pushNotification({
-        id: Date.now(),
-        type: "error",
-        message: errList[0].msg,
-        timeout: 5000,
-      });
-    } else {
-      store.pushNotification({
-        id: Date.now(),
-        type: "success",
-        message: "Upload successfully",
-        timeout: 5000,
-      });
-    }
-  } catch (err) {
+    (await Promise.all(reqList)) as ResData[];
+    console.log('reqList', reqList);
+    store.pushNotification({
+      id: Date.now(),
+      type: "success",
+      message: "Upload successfully",
+      timeout: 5000,
+    });
+  } catch (err: any) {
+    const status = err.response?.status;
+    status === 403 && navigateTo("/admin/login");
     store.pushNotification({
       id: Date.now(),
       type: "error",
@@ -524,7 +506,8 @@ const uploadImg = async (files: FileList, id: string) => {
       timeout: 5000,
     });
   }
-  fileInfoList.value.filter((fileInfo) => fileInfo.progress === 100);
+  fileInfoList.value = fileInfoList.value.filter((fileInfo) => fileInfo.progress === 100);
+  emit('reload-list');
 };
 
 const handleDrop = (e: DragEvent) => {
@@ -543,29 +526,29 @@ const handleDrop = (e: DragEvent) => {
   uploadImg(files, props.data._id);
 };
 
-const handleFileChange = (e: Event) => {
+const fileChange = (e: Event) => {
+  const el = e.target as HTMLInputElement;
+  if (!el) return;
   if (!props.data) {
-    store.pushNotification({
+    el.value = "";
+    return store.pushNotification({
       id: Date.now(),
       type: "error",
       message: "Please save the data first",
       timeout: 5000,
     });
   }
-  if (!e.target) return;
-  const files = (e.target as HTMLInputElement).files;
-  console.log("files", files);
+  const files = (el as HTMLInputElement).files;
   if (!props.data || !files) return;
   uploadImg(files, props.data._id);
 };
 
-const handleFileDelete = async () => {
+const fileDelete = async () => {
   const api = `${store.api}/${props.unit}/admin/photo/`;
   const data: { [key: string]: string } = {
     photoId: props.confirmModal?.id,
     unitId: props.data?._id ?? "",
   };
-  console.log("data", data);
   try {
     const res = await useFetch(api, {
       method: "DELETE",
@@ -575,29 +558,31 @@ const handleFileDelete = async () => {
         "Content-Type": "application/json",
       },
     });
+
+    const error = res.error.value;
+    if (error) {
+      const status = error.status;
+      status === 403 && navigateTo("/admin/login");
+      return store.pushNotification({
+        id: Date.now(),
+        type: "error",
+        message: error.message,
+        timeout: 5000,
+      });
+    }
+
     const resData = res.data.value as {
-      code: number;
       data: Editor;
       msg: string;
     } | null;
     if (resData) {
-      if (resData.code === 200) {
-        store.pushNotification({
-          id: Date.now(),
-          type: "success",
-          message: "Deleted successfully",
-          timeout: 5000,
-        });
-        emit("set-editor-data", resData.data);
-      } else {
-        resData.code === 403 && navigateTo("/admin/login");
-        store.pushNotification({
-          id: Date.now(),
-          type: "error",
-          message: resData.msg,
-          timeout: 5000,
-        });
-      }
+      store.pushNotification({
+        id: Date.now(),
+        type: "success",
+        message: "Deleted successfully",
+        timeout: 5000,
+      });
+      emit("set-editor-data", resData.data);
     }
   } catch (error) {
     return store.pushNotification({
@@ -607,6 +592,7 @@ const handleFileDelete = async () => {
       timeout: 5000,
     });
   }
+  emit('reload-list');
 };
 
 const reset = () => {
@@ -646,7 +632,7 @@ watch(
   () => props.isConfirm,
   (newVal) => {
     if (newVal) {
-      handleFileDelete();
+      fileDelete();
     }
   }
 );
@@ -761,6 +747,8 @@ watch(
     .swiper-slide {
       img {
         width: 100%;
+        height: 260px;
+        object-fit: cover;
       }
     }
   }
@@ -835,6 +823,7 @@ watch(
         flex-grow: 1;
         padding-right: 10px;
         letter-spacing: 1px;
+        max-width: 100%;
         span {
           font-size: 32px;
           color: $secColor;
@@ -843,6 +832,8 @@ watch(
         .file-name {
           flex-grow: 1;
           display: inline-block;
+          min-width: 0;
+          word-break: break-word;
           span {
             line-height: 1.2;
             font-size: 16px;

@@ -53,7 +53,6 @@ const password = ref('');
 const isLoading = computed(() => store.isLoading);
 
 interface LoginRes {
-  code: number;
   msg: string;
   user?: User;
 }
@@ -73,6 +72,7 @@ const submit = async () => {
     email: email.value,
     password: password.value,
   };
+
   const res = await useFetch(`${store.api}/login/`, {
     method: 'POST',
     credentials: 'include',
@@ -81,13 +81,22 @@ const submit = async () => {
     },
     body: JSON.stringify(json),
   });
+  
+  const error = res.error.value;
+  if (error) {
+    const status = error.status;
+    store.pushNotification({
+      id: Date.now(),
+      type: 'error',
+      message: error?.data,
+      timeout: 5000,
+    });
+  }
 
-  store.setLoading(false);
   if (res.data.value) {
     const data = res.data.value as LoginRes;
-    const { code } = data;
     const { user } = data;
-    if (code === 200 && user) {
+    if (user) {
       store.setUser(user);
       store.pushNotification({
         id: Date.now(),
@@ -96,22 +105,9 @@ const submit = async () => {
         timeout: 3000,
       });
       await navigateTo('/admin/');
-    } else {
-      store.pushNotification({
-        id: Date.now(),
-        type: 'error',
-        message: data.msg,
-        timeout: 5000,
-      });
     }
-  } else {
-    store.pushNotification({
-      id: Date.now(),
-      type: 'error',
-      message: 'Something went wrong, please try again later.',
-      timeout: 5000,
-    });
   }
+  store.setLoading(false);
 };
 </script>
 

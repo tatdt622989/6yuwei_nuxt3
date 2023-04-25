@@ -62,7 +62,6 @@ const password = ref('');
 const isLoading = computed(() => store.isLoading);
 
 interface SignupRes {
-  code: number;
   msg: string;
   user?: User;
 }
@@ -81,12 +80,24 @@ const submit = async () => {
     },
     body: JSON.stringify(json),
   });
-  store.setLoading(false);
+
+  const error = res.error.value;
+
+  if (error) {
+    store.pushNotification({
+      id: Date.now(),
+      type: 'error',
+      message: error.message,
+      timeout: 5000,
+    });
+    store.setLoading(false);
+    return;
+  }
+
+  const data = res.data.value as SignupRes;
   if (res.data.value) {
-    const data = res.data.value as SignupRes;
-    const { code } = data;
     const { user } = data;
-    if (code === 200 && user) {
+    if (user) {
       store.setUser(user);
       store.pushNotification({
         id: Date.now(),
@@ -95,22 +106,9 @@ const submit = async () => {
         timeout: 3000,
       });
       await navigateTo('/admin/');
-    } else {
-      store.pushNotification({
-        id: Date.now(),
-        type: 'error',
-        message: data.msg,
-        timeout: 5000,
-      });
     }
-  } else {
-    store.pushNotification({
-      id: Date.now(),
-      type: 'error',
-      message: 'Something went wrong, please try again later.',
-      timeout: 5000,
-    });
   }
+  store.setLoading(false);
 }
 </script>
 

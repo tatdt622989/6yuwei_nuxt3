@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     method: "GET",
     credentials: "include",
   });
-  const data = res.data.value as { code: number; msg: string; user: User };
+  const data = res.data.value as { msg: string; user: User };
   const error = res.error.value as Error;
   if (error) {
     store.pushNotification({
@@ -20,7 +20,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     });
     return navigateTo("/admin/login/");
   }
-  if (data && data.code === 200) {
+  if (data) {
     store.setUser(data.user);
   } else {
     return navigateTo("/admin/login/");
