@@ -51,10 +51,10 @@ const props = defineProps({
     default: false,
   },
 });
-const emit = defineEmits(["close-modal", "confirm"]);
+const emit = defineEmits(["close-modal", "on-confirm"]);
 
 const confirm = () => {
-  emit("confirm");
+  emit("on-confirm");
   emit("close-modal");
 };
 </script>

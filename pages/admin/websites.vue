@@ -100,7 +100,6 @@
     <AdminEditorModal
       :unit="'websites'"
       :is-open="editorModal.open"
-      :is-confirm="confirmModal.isConfirm"
       :action="editorModal.action"
       :data="editorModal.data"
       :confirm-modal="confirmModal"
@@ -110,13 +109,14 @@
       @reload-list="getList"
       @set-editor-data="setEditorData"
       @update-category="getCategory"
-      @delete-data="deleteData"
+      :delete-data="deleteData"
     />
     <AdminConfirmModal
       :is-open="confirmModal.open"
       :is-confirm="confirmModal.isConfirm"
       @close-modal="confirmModal.open = false"
       @confirm="confirmModal.isConfirm = true"
+      @on-confirm="onConfirm"
     />
   </div>
 </template>
@@ -142,6 +142,7 @@ const confirmModal = reactive({
   open: false,
   isConfirm: false,
   id: "",
+  targetFunc: null as Function | null,
 });
 const websites = ref<Array<Website>>([]);
 const selector = ref<Array<string>>([]);
@@ -160,10 +161,18 @@ const openEditorModal = (
   editorModal.data = data as Editor;
 };
 
-const openConfirmModal = (id: string) => {
+const openConfirmModal = (id: string, targetFunc: Function) => {
+  console.log(targetFunc);
   confirmModal.isConfirm = false;
   confirmModal.open = true;
   confirmModal.id = id;
+  confirmModal.targetFunc = targetFunc;
+};
+
+const onConfirm = async () => {
+  console.log("confirm", confirmModal);
+  confirmModal.isConfirm = true;
+  confirmModal.targetFunc && confirmModal.targetFunc();
 };
 
 const closeEditorModal = async () => {
@@ -271,14 +280,16 @@ const getCategory = async () => {
   store.setLoading(false);
 };
 
-const deleteData = async (ids: string[]) => {
+const deleteData = async () => {
   store.setLoading(true);
   const api = `${store.api}/websites/admin/delete/`;
-  const res = await useFetch(api, {
-    method: "POST",
-    credentials: "include",
-    body: JSON.stringify({ ids }),
-  });
+  const ids = confirmModal.id.split(",");
+  console.log(ids);
+  // const res = await useFetch(api, {
+  //   method: "POST",
+  //   credentials: "include",
+  //   body: JSON.stringify({ ids }),
+  // });
   store.setLoading(false);
 };
 

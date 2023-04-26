@@ -189,7 +189,7 @@
                       <button
                         class="btn btn-sm remove"
                         @click="
-                          emit('open-confirm-modal', info.data?._id ?? '')
+                          emit('open-confirm-modal', info.data?._id ?? '', fileDelete)
                         "
                       >
                         <span class="material-symbols-outlined">delete</span>
@@ -207,7 +207,7 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button v-if="action === 'edit'" type="button" class="btn delete">
+            <button v-if="action === 'edit'" type="button" class="btn delete" @click="emit('open-confirm-modal',  props.data?._id?? '', props.deleteData)">
               Delete
             </button>
             <button type="button" class="btn cancel" @click="closeModal">
@@ -254,9 +254,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  isConfirm: {
-    type: Boolean,
-    default: false,
+  confirmModal: {
+    type: Object as PropType<{
+      open: boolean;
+      isConfirm: boolean;
+      id: string;
+    }>,
+    default: {},
   },
   action: {
     type: String as PropType<"add" | "edit">,
@@ -269,17 +273,12 @@ const props = defineProps({
   unit: {
     type: String,
   },
-  confirmModal: {
-    type: Object as PropType<{
-      open: boolean;
-      isConfirm: boolean;
-      id: string;
-    }>,
-    default: {},
-  },
   category: {
     type: Array as PropType<string[]>,
     default: [],
+  },
+  deleteData: {
+    type: Function as PropType<(id: string) => void>,
   },
 });
 const emit = defineEmits([
@@ -624,15 +623,6 @@ watch(
       updateData(val);
     } else {
       reset();
-    }
-  }
-);
-
-watch(
-  () => props.isConfirm,
-  (newVal) => {
-    if (newVal) {
-      fileDelete();
     }
   }
 );
