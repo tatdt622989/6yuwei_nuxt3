@@ -11,7 +11,7 @@
             <p class="total">Total: {{ total }}</p>
             <div v-if="selector.length > 0" class="right">
               <p class="selected">{{ selector.length }} item selected</p>
-              <button class="delete btn">
+              <button class="delete btn" @click="openConfirmModal(deleteData, selector.join(','))">
                 <span class="material-symbols-outlined"> delete </span>
                 Delete
               </button>
@@ -161,12 +161,11 @@ const openEditorModal = (
   editorModal.data = data as Editor;
 };
 
-const openConfirmModal = (id: string, targetFunc: Function) => {
-  console.log(targetFunc);
+const openConfirmModal = (targetFunc: Function, id: string = '') => {
   confirmModal.isConfirm = false;
   confirmModal.open = true;
-  confirmModal.id = id;
   confirmModal.targetFunc = targetFunc;
+  confirmModal.id = id;
 };
 
 const onConfirm = async () => {
@@ -284,13 +283,26 @@ const deleteData = async () => {
   store.setLoading(true);
   const api = `${store.api}/websites/admin/delete/`;
   const ids = confirmModal.id.split(",");
-  console.log(ids);
-  // const res = await useFetch(api, {
-  //   method: "POST",
-  //   credentials: "include",
-  //   body: JSON.stringify({ ids }),
-  // });
+  const res = await useFetch(api, {
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify({ ids }),
+  });
+  const error = res.error.value;
+  if (error) {
+    const status = error.status;
+    status === 403 && navigateTo("/admin/login");
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error.data,
+      timeout: 5000,
+    });
+    return store.setLoading(false);
+  }
   store.setLoading(false);
+  await getList();
+  editorModal.open = false;
 };
 
 onMounted(async () => {
@@ -330,6 +342,7 @@ watch(
     border-bottom: 1px solid lighten($terColor, 5%);
     background-color: lighten($terColor, 5%);
     letter-spacing: 0.8px;
+    font-size: 18px;
   }
   td {
     border-width: 0 0 1px 0;
@@ -337,6 +350,7 @@ watch(
     padding: 10px 20px;
     vertical-align: middle;
     letter-spacing: 0.8px;
+    font-size: 16px;
   }
   .preview-box {
     cursor: pointer;
@@ -511,7 +525,7 @@ watch(
   align-items: center;
   text-transform: capitalize;
   border-bottom: 1px solid lighten($terColor, 5%);
-  padding: 8px 20px;
+  padding: 12px 20px;
   letter-spacing: 0.8px;
   .total,
   .selected {

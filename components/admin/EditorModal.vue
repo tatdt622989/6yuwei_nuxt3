@@ -8,10 +8,10 @@
       aria-labelledby="editorModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog">
         <div class="modal-content" @click="(e) => e.stopPropagation()">
           <div class="modal-header">
-            <h1 class="modal-title fs-5">{{ props.unit }} Editor</h1>
+            <h1 class="modal-title fs-4">{{ props.unit }} Editor</h1>
             <button
               type="button"
               class="btn-close"
@@ -31,7 +31,7 @@
                     :loop="true"
                     :autoplay="{
                       delay: 3000,
-                      disableOnInteraction: true,
+                      disableOnInteraction: false,
                     }"
                     :pagination="{
                       clickable: true,
@@ -131,7 +131,7 @@
                     <rect
                       x="2"
                       y="2"
-                      width="calc(100% - 4px)"
+                      width="100%"
                       height="196"
                       stroke-dasharray="12,6"
                       stroke="#28CB92"
@@ -189,7 +189,7 @@
                       <button
                         class="btn btn-sm remove"
                         @click="
-                          emit('open-confirm-modal', info.data?._id ?? '', fileDelete)
+                          emit('open-confirm-modal', fileDelete ,info.data?._id ?? '')
                         "
                       >
                         <span class="material-symbols-outlined">delete</span>
@@ -207,7 +207,7 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button v-if="action === 'edit'" type="button" class="btn delete" @click="emit('open-confirm-modal',  props.data?._id?? '', props.deleteData)">
+            <button v-if="action === 'edit'" type="button" class="btn delete" @click="emit('open-confirm-modal', props.deleteData,  props.data?._id?? '')">
               Delete
             </button>
             <button type="button" class="btn cancel" @click="closeModal">
@@ -227,7 +227,7 @@
 import { useStore } from "~/store";
 import { Photo, Editor } from "~~/types";
 import { Pagination, Autoplay } from "swiper";
-import { Swiper, SwiperSlide } from "swiper/vue";
+import { Swiper, SwiperSlide, useSwiper } from "swiper/vue";
 import axios from "axios";
 
 import "swiper/css";
@@ -304,6 +304,11 @@ const validation = reactive<Validation>({
   title: false,
   category: false,
 });
+const swiperInstance = ref()
+
+function onSwiper(swiper: any) {
+  swiperInstance.value = swiper
+}
 
 const updateData = (data: Editor) => {
   if (props.action === "edit" && data) {
@@ -506,6 +511,7 @@ const uploadImg = async (files: FileList, id: string) => {
     });
   }
   fileInfoList.value = fileInfoList.value.filter((fileInfo) => fileInfo.progress === 100);
+  swiperInstance.value.slideTo(0);
   emit('reload-list');
 };
 
@@ -643,9 +649,20 @@ watch(
     }
   }
   .modal-dialog {
-    max-width: 1000px;
+    max-width: 1100px;
+    margin: 0;
+    margin-left: auto;
+    height: 100vh;
   }
   .modal-header {
+    border-radius: 0;
+    border: 0;
+    padding: 22px 48px;
+    border-bottom: 1px solid $terColor;
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 2;
     .modal-title {
       font-weight: bold;
       color: $secColor;
@@ -653,14 +670,26 @@ watch(
     }
   }
   .modal-content {
-    border-radius: 12px;
+    border-radius: 40px 0 0 40px;
     box-shadow: 0 0 10px rgba($terColor, 0.5);
     background: #fff;
     border: 0;
+    height: 100%;
+    position: relative;
+    transform: translateX(30px);
+    overflow: hidden;
+    .modal-body {
+      overflow: auto;
+      padding: 32px 48px;
+    }
   }
   .modal-footer {
     border-top: 1px solid $terColor;
     padding: 16px;
+    position: sticky;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 2;
     .btn {
       padding: 10px 20px;
       border-radius: 12px;
@@ -685,6 +714,9 @@ watch(
     opacity: 1;
     .modal-dialog {
       opacity: 1;
+      .modal-content {
+        transform: translateX(0);
+      }
     }
   }
   &.modal-fade-enter-active,
@@ -694,6 +726,7 @@ watch(
 
   &.modal-fade-enter-from,
   &.modal-fade-leave-to {
+    transform: translateX(30px);
     opacity: 0 !important;
   }
 
@@ -717,6 +750,7 @@ watch(
     label {
       letter-spacing: 1px;
       font-weight: bold;
+      font-size: 18px;
     }
     datalist {
       display: none;
@@ -737,7 +771,7 @@ watch(
     .swiper-slide {
       img {
         width: 100%;
-        height: 260px;
+        height: 266px;
         object-fit: cover;
       }
     }
