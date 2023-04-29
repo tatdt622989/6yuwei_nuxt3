@@ -33,16 +33,16 @@
           </div>
         </div>
         <div class="content">
-          <div class="item card">
+          <div class="item card" v-for="website in websites" :key="website._id">
             <div class="imgWrap">
-              <img src="" alt="">
+              <img :src="`${store.api}/admin/uploads/${website.photos[0].url}`" :alt="website.title">
             </div>
             <div class="info">
               <h3 class="title">
-                Website 1
+               {{ website.title }}
               </h3>
               <p class="desc">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.
+                {{ website.description }}
               </p>
               <div class="btnWrap">
                 <a href="#" class="btn">
@@ -52,18 +52,70 @@
             </div>
           </div>
         </div>
+        <Pagination :total="totalPage" :current-page="currentPage" />
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
+import { Website } from "~/types";
+import { useStore } from "~/store";
+
+useHead({
+  title: "Websites",
+  titleTemplate: "%s - 6yuwei",
+  meta: [
+    {
+      hid: "description",
+      name: "description",
+      content: "6yuwei websites page",
+    },
+  ],
+});
+
+const store = useStore();
 const layout = ref('card');
 const sort = ref('0');
+const websites = ref<Website[]>([]);
+const currentPage = ref(1);
+const total = ref(0);
+const totalPage = ref(1);
+
+interface ResRef {
+  list: Website[];
+  total: number;
+}
 
 const sortToggler = () => {
   layout.value = layout.value === 'card' ? 'list' : 'card';
 }
+
+const getWebsites = async () => {
+  const api = `${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`;
+  const res = await useFetch<ResRef>(api, {
+    method: 'GET',
+  });
+  const error = res.error.value;
+  if (error) {
+    console.log(error);
+    store.pushNotification({
+      id: Date.now(),
+      type: 'error',
+      message: error.message as string,
+      timeout: 5000,
+    });
+    return;
+  }
+  const data = res.data.value;
+  if (!data) return;
+  websites.value = data.list as Website[];
+  console.log(websites.value);
+}
+
+onMounted(async () => {
+  await getWebsites();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -73,12 +125,14 @@ const sortToggler = () => {
     max-width: 1480px;
     margin: 0 auto;
     box-sizing: border-box;
+    width: 100%;
   }
 }
 .tools {
   display: flex;
   width: 100%;
   justify-content: flex-end;
+  margin-bottom: 30px;
   .item {
     display: flex;
     align-items: center;

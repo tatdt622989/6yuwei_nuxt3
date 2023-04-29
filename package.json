@@ -30,6 +30,6 @@
     "bootstrap-icons": "^1.10.3",
     "lowlight": "^2.8.1",
     "pinia": "^2.0.33",
-    "swiper": "^8.4.7"
+    "swiper": "^9.2.4"
   }
 }

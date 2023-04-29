@@ -7,6 +7,7 @@
       tabindex="-1"
       aria-labelledby="editorModalLabel"
       aria-hidden="true"
+      @click.self="closeModal"
     >
       <div class="modal-dialog">
         <div class="modal-content" @click="(e) => e.stopPropagation()">
@@ -25,6 +26,7 @@
               <div class="col-6 d-flex align-stretch flex-column">
                 <div class="img-previewer">
                   <swiper
+                    @swiper="onSwiper"
                     :modules="modules"
                     :slides-per-view="1"
                     :space-between="0"
@@ -49,7 +51,11 @@
                     </swiper-slide>
                   </swiper>
                 </div>
-                <div v-if="fileInfoList.length>0" class="pagination" ref="pagination"></div>
+                <div
+                  v-if="fileInfoList.length > 0"
+                  class="pagination"
+                  ref="pagination"
+                ></div>
               </div>
               <div class="col-6 pt-3">
                 <div class="mb-3">
@@ -158,6 +164,7 @@
                     class="form-control"
                     multiple
                     @change="fileChange"
+                    ref="fileInputRef"
                   />
                 </label>
                 <ul class="files-list">
@@ -189,7 +196,11 @@
                       <button
                         class="btn btn-sm remove"
                         @click="
-                          emit('open-confirm-modal', fileDelete ,info.data?._id ?? '')
+                          emit(
+                            'open-confirm-modal',
+                            fileDelete,
+                            info.data?._id ?? ''
+                          )
                         "
                       >
                         <span class="material-symbols-outlined">delete</span>
@@ -207,7 +218,18 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button v-if="action === 'edit'" type="button" class="btn delete" @click="emit('open-confirm-modal', props.deleteData,  props.data?._id?? '')">
+            <button
+              v-if="action === 'edit'"
+              type="button"
+              class="btn delete"
+              @click="
+                emit(
+                  'open-confirm-modal',
+                  props.deleteData,
+                  props.data?._id ?? ''
+                )
+              "
+            >
               Delete
             </button>
             <button type="button" class="btn cancel" @click="closeModal">
@@ -227,7 +249,7 @@
 import { useStore } from "~/store";
 import { Photo, Editor } from "~~/types";
 import { Pagination, Autoplay } from "swiper";
-import { Swiper, SwiperSlide, useSwiper } from "swiper/vue";
+import { Swiper, SwiperSlide } from "swiper/vue";
 import axios from "axios";
 
 import "swiper/css";
@@ -297,6 +319,7 @@ const description = ref("");
 const textEditorJson = ref("");
 const textEditorRef = ref<TextEditorRef | null>(null); // 取得text editor 暴露的方法
 const fileInfoList = ref<FileInfo[]>([]);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 const store = useStore();
 const fileSizeConverter = useFileSizeConverter();
 const inDropZone = ref(false);
@@ -304,10 +327,11 @@ const validation = reactive<Validation>({
   title: false,
   category: false,
 });
-const swiperInstance = ref()
+const swiperInstance = ref<any | null>(null);
 
 function onSwiper(swiper: any) {
-  swiperInstance.value = swiper
+  swiperInstance.value = swiper;
+  console.log("swiper", swiper);
 }
 
 const updateData = (data: Editor) => {
@@ -354,16 +378,11 @@ const verify = () => {
 };
 
 const save = async () => {
-  const api = {
-    add: `${store.api}/websites/admin/add/`,
-    edit: `${store.api}/websites/admin/update/`,
-  };
-  console.log("textEditorRef", textEditorRef);
+  const api = `${store.api}/websites/admin/list/`;
   if (textEditorRef.value) {
     textEditorRef.value.generateEditorJson();
   }
   const data = {
-    _id: "",
     title: title.value,
     externalLink: externalLink.value,
     category: category.value,
@@ -378,9 +397,11 @@ const save = async () => {
   }
   const method = {
     add: async () => {
-      const res = await useFetch(api[props.action], {
+      const res = await useFetch(api, {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          data,
+        }),
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
@@ -391,10 +412,12 @@ const save = async () => {
       return { error, resData };
     },
     edit: async () => {
-      data._id = props.data?._id!;
-      const res = await useFetch(api[props.action], {
+      const res = await useFetch(api, {
         method: "PUT",
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          _id: props.data?._id,
+          data,
+        }),
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
@@ -420,7 +443,7 @@ const save = async () => {
       id: Date.now(),
       type: "success",
       message: "Saved successfully",
-      timeout: 5000,
+      timeout: 3000,
     });
     emit("set-editor-data", res.resData.data);
     emit("reload-list");
@@ -442,7 +465,7 @@ const uploadImg = async (files: FileList, id: string) => {
       message: "You can only upload 5 photos at a time",
       timeout: 5000,
     });
-    return;
+    return fileInputRef.value && (fileInputRef.value.value = "");
   }
 
   for (let i = 0; i < files.length; i++) {
@@ -493,12 +516,12 @@ const uploadImg = async (files: FileList, id: string) => {
       msg: string;
     }
     (await Promise.all(reqList)) as ResData[];
-    console.log('reqList', reqList);
+    console.log("reqList", reqList);
     store.pushNotification({
       id: Date.now(),
       type: "success",
       message: "Upload successfully",
-      timeout: 5000,
+      timeout: 3000,
     });
   } catch (err: any) {
     const status = err.response?.status;
@@ -509,10 +532,12 @@ const uploadImg = async (files: FileList, id: string) => {
       message: err as string,
       timeout: 5000,
     });
+    return fileInputRef.value && (fileInputRef.value.value = "");
   }
-  fileInfoList.value = fileInfoList.value.filter((fileInfo) => fileInfo.progress === 100);
-  swiperInstance.value.slideTo(0);
-  emit('reload-list');
+  fileInfoList.value = fileInfoList.value.filter(
+    (fileInfo) => fileInfo.progress === 100
+  );
+  emit("reload-list");
 };
 
 const handleDrop = (e: DragEvent) => {
@@ -525,9 +550,10 @@ const handleDrop = (e: DragEvent) => {
       timeout: 5000,
     });
   }
-  if (!e.dataTransfer) return;
+  if (!e.dataTransfer)
+    return fileInputRef.value && (fileInputRef.value.value = "");
   const files = e.dataTransfer.files;
-  if (!props.data) return;
+  if (!props.data) return fileInputRef.value && (fileInputRef.value.value = "");
   uploadImg(files, props.data._id);
 };
 
@@ -535,13 +561,14 @@ const fileChange = (e: Event) => {
   const el = e.target as HTMLInputElement;
   if (!el) return;
   if (!props.data) {
-    el.value = "";
-    return store.pushNotification({
+    console.log(el);
+    store.pushNotification({
       id: Date.now(),
       type: "error",
       message: "Please save the data first",
       timeout: 5000,
     });
+    return fileInputRef.value && (fileInputRef.value.value = "");
   }
   const files = (el as HTMLInputElement).files;
   if (!props.data || !files) return;
@@ -585,7 +612,7 @@ const fileDelete = async () => {
         id: Date.now(),
         type: "success",
         message: "Deleted successfully",
-        timeout: 5000,
+        timeout: 3000,
       });
       emit("set-editor-data", resData.data);
     }
@@ -597,7 +624,7 @@ const fileDelete = async () => {
       timeout: 5000,
     });
   }
-  emit('reload-list');
+  emit("reload-list");
 };
 
 const reset = () => {

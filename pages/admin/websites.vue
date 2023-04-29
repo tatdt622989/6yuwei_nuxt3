@@ -11,7 +11,10 @@
             <p class="total">Total: {{ total }}</p>
             <div v-if="selector.length > 0" class="right">
               <p class="selected">{{ selector.length }} item selected</p>
-              <button class="delete btn" @click="openConfirmModal(deleteData, selector.join(','))">
+              <button
+                class="delete btn"
+                @click="openConfirmModal(deleteData, selector.join(','))"
+              >
                 <span class="material-symbols-outlined"> delete </span>
                 Delete
               </button>
@@ -68,7 +71,13 @@
                 <td>{{ website.category }}</td>
                 <td>
                   <label class="switch">
-                    <input type="checkbox" v-model="website.visible" />
+                    <input
+                      type="checkbox"
+                      v-model="website.visible"
+                      @change="
+                        updateVisibility(website._id ?? '', website.visible)
+                      "
+                    />
                     <span class="bg">
                       <span class="toggler" />
                     </span>
@@ -82,7 +91,7 @@
                       </span>
                       <span class="text">Copy</span>
                     </button>
-                    <button class="action delete">
+                    <button class="action delete" @click="openConfirmModal(deleteData, website._id)">
                       <span class="material-symbols-outlined icon">
                         delete
                       </span>
@@ -94,7 +103,7 @@
             </tbody>
           </table>
         </div>
-        <AdminPagination :total="totalPage" :current-page="currentPage" />
+        <Pagination :total="totalPage" :current-page="currentPage" />
       </div>
     </div>
     <AdminEditorModal
@@ -161,7 +170,7 @@ const openEditorModal = (
   editorModal.data = data as Editor;
 };
 
-const openConfirmModal = (targetFunc: Function, id: string = '') => {
+const openConfirmModal = (targetFunc: Function, id: string = "") => {
   confirmModal.isConfirm = false;
   confirmModal.open = true;
   confirmModal.targetFunc = targetFunc;
@@ -193,7 +202,7 @@ const selectAllItem = () => {
 };
 
 const copyWebsite = async (website: Website) => {
-  const api = `${store.api}/websites/admin/add/`;
+  const api = `${store.api}/websites/admin/`;
   const data = {
     title: website.title,
     description: website.description,
@@ -281,7 +290,7 @@ const getCategory = async () => {
 
 const deleteData = async () => {
   store.setLoading(true);
-  const api = `${store.api}/websites/admin/delete/`;
+  const api = `${store.api}/websites/admin/list/delete/`;
   const ids = confirmModal.id.split(",");
   const res = await useFetch(api, {
     method: "POST",
@@ -299,6 +308,41 @@ const deleteData = async () => {
       timeout: 5000,
     });
     return store.setLoading(false);
+  }
+  store.setLoading(false);
+  await getList();
+  editorModal.open = false;
+  selector.value = [];
+};
+
+const updateVisibility = async (id: string, visible: boolean) => {
+  store.setLoading(true);
+  const api = `${store.api}/websites/admin/list`;
+  const res = await useFetch(api, {
+    method: "PUT",
+    credentials: "include",
+    body: JSON.stringify({ _id: id, data: { visible } }),
+  });
+  const error = res.error.value;
+  const data = res.data.value as { msg: string; website: Website };
+  if (error) {
+    const status = error.status;
+    status === 403 && navigateTo("/admin/login");
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error.data,
+      timeout: 5000,
+    });
+    return store.setLoading(false);
+  }
+  if (data) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "success",
+      message: data.msg,
+      timeout: 3000,
+    });
   }
   store.setLoading(false);
   await getList();

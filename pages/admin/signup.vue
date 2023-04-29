@@ -55,6 +55,19 @@
 <script lang="ts" setup>
 import { User } from '~/types';
 import { useStore } from '~/store';
+
+useHead({
+  title: "Singup",
+  titleTemplate: "%s - 6yuwei",
+  meta: [
+    {
+      hid: "description",
+      name: "description",
+      content: "6yuwei - Signup",
+    },
+  ],
+});
+
 const store = useStore();
 const username = ref('');
 const email = ref('');

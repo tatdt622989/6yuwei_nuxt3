@@ -20,6 +20,7 @@ export interface Editor {
   description: string;
   textEditor: string;
   photos: Photo[];
+  [key: string]: any;
 }
 
 export interface Website {

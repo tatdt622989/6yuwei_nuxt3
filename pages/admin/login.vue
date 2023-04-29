@@ -47,6 +47,19 @@
 <script lang="ts" setup>
 import { User } from '~/types';
 import { useStore } from '~/store';
+
+useHead({
+  title: "Login",
+  titleTemplate: "%s - 6yuwei",
+  meta: [
+    {
+      hid: "description",
+      name: "description",
+      content: "6yuwei - Login",
+    },
+  ],
+});
+
 const store = useStore();
 const email = ref('');
 const password = ref('');
