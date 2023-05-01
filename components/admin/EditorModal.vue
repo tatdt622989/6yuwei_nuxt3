@@ -794,6 +794,7 @@ watch(
     position: relative;
     flex-grow: 1;
     .swiper {
+      width: 100%;
     }
     .swiper-slide {
       img {

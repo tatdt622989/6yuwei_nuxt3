@@ -12,6 +12,9 @@
     <li>
       <NuxtLink to="/">Animations</NuxtLink>
     </li>
+    <li>
+      <NuxtLink to="/">Contact</NuxtLink>
+    </li>
     <li v-if="place === 'header'">
       <NuxtLink to="/admin/login/" class="signIn">Sign in</NuxtLink>
     </li>
@@ -24,6 +27,10 @@ const props = defineProps({
     type: String,
     default: "header",
   },
+});
+const current = ref(0);
+
+onMounted(() => {
 });
 </script>
 
@@ -52,7 +59,7 @@ ul {
         bottom: -9px;
         @extend %ts;
       }
-      &:hover {
+      &:hover, &.active {
         color: $mainColor;
         &::after {
           width: 100%;

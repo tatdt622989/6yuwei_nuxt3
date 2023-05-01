@@ -36,7 +36,7 @@ datalist {
   display: none;
 }
 
-.innerPage {
+.inner-page {
   padding-top: 100px;
   @include media(1200) {
     padding-top: 75px;
@@ -84,6 +84,10 @@ datalist {
 ::-webkit-scrollbar-thumb {
   background-color: $mainColor;
   border-radius: 99px;
+}
+
+.swiper-pagination-lock {
+  display: none !important;
 }
 
 .img-previewer {

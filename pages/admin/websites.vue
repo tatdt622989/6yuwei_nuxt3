@@ -85,7 +85,7 @@
                 </td>
                 <td>
                   <div class="action-wrap">
-                    <button class="action copy">
+                    <button class="action copy"  @click="openConfirmModal(copyWebsite, website._id)">
                       <span class="material-symbols-outlined icon">
                         content_copy
                       </span>
@@ -133,6 +133,18 @@
 <script lang="ts" setup>
 import { Editor, Website } from "~/types";
 import { useStore } from "~/store";
+
+useHead({
+  title: "Websites",
+  titleTemplate: "%s - 6yuwei",
+  meta: [
+    {
+      hid: "description",
+      name: "description",
+      content: "6yuwei - Websites",
+    },
+  ],
+});
 
 // 需要驗證身份
 definePageMeta({
@@ -201,15 +213,53 @@ const selectAllItem = () => {
   }
 };
 
-const copyWebsite = async (website: Website) => {
-  const api = `${store.api}/websites/admin/`;
+const copyWebsite = async () => {
+  const id = confirmModal.id;
+  const website = websites.value.find((item) => item._id === id);
+  if (!website) return store.pushNotification({
+    id: Date.now(),
+    type: "error",
+    message: "Website not found",
+    timeout: 5000,
+  });
+  const api = `${store.api}/websites/admin/list/`;
   const data = {
     title: website.title,
     description: website.description,
     externalLink: website.externalLink,
     textEditor: website.textEditor,
     category: website.category,
+    visible: website.visible,
+    photos: website.photos,
   };
+  const res = await useFetch(api, {
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify({
+      data,
+    }),
+  });
+  const error = res.error.value;
+  if (error) {
+    const status = error.status;
+    status === 403 && navigateTo("/admin/login");
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error.data,
+      timeout: 5000,
+    });
+    return;
+  }
+  if (res.data.value) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "success",
+      message: "Website copied",
+      timeout: 5000,
+    });
+    getList();
+  }
 };
 
 const getList = async () => {

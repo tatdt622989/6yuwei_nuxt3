@@ -1,23 +1,45 @@
 <template>
   <div class="bannerBox">
     <div class="imgBox">
-      <img src="@/assets/images/websites-banner.jpg" alt="websites">
+      <img :src="imgPath" :alt="props.unitName" />
     </div>
     <div class="text-box">
       <div class="wrap">
         <h1 class="title">
-          {{ unitName }}
+          {{ props.unitName }}
         </h1>
         <h2 class="describe">
-          {{ describe }}
+          {{ props.describe }}
         </h2>
+        <Breadcrumb :breadcrumb="breadcrumb" /> 
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-defineProps(['url', 'unitName', 'describe'])
+const props = defineProps({
+  unitName: {
+    type: String,
+    required: true,
+  },
+  describe: {
+    type: String,
+    required: true,
+  },
+});
+const lowerCaseUnitName = computed(() => props.unitName.toLowerCase());
+const imgPath = computed(() => `/images/${lowerCaseUnitName.value}-banner.jpg`);
+const breadcrumb = ref([
+  {
+    name: 'Home',
+    link: '/',
+  },
+  {
+    name: props.unitName,
+    link: `/${lowerCaseUnitName.value}`,
+  },
+]);
 </script>
 
 <style lang="scss" scoped>
@@ -50,11 +72,15 @@ defineProps(['url', 'unitName', 'describe'])
       text-transform: uppercase;
       color: $secColor;
       margin-bottom: 10px;
+      background: -webkit-linear-gradient(180deg, $mainColor, $secColor);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .describe {
       font-size: 24px;
       font-weight: normal;
       color: $secColor;
+      margin-bottom: 20px;
     }
   }
 }

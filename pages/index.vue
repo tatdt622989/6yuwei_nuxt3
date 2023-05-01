@@ -36,28 +36,34 @@
         </div>
       </div>
     </div>
-    <div class="advantages">
+    <div class="advantages" ref="advantagesEl">
       <div class="wrap">
         <ul class="list">
           <div class="item">
             <div class="icon">
               <img src="@/assets/images/advantages1.svg" alt="advantages" />
             </div>
-            <div class="num">{{ nowYear }}+</div>
+            <div class="num" :data-num="nowYear">
+              <span class="main-text">{{ nowYear }}</span><span class="unit">+</span>
+            </div>
             <p class="text">years of experience</p>
           </div>
           <div class="item">
             <div class="icon">
               <img src="@/assets/images/advantages2.svg" alt="advantages" />
             </div>
-            <div class="num">30+</div>
+            <div class="num" data-num="30">
+              <span class="main-text">30</span><span class="unit">+</span>
+            </div>
             <p class="text">Web projects handled</p>
           </div>
           <div class="item">
             <div class="icon">
               <img src="@/assets/images/advantages3.svg" alt="advantages" />
             </div>
-            <div class="num">12+</div>
+            <div class="num" data-num="12">
+              <span class="main-text">12</span><span class="unit">+</span>
+            </div>
             <p class="text">often used techniques</p>
           </div>
         </ul>
@@ -185,26 +191,35 @@
     <div class="threedcgs">
       <div class="wrap">
         <h2>3DCGs</h2>
+        <div class="btnBox">
+          <button class="prev">
+            <span class="material-icons">keyboard_arrow_left</span>
+          </button>
+          <button class="next">
+            <span class="material-icons">keyboard_arrow_right</span>
+          </button>
+        </div>
       </div>
       <div class="content">
         <client-only>
           <swiper
             class="swiper3DCGS"
             :modules="modules"
-            :loop="true"
             :slides-per-view="1"
-            :autoplay="{ delay: 3000 }"
             :pagination="{ clickable: true, el: threeDCGsPage }"
+            :space-between="40"
+            :freeMode="true"
+            :loop="true"
+            :navigation="{
+              nextEl: '.threedcgs .next',
+              prevEl: '.threedcgs .prev',
+            }"
             :breakpoints="{
-              1600: {
-                slidesPerView: 4
+              541: {
+                slidesPerView: 'auto',
+                spaceBetween: 30,
+                loop: false,
               },
-              1200: {
-                slidesPerView: 3
-              },
-              720: {
-                slidesPerView: 2
-              }
             }"
           >
             <swiper-slide v-for="(item, i) in threeDCGs" :key="i">
@@ -233,7 +248,7 @@
 </template>
 
 <script setup lang="ts">
-import { Pagination, Autoplay } from "swiper";
+import { Pagination, Autoplay, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 
@@ -258,12 +273,14 @@ useHead({
   ],
 });
 
+const advantagesEl = ref<HTMLDivElement | null>(null);
 const banner = ref<HTMLDivElement | null>(null);
 const nowYear = new Date().getFullYear() - 2021;
-const modules = [Pagination, Autoplay];
+const modules = [Pagination, Autoplay, Navigation];
 const sideProjectPage1 = ref<HTMLDivElement | null>(null);
 const sideProjectPage2 = ref<HTMLDivElement | null>(null);
 const threeDCGsPage = ref<HTMLDivElement | null>(null);
+let advantagesIsCounter = false;
 const other = [
   {
     title: "說酒人貿易",
@@ -331,6 +348,40 @@ const threeDCGs = [
 const { data: blogsJson } = await useFetch("https://blog.6yuwei.com/api.php");
 const posts = ref<Post[] | null>(null);
 
+const advantagesCounter = () => {
+  advantagesIsCounter = true;
+  const el = advantagesEl.value;
+  if (!el) return;
+  setTimeout(() => {    
+    const numEl = el.querySelectorAll(".num");
+    const numAry = Array.from(numEl);
+    numAry.forEach((item) => {
+      const num = item.getAttribute("data-num");
+      const numText = item.querySelector(".main-text");
+      if (!num || !numText) return;
+      const numInt = parseInt(num);
+      const per = 50;
+      const numInterval = setInterval(() => {
+        const numNow = parseInt(numText.innerHTML);
+        if (numNow < numInt) {
+          numText.innerHTML = `${numNow + 1}`;
+        } else {
+          clearInterval(numInterval);
+        }
+      }, per);
+    });
+  }, 300);
+};
+
+const onScroll = () => {
+  const el = advantagesEl.value;
+  const offset = el?.getBoundingClientRect().top ?? 0 + 300;
+  const scrollTop = document.documentElement.scrollTop + window.innerHeight;
+  if (offset && scrollTop > offset && !advantagesIsCounter) {
+    advantagesCounter();
+  }
+};
+
 onMounted(() => {
   if (blogsJson.value) {
     posts.value = JSON.parse(blogsJson.value as string).posts as Post[];
@@ -339,7 +390,19 @@ onMounted(() => {
       getImgLink();
     }
   }
+  const NumEl = advantagesEl.value?.querySelectorAll(".main-text");
+  NumEl?.forEach((item) => {
+    item.innerHTML = "0";
+  });
+  onScroll();
+  window.addEventListener("scroll", onScroll);
 });
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", onScroll);
+});
+
+const onThreeDCGSwiper = (swiper: any) => {};
 
 const getImgLink = async () => {
   const resAry: Promise<Boolean>[] = [];
@@ -649,12 +712,12 @@ h2 {
 
 .advantages {
   background-color: #edf7f4;
-  padding: 100px 0;
+  padding: 80px 0;
   @include media(1200) {
-    padding: 85px 0 85px;
+    padding: 65px 0 85px;
   }
   @include media(720) {
-    padding: 42px 0 70px;
+    padding: 22px 0 70px;
   }
   .list {
     display: flex;
@@ -669,9 +732,27 @@ h2 {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 0 20px;
+      padding: 20px;
+      border-right: 2px solid rgba($secColor, 0.1);
+      width: calc(100% / 3);
+      &:first-of-type {
+        border-left: 2px solid rgba($secColor, 0.1);
+      }
       @include media(1200) {
         margin: 28px 0;
+      }
+      @include media(720) {
+        width: 100%;
+        border: 0;
+        border-bottom: 1px solid rgba($secColor, 0.1);
+        margin: 0;
+        padding: 30px 0;
+        &:first-of-type {
+          border-left: 0;
+        }
+        &:last-of-type {
+          border: 0;
+        }
       }
       .icon {
         margin-bottom: 10px;
@@ -1027,7 +1108,7 @@ h2 {
     padding-top: 90px;
   }
   @include media(1200) {
-    padding-bottom: 40px;
+    padding-bottom: 50px;
     padding-top: 60px;
   }
   @include media(840) {
@@ -1044,7 +1125,7 @@ h2 {
   .wrap {
     display: flex;
     flex-direction: column;
-    max-width: 1360px;
+    max-width: 1600px;
   }
   .content {
     display: flex;
@@ -1058,7 +1139,7 @@ h2 {
       margin-bottom: 45px;
     }
     @include media(840) {
-      margin-bottom: 20px;
+      margin-bottom: 0px;
     }
     .item {
       width: 33.33%;
@@ -1082,7 +1163,7 @@ h2 {
         overflow: hidden;
         background: no-repeat url(@/assets/images/default.svg) center $mainColor;
         display: flex;
-        height: 300px;
+        height: 340px;
         @include media(1200) {
           height: 240px;
         }
@@ -1225,7 +1306,7 @@ h2 {
 
 .threedcgs {
   background-color: lighten($terColor, 10%);
-  padding-bottom: 160px;
+  padding-bottom: 154px;
   padding-top: 90px;
   overflow: hidden;
   @include media(1600) {
@@ -1241,25 +1322,67 @@ h2 {
   }
   .wrap {
     display: flex;
-    flex-direction: column;
-    max-width: 1360px;
-  }
-  h2 {
-    margin-bottom: 75px;
+    flex-direction: row;
+    max-width: 1640px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 59px;
     @include media(1200) {
       margin-bottom: 40px;
     }
+    .btnBox {
+      display: flex;
+      margin: 0 -6px;
+      :deep(.swiper-button-disabled) {
+        opacity: 0.5;
+        cursor: default;
+        &:hover {
+          background-color: $mainColor;
+          span {
+            color: $secColor;
+          }
+        }
+      }
+      button {
+        width: 52px;
+        height: 52px;
+        border-radius: 99px;
+        background-color: $mainColor;
+        border: 0;
+        margin: 0 6px;
+        cursor: pointer;
+        @include center;
+        @extend %ts;
+        span {
+          font-size: 36px;
+          color: $secColor;
+        }
+        &:hover {
+          background-color: $secColor;
+          span {
+            color: $mainColor;
+          }
+        }
+      }
+    }
+  }
+  h2 {
   }
   .content {
     position: relative;
     // margin: 0 -45px;
     // height: 415px;
-    margin-right: -90px;
+    // margin-right: -90px;
+    padding-left: calc((100% - 1600px) / 2);
     @include media(1600) {
       height: auto;
+      padding-left: 20px;
     }
     @include media(1200) {
       margin: 0;
+    }
+    @include media(540) {
+      padding: 0 20px;
     }
   }
   .swiper-wrapper {
@@ -1267,10 +1390,10 @@ h2 {
   }
   :deep(.swiper-slide) {
     display: flex;
-    padding: 0 20px;
     box-sizing: border-box;
     width: 672px;
     position: relative;
+    padding: 16px 0;
     @include media(1600) {
       width: auto;
     }
@@ -1279,7 +1402,7 @@ h2 {
       overflow: hidden;
       width: 100%;
       // border: 1px solid #b3b3b3;
-      box-shadow: 0px 0px 16px rgba(40, 203, 146, 0.3);
+      box-shadow: 0px 0px 16px rgba($mainColor, 0.2);
       display: flex;
       align-items: stretch;
       a {
@@ -1353,9 +1476,14 @@ h2 {
 }
 
 :deep(.swiper-pagination) {
-  display: flex;
   @include center(transform, x);
   bottom: -50px;
+  justify-content: center;
+  display: none;
+  @include media(540) {
+    display: flex;
+    bottom: -20px;
+  }
   span {
     display: flex;
     width: 16px;

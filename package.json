@@ -25,11 +25,14 @@
     "@tiptap/pm": "^2.0.0-beta.220",
     "@tiptap/starter-kit": "^2.0.0-beta.220",
     "@tiptap/vue-3": "^2.0.0-beta.220",
+    "animate": "^1.0.0",
     "axios": "^1.3.5",
     "bootstrap": "^5.3.0-alpha1",
     "bootstrap-icons": "^1.10.3",
     "lowlight": "^2.8.1",
     "pinia": "^2.0.33",
-    "swiper": "^9.2.4"
+    "swiper": "^9.2.4",
+    "vue-easy-lightbox": "^1.16.0",
+    "wowjs": "^1.1.3"
   }
 }
