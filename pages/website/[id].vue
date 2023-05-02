@@ -2,16 +2,21 @@
   <div class="inner-page">
     <div class="main">
       <div class="wrap">
+        <Breadcrumb :breadcrumb="breadcrumb" />
         <div class="info">
           <div class="img-wrap">
             <div class="showcase">
-              <img :src="showcaseURL" :alt="website?.title" v-if="showcaseURL">
+              <img
+                :src="showcaseURL"
+                :alt="website?.title"
+                v-if="showcaseURL"
+              />
             </div>
             <div class="preview-list"></div>
           </div>
           <div class="text-wrap">
             <div class="category">{{ website?.category }}</div>
-            <h1>{{ website?.title }}</h1>
+            <h1 class="title">{{ website?.title }}</h1>
             <div class="desc">{{ website?.description }}</div>
             <div class="btn-wrap">
               <a :href="website?.externalLink" class="btn">Visit Website</a>
@@ -30,10 +35,26 @@ import { Website } from "~~/types";
 
 const store = useStore();
 const route = useRoute();
-const title = ref('test');
+const title = ref("example");
 const id = ref(route.params.id);
 const website = ref<Website | null>();
-const showcaseURL = ref('');
+const breadcrumb = computed(() => {
+  return [
+    {
+      name: "Home",
+      link: "/",
+    },
+    {
+      name: "Websites",
+      link: "/websites",
+    },
+    {
+      name: website.value?.title ?? "",
+      link: `/websites/${id.value}`,
+    },
+  ];
+});
+const showcaseURL = ref("");
 
 (async () => {
   const api = `${store.api}/websites/${id.value}/`;
@@ -41,29 +62,43 @@ const showcaseURL = ref('');
   if (res.error.value) {
     return;
   }
-  const data = res.data.value as {data: Website, msg: string};
+  const data = res.data.value as { data: Website; msg: string };
   if (!data) return;
   website.value = data.data as Website;
-  showcaseURL.value = `${store.api}/admin/uploads/${website.value?.photos[0].url as string}/`;
+  showcaseURL.value = `${store.api}/admin/uploads/${
+    website.value?.photos[0].url as string
+  }/`;
+  useHead({
+    title: `${website.value?.title}`,
+    titleTemplate: "%s - 6yuwei",
+    meta: [
+      {
+        hid: "description",
+        name: "description",
+        content: `${website.value?.description}`,
+      },
+    ],
+  });
+  useServerSeoMeta({
+    title: `${website.value?.title}`,
+    ogTitle: `${website.value?.title}`,
+    description: `${website.value?.description}`,
+    ogDescription: `${website.value?.description}`,
+    ogImage: `${store.api}/admin/uploads/${website.value?.description}`,
+    twitterCard: "summary_large_image",
+  });
 })();
 
-useServerSeoMeta({
-  title: `${title.value}`,
-  ogTitle: 'My Amazing Site',
-  description: 'This is my amazing site, let me tell you all about it.',
-  ogDescription: 'This is my amazing site, let me tell you all about it.',
-  ogImage: 'https://example.com/image.png',
-  twitterCard: 'summary_large_image',
-});
-
-onMounted(() => {
-});
+onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>
 .main {
-  min-height: 0;
-  padding: 90px 0;
+  background-color: $terColor;
+  padding: 60px 0 90px;
+  :deep(.breadcrumb) {
+    margin-bottom: 40px;
+  }
   .wrap {
     max-width: 1600px;
     width: 100%;
@@ -74,8 +109,10 @@ onMounted(() => {
     display: flex;
     width: 100%;
     .img-wrap {
-      padding-right: 50px;
+      margin-right: 50px;
       min-width: 0;
+      border-radius: 20px;
+      overflow: hidden;
       img {
         max-width: 100%;
       }
@@ -83,6 +120,31 @@ onMounted(() => {
     .text-wrap {
       min-width: 600px;
       flex-grow: 1;
+      letter-spacing: 1px;
+      padding-top: 20px;
+      .category {
+        font-size: 20px;
+        font-weight: bold;
+        color: darken($mainColor, 5%);
+      }
+      .title {
+        margin-top: 10px;
+      }
+      .desc {
+        color: $secColor;
+        margin-top: 20px;
+        margin-bottom: 30px;
+        font-size: 18px;
+        line-height: 1.5;
+      }
+      .btn-wrap {
+        .btn {
+          height: auto;
+          border-radius: 12px;
+          padding: 10px 20px;
+          font-size: 24px;
+        }
+      }
     }
   }
 }

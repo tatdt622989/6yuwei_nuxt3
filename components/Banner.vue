@@ -71,16 +71,26 @@ const breadcrumb = ref([
       font-size: 52px;
       text-transform: uppercase;
       color: $secColor;
+      letter-spacing: 0.8px;
       margin-bottom: 10px;
       background: -webkit-linear-gradient(180deg, $mainColor, $secColor);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      margin-left: -7px;
+      @include media(1200) {
+        font-size: 45px;
+        margin-top: 20px;
+      }
     }
     .describe {
       font-size: 24px;
       font-weight: normal;
       color: $secColor;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      letter-spacing: 0.8px;
+      @include media(1200) {
+        font-size: 20px;
+      }
     }
   }
 }

@@ -151,7 +151,7 @@
             <img :src="`/images/other${i + 1}.jpg`" :alt="`other${i + 1}`" />
           </a>
           <div class="text-box">
-            <p class="enTitle">
+            <p class="en-title">
               {{ item.enTitle }}
             </p>
             <p class="title">
@@ -167,7 +167,7 @@
         <h2>Recent posts by Blogs</h2>
         <div class="content">
           <div v-for="(obj, i) in posts" :key="i" class="item">
-            <div class="imgBox">
+            <div class="img-box">
               <a :href="obj.permalink" target="_blank">
                 <img v-if="obj.imgUrl" :src="obj.imgUrl" :alt="obj.title" />
               </a>
@@ -224,13 +224,13 @@
           >
             <swiper-slide v-for="(item, i) in threeDCGs" :key="i">
               <div class="item">
-                <div class="imgBox">
+                <div class="img-box">
                   <a href="">
                     <img :src="`/images/${item.imgName}.jpg`" alt="my-topic" />
                   </a>
                 </div>
                 <div class="text-box">
-                  <p class="enTitle">
+                  <p class="en-title">
                     {{ item.enTitle }}
                   </p>
                   <h3 class="title">
@@ -1073,7 +1073,7 @@ h2 {
         align-items: flex-start;
         padding: 32px 20px;
         @extend %ts;
-        .enTitle {
+        .en-title {
           font-size: 30px;
           margin-bottom: 20px;
           font-weight: bold;
@@ -1159,7 +1159,7 @@ h2 {
       &:hover {
         box-shadow: 0px 18px 36px rgba(40, 203, 146, 0.3);
       }
-      .imgBox {
+      .img-box {
         overflow: hidden;
         background: no-repeat url(@/assets/images/default.svg) center $mainColor;
         display: flex;
@@ -1397,7 +1397,7 @@ h2 {
     @include media(1600) {
       width: auto;
     }
-    .imgBox {
+    .img-box {
       border-radius: 16px;
       overflow: hidden;
       width: 100%;
@@ -1447,7 +1447,7 @@ h2 {
       opacity: 0;
       pointer-events: none;
       @extend %ts;
-      .enTitle {
+      .en-title {
         font-size: 30px;
         margin-bottom: 20px;
         font-weight: bold;

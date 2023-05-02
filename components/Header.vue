@@ -40,7 +40,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0px 0px 16px rgba(40, 203, 146, 0.3);
+  box-shadow: 0px 0px 16px rgba(darken($terColor, 20%), 0.5);
   position: fixed;
   width: 100%;
   top: 0;
@@ -62,7 +62,7 @@ header {
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      box-shadow: 0px 0px 16px rgba(40, 203, 146, 0.3);
+      box-shadow: 0px 0px 16px rgba(darken($terColor, 20%), 0.5);
       padding: 0 20px;
       height: 75px;
       position: relative;

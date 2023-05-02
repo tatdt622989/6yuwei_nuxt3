@@ -2,10 +2,11 @@
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li
-        class="breadcrumb-item active"
+        class="breadcrumb-item"
+        :class="{ active: index === props.breadcrumb.length - 1 }"
         aria-current="page"
         v-for="(item, index) in props.breadcrumb"
-        :key="item.url"
+        :key="item.link"
       >
         <nuxt-link :to="index === props.breadcrumb.length - 1 ? '' : item.link">
         {{ item.name }}
@@ -30,4 +31,23 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 @import "bootstrap/scss/bootstrap";
+.breadcrumb {
+  .breadcrumb-item {
+    a {
+      color: $secColor;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      &:hover {
+        color: darken($mainColor, 15%);
+      }
+    }
+    &.active {
+      a {
+        font-weight: bold;
+        color: $secColor;
+      }
+    }
+  }
+}
 </style>

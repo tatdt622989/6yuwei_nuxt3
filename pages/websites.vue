@@ -85,7 +85,9 @@ const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
 const websites = ref<Website[]>([]);
-const { data:websiteReq, error } = await useFetch(`${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`);
+const { data: websiteReq, error } = await useFetch(
+  `${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`
+);
 
 interface ResRef {
   list: Website[];
@@ -113,7 +115,7 @@ onMounted(async () => {});
 
 <style lang="scss" scoped>
 .main {
-  background-color: lighten($terColor, 7%);
+  background-color: $terColor;
   padding: 60px 0;
   min-height: 0;
   @include media(1200) {
@@ -147,6 +149,7 @@ onMounted(async () => {});
     }
     &.sort {
       margin-left: 20px;
+      margin-right: 0;
     }
     .btn {
       display: flex;
@@ -160,7 +163,7 @@ onMounted(async () => {});
       width: 44px;
       height: 44px;
       border-radius: 99px;
-      background-color: lighten($terColor, 7%);
+      background-color: $terColor;
       &:hover {
         background-color: $mainColor;
       }
@@ -185,7 +188,7 @@ onMounted(async () => {});
       background-color: lighten($terColor, 10%);
       box-shadow: 0 0 10px rgba($mainColor, 0.2);
       height: 44px;
-      border-radius: 99px;
+      border-radius: 12px;
       font-size: 20px;
       min-width: 120px;
       padding: 0 24px 0 16px;
@@ -236,6 +239,7 @@ onMounted(async () => {});
   .info {
     padding: 20px 0;
     background: transparent;
+    letter-spacing: 1px;
     .category {
       color: $mainColor;
       font-weight: bold;
@@ -256,10 +260,14 @@ onMounted(async () => {});
       }
     }
     .desc {
+      display: -webkit-box;
+      overflow: hidden;
       @extend %ts;
       color: lighten($secColor, 20%);
       font-size: 18px;
       margin-bottom: 20px;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
     }
   }
   .item {
@@ -267,6 +275,7 @@ onMounted(async () => {});
     padding: 0 20px;
     width: calc(100% / 3);
     box-sizing: border-box;
+    margin-bottom: 30px;
     // .item-content {
     //   border: 1px solid $mainColor;
     //   padding: 16px;
@@ -281,7 +290,7 @@ onMounted(async () => {});
   }
 
   &.card {
-    margin: 0 -20px;
+    margin: 0 -10px;
     @include media(1200) {
       margin: 0 -10px;
     }

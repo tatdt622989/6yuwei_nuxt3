@@ -70,7 +70,7 @@ ul {
       background-color: $mainColor;
       color: #fff;
       padding: 8px 16px;
-      border-radius: 5px;
+      border-radius: 12px;
       @extend %ts;
       box-shadow: 0 0 20px rgba($mainColor, 0.3);
       &::after {

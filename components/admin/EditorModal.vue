@@ -7,7 +7,7 @@
       tabindex="-1"
       aria-labelledby="editorModalLabel"
       aria-hidden="true"
-      @click.self="closeModal"
+      @mousedown.self="closeModal"
     >
       <div class="modal-dialog">
         <div class="modal-content" @click="(e) => e.stopPropagation()">
@@ -103,9 +103,13 @@
                 </div>
               </div>
               <div class="col-12">
-                <div class="mb-4">
-                  <label for="FormControlTextarea1" class="form-label"
-                    >Describe</label
+                <div class="mb-2">
+                  <label for="FormControlTextarea1" class="form-label has-btn"
+                    ><span class="text">Describe</span
+                    ><button class="btn btn-circle ai">
+                      <span class="material-icons icon"> auto_fix_normal </span>
+                      Auto
+                    </button></label
                   >
                   <textarea
                     id="FormControlTextarea1"
@@ -116,6 +120,13 @@
                 </div>
               </div>
               <div class="col-12">
+                <label for="FormControlTextarea1" class="form-label has-btn"
+                    ><span class="text">Content</span
+                    ><button class="btn btn-circle ai">
+                      <span class="material-icons icon"> auto_fix_normal </span>
+                      Auto
+                    </button></label
+                  >
                 <AdminTextEditor
                   :text-editor="textEditorJson"
                   :is-open="isOpen"
@@ -641,6 +652,20 @@ const closeModal = () => {
   emit("close-modal");
 };
 
+const keyupHandler = (e: KeyboardEvent) => {
+  if (e.key === "Escape") {
+    closeModal();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener("keyup", keyupHandler);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keyup", keyupHandler);
+});
+
 watch(
   () => props.isOpen,
   (val) => {
@@ -781,6 +806,39 @@ watch(
     }
     datalist {
       display: none;
+    }
+    .ai {
+      width: auto;
+      height: 40px;
+      background-color: $mainColor;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 18px;
+
+      @include center;
+      box-shadow: 0 0 16px rgba($mainColor, 0.4);
+      .icon {
+        color: $secColor;
+        font-size: 26px;
+        margin-right: 3px;
+      }
+      &:hover {
+        background-color: $secColor;
+        color: $mainColor;
+        .icon {
+          color: $mainColor;
+        }
+      }
+    }
+    label.has-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      .text {
+        margin-right: 14px;
+      }
     }
   }
 
