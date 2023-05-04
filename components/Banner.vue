@@ -8,8 +8,7 @@
         <h1 class="title">
           {{ props.unitName }}
         </h1>
-        <h2 class="describe">
-          {{ props.describe }}
+        <h2 class="describe" v-html="props.describe">
         </h2>
         <Breadcrumb :breadcrumb="breadcrumb" /> 
       </div>

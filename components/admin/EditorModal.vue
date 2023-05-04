@@ -271,7 +271,7 @@ interface Validation {
 }
 
 interface TextEditorRef {
-  generateEditorJson(): void;
+  generateEditorHTML(): void;
 }
 
 interface FileInfo {
@@ -362,7 +362,6 @@ const updateData = (data: Editor) => {
 };
 
 const setTextEditorJson = (content: string) => {
-  console.log("content", content);
   textEditorJson.value = content;
 };
 
@@ -391,7 +390,7 @@ const verify = () => {
 const save = async () => {
   const api = `${store.api}/websites/admin/list/`;
   if (textEditorRef.value) {
-    textEditorRef.value.generateEditorJson();
+    textEditorRef.value.generateEditorHTML();
   }
   const data = {
     title: title.value,

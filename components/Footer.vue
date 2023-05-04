@@ -6,7 +6,7 @@
     <Navbar class="nav" :place="'footer'" />
     <SocialBar class="footer" />
     <div class="copyright">
-      <p>Copyright © 2022 6yuwei.All rights reserved.</p>
+      <p>Copyright © {{ new Date(Date.now()).getFullYear() }} 6yuwei.All rights reserved.</p>
     </div>
     <div class="goTop" :class="{'show': isGoTopOpen}" @click="goTop">
       <img src="@/assets/images/gotop_arrow.svg" alt="gotop">

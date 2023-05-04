@@ -13,7 +13,7 @@
       <NuxtLink to="/">Animations</NuxtLink>
     </li>
     <li>
-      <NuxtLink to="/">Contact</NuxtLink>
+      <NuxtLink to="/contact">Contact</NuxtLink>
     </li>
     <li v-if="place === 'header'">
       <NuxtLink to="/admin/login/" class="signIn">Sign in</NuxtLink>

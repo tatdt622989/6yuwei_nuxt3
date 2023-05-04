@@ -34,4 +34,9 @@ export interface Website {
   updatedAt: string;
   createdAt: string;
   visible: boolean;
-} 
+}
+
+export interface BreadCrumb {
+  name: string;
+  link: string;
+}

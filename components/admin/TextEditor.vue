@@ -84,6 +84,7 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Document from "@tiptap/extension-document";
 import Heading from "@tiptap/extension-heading";
 import Paragraph from "@tiptap/extension-paragraph";
+import HardBreak from '@tiptap/extension-hard-break'
 import Text from "@tiptap/extension-text";
 import Bold from "@tiptap/extension-bold";
 import Italic from "@tiptap/extension-italic";
@@ -97,6 +98,10 @@ import js from "highlight.js/lib/languages/javascript";
 import ts from "highlight.js/lib/languages/typescript";
 import html from "highlight.js/lib/languages/xml";
 import { lowlight } from "lowlight";
+
+HardBreak.configure({
+  keepMarks: false,
+})
 
 lowlight.registerLanguage("html", html);
 lowlight.registerLanguage("css", css);
@@ -158,16 +163,15 @@ const setColor = (e: Event) => {
   }
 };
 
-const generateEditorJson = () => {
+const generateEditorHTML = () => {
   if (editor.value) {
-    emit("set-text-editor-output", JSON.stringify(editor.value.getJSON()));
+    emit("set-text-editor-output", editor.value.getHTML());
   }
 };
 
 const setEditorContent = () => {
   if (editor.value && props.textEditor) {
-    const json = JSON.parse(props.textEditor);
-    editor.value.commands.setContent(json);
+    editor.value.commands.setContent(props.textEditor);
   }
 };
 
@@ -190,9 +194,9 @@ onMounted(() => {
   }
 });
 
-// 將generateEditorJson方法暴露出去
+// 將generateEditorHTML方法暴露出去
 defineExpose({
-  generateEditorJson,
+  generateEditorHTML,
 });
 </script>
 

@@ -64,7 +64,6 @@
 <script lang="ts" setup>
 import { Website } from "~/types";
 import { useStore } from "~/store";
-import VueEasyLightbox from "vue-easy-lightbox";
 
 useHead({
   title: "Websites",
