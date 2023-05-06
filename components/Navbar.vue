@@ -12,9 +12,9 @@
     <li>
       <NuxtLink to="/">Animations</NuxtLink>
     </li>
-    <li>
+    <!-- <li>
       <NuxtLink to="/contact">Contact</NuxtLink>
-    </li>
+    </li> -->
     <li v-if="place === 'header'">
       <NuxtLink to="/admin/login/" class="signIn">Sign in</NuxtLink>
     </li>
@@ -44,7 +44,7 @@ ul {
       margin-right: 0;
     }
     a {
-      color: #8E8E8E;
+      color: $secColor;
       font-weight: bold;
       font-size: 20px;
       position: relative;

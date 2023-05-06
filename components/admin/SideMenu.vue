@@ -6,7 +6,7 @@
       </NuxtLink>
     </div>
     <ul>
-      <li>
+      <!-- <li>
         <NuxtLink to="/admin/">
           <i class="bi bi-clipboard-data-fill"></i>
           <span class="text">Dashboard</span>
@@ -14,11 +14,20 @@
             arrow_forward_ios
           </span>
         </NuxtLink>
-      </li>
+      </li> -->
       <li>
         <NuxtLink to="/admin/websites/">
           <i class="bi bi-window-sidebar"></i>
           <span class="text">Websites</span>
+          <span class="material-icons arrow">
+            arrow_forward_ios
+          </span>
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/admin/contact/">
+          <i class="bi bi-person-lines-fill"></i>
+          <span class="text">Contact</span>
           <span class="material-icons arrow">
             arrow_forward_ios
           </span>

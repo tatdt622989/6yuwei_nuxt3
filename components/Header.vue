@@ -1,13 +1,13 @@
 <template>
   <header>
-    <div class="wrap">
+    <div class="logo">
       <NuxtLink to="/">
         <img src="@/assets/images/logo.svg" alt="6yuwei">
       </NuxtLink>
-      <button :class="{ open: isMenuOpen }" class="toggler" @click="openMenu">
-        <span class="bar"></span>
-      </button>
     </div>
+    <button :class="{ open: isMenuOpen }" class="toggler" @click="openMenu">
+      <span class="bar"></span>
+    </button>
     <div class="menu m_menu" :class="{ open: isMenuOpen }">
       <nav>
         <Navbar />
@@ -47,13 +47,13 @@ header {
   left: 0;
   z-index: 999;
   box-sizing: border-box;
-  background-color: $terColor;
+  background-color: rgba($terColor, 0.7);
+  backdrop-filter: blur(15px);
   @include media(1600) {
     padding: 0 20px;
   }
   @include media(1200) {
     box-shadow: none;
-    padding: 0;
     height: 75px;
   }
   .wrap {

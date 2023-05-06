@@ -34,6 +34,8 @@
     "pinia": "^2.0.33",
     "swiper": "^9.2.4",
     "vue-easy-lightbox": "^1.16.0",
+    "vue-recaptcha": "^3.0.0-alpha.2",
+    "vue-recaptcha-v3": "^2.0.1",
     "wowjs": "^1.1.3"
   }
 }

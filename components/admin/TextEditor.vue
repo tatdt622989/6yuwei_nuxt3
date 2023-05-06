@@ -144,7 +144,6 @@ const changeTextSelector = () => {
     if (textSelector.value === "Normal") {
       editor.value.chain().focus().setParagraph().run();
     } else {
-      console.log(parseInt(textSelector.value, 10) as 1 | 2 | 3 | 4 | 5 | 6);
       editor.value
         .chain()
         .focus()
@@ -187,6 +186,13 @@ watchEffect(() => {
     }
   }
 });
+
+watch(
+  () => props.textEditor,
+  () => {
+    setEditorContent();
+  }
+);
 
 onMounted(() => {
   if (props.textEditor) {

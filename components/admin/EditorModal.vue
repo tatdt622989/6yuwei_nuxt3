@@ -106,7 +106,7 @@
                 <div class="mb-2">
                   <label for="FormControlTextarea1" class="form-label has-btn"
                     ><span class="text">Describe</span
-                    ><button class="btn btn-circle ai">
+                    ><button class="btn btn-circle ai" @click="textGenerator('describe')">
                       <span class="material-icons icon"> auto_fix_normal </span>
                       Auto
                     </button></label
@@ -122,15 +122,15 @@
               <div class="col-12">
                 <label for="FormControlTextarea1" class="form-label has-btn"
                     ><span class="text">Content</span
-                    ><button class="btn btn-circle ai">
+                    ><button class="btn btn-circle ai" @click="textGenerator('content')">
                       <span class="material-icons icon"> auto_fix_normal </span>
                       Auto
                     </button></label
                   >
                 <AdminTextEditor
-                  :text-editor="textEditorJson"
+                  :text-editor="textEditorHTML"
                   :is-open="isOpen"
-                  @set-text-editor-output="setTextEditorJson"
+                  @set-text-editor-output="setTextEditorHTML"
                   :action="props.action"
                   ref="textEditorRef"
                 />
@@ -258,6 +258,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
+import { useAskGptModel } from "~~/composables/useAskGptModel";
 import { Photo, Editor } from "~~/types";
 import { Pagination, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
@@ -327,7 +328,7 @@ const title = ref("");
 const externalLink = ref("");
 const category = ref("");
 const description = ref("");
-const textEditorJson = ref("");
+const textEditorHTML = ref("");
 const textEditorRef = ref<TextEditorRef | null>(null); // 取得text editor 暴露的方法
 const fileInfoList = ref<FileInfo[]>([]);
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -342,7 +343,6 @@ const swiperInstance = ref<any | null>(null);
 
 function onSwiper(swiper: any) {
   swiperInstance.value = swiper;
-  console.log("swiper", swiper);
 }
 
 const updateData = (data: Editor) => {
@@ -351,7 +351,7 @@ const updateData = (data: Editor) => {
     externalLink.value = data.externalLink;
     category.value = data.category;
     description.value = data.description;
-    textEditorJson.value = data.textEditor;
+    textEditorHTML.value = data.textEditor;
     fileInfoList.value = data.photos.map((item) => {
       return {
         data: item,
@@ -361,8 +361,8 @@ const updateData = (data: Editor) => {
   }
 };
 
-const setTextEditorJson = (content: string) => {
-  textEditorJson.value = content;
+const setTextEditorHTML = (content: string) => {
+  textEditorHTML.value = content;
 };
 
 const verify = () => {
@@ -397,7 +397,7 @@ const save = async () => {
     externalLink: externalLink.value,
     category: category.value,
     description: description.value,
-    textEditor: textEditorJson.value,
+    textEditor: textEditorHTML.value,
     photos: fileInfoList.value.map((item) => item.data),
   };
   store.isLoading = true;
@@ -642,7 +642,7 @@ const reset = () => {
   externalLink.value = "";
   category.value = "";
   description.value = "";
-  textEditorJson.value = "";
+  textEditorHTML.value = "";
   fileInfoList.value = [];
 };
 
@@ -656,6 +656,33 @@ const keyupHandler = (e: KeyboardEvent) => {
     closeModal();
   }
 };
+
+const textGenerator = async (inputType: 'describe'|'content') => {
+  const title = props.data?.title ?? "";
+  if (store.isLoading) return;
+  if (!title) {
+    return store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: "Please enter the title first",
+      timeout: 5000,
+    });
+  }
+  store.setLoading(true);
+  const prompt = {
+    describe: `使用這個「${title}」作為主題，撰寫一則簡短的描述。並且與網頁內容相關。`,
+    content: `使用這個「${title}」作為主題，撰寫一篇段落分明的300字以上的文章。並且與網頁內容相關。`,
+  }
+  const text = await useAskGptModel(prompt[inputType]) as string;
+  if (text) {
+    if (inputType === 'describe') {
+      description.value = text;
+    } else {
+      textEditorHTML.value = text;
+    }
+  }
+  store.setLoading(false);
+}
 
 onMounted(() => {
   window.addEventListener("keyup", keyupHandler);

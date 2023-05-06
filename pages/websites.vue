@@ -34,7 +34,8 @@
             <div class="item-content">
               <div class="imgWrap" @click="linkTo(website)">
                 <img
-                  :src="`${store.api}/admin/uploads/${website.photos[0].url}`"
+                  v-if="website.photos[0]"
+                  :src="`${store.api}/admin/uploads/${website.photos[0]?.url}`"
                   :alt="website.title"
                 />
               </div>
@@ -213,6 +214,7 @@ onMounted(async () => {});
     border-radius: 20px;
     position: relative;
     cursor: pointer;
+    background: no-repeat url(@/assets/images/default.png) center/cover;
     @include after {
       border-radius: 20px;
       border: 3px solid transparent;

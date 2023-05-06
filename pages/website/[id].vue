@@ -125,12 +125,14 @@ const closeLightbox = () => {
 
 onMounted(() => {
   if (!website.value) return;
-  showcaseURL.value = `${store.api}/admin/uploads/${
-    website.value?.photos[0].url as string
-  }/`;
-  imgsRef.value = website.value?.photos.map((item) => {
-    return `${store.api}/admin/uploads/${item.url}`;
-  });
+  if (website.value?.photos.length > 0) {
+    showcaseURL.value = `${store.api}/admin/uploads/${
+      website.value?.photos[0]?.url as string
+    }/`;
+    imgsRef.value = website.value?.photos.map((item) => {
+      return `${store.api}/admin/uploads/${item.url}`;
+    });
+  };
   editor.value = new Editor({
     editable: false,
     content: website.value?.textEditor ?? "",
@@ -243,7 +245,10 @@ onMounted(() => {
     }
   }
   .text-editor {
-    padding: 30px 0;
+    padding: 60px 0 40px;
+    letter-spacing: 0.8px;
+    color: $secColor;
+    line-height: 1.5;
   }
 }
 </style>
