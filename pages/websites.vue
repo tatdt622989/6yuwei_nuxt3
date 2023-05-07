@@ -13,7 +13,7 @@
             </button>
           </div>
           <div class="item layout">
-            <button class="btn" @click="sortToggler">
+            <button class="btn" @click="layoutToggler">
               <span class="material-icons">{{
                 layout !== "card" ? "grid_view" : "view_list"
               }}</span>
@@ -22,9 +22,9 @@
           <div class="item sort">
             <div class="selectWrap">
               <select v-model="sort" name="" class="select">
-                <option value="0">Sort By</option>
-                <option value="1">old -> new</option>
-                <option value="2">new -> old</option>
+                <option value="0" disabled>Sort By</option>
+                <option value="asc">old -> new</option>
+                <option value="desc">new -> old</option>
               </select>
             </div>
           </div>
@@ -32,7 +32,7 @@
         <div class="content" :class="[layout]">
           <div class="item card" v-for="website in websites" :key="website._id">
             <div class="item-content">
-              <div class="imgWrap" @click="linkTo(website)">
+              <div class="img-wrap" @click="linkTo(website)">
                 <img
                   v-if="website.photos[0]"
                   :src="`${store.api}/admin/uploads/${website.photos[0]?.url}`"
@@ -47,11 +47,6 @@
                 <p class="desc">
                   {{ website.description }}
                 </p>
-                <!-- <div class="btnWrap">
-                  <a href="#" class="btn">
-                    READ MORE
-                  </a>
-                </div> -->
               </div>
             </div>
           </div>
@@ -79,8 +74,9 @@ useHead({
 });
 
 const store = useStore();
+const route = useRoute();
 const layout = ref("card");
-const sort = ref("0");
+const sort = ref(route.query.sort || "asc");
 const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
@@ -102,15 +98,48 @@ if (websiteReq.value) {
   totalPage.value = res.totalPage;
 }
 
-const sortToggler = () => {
+const layoutToggler = () => {
   layout.value = layout.value === "card" ? "list" : "card";
+  try {
+    localStorage.setItem("layout", layout.value);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const linkTo = (website: Website) => {
   navigateTo(`/website/${website._id}`);
 };
 
-onMounted(async () => {});
+watch(sort, async (newVal) => {
+  const res = await useFetch(
+    `${store.api}/websites/list/?page=${currentPage.value}&sort=${newVal}`
+  );
+  const error = res.error.value;
+  if (error) {
+    store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error.message,
+      timeout: 5000,
+    });
+    return;
+  }
+  const data = res.data.value as ResRef;
+  websites.value = data.list;
+  navigateTo(`/websites/?sort=${newVal}`);
+});
+
+onMounted(async () => {
+  try {
+    const layoutStorage = localStorage.getItem("layout");
+    if (layoutStorage) {
+      layout.value = layoutStorage;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -205,7 +234,7 @@ onMounted(async () => {});
   display: flex;
   flex-wrap: wrap;
   margin: 0 -20px;
-  .imgWrap {
+  .img-wrap {
     width: 100%;
     height: 340px;
     overflow: hidden;
@@ -302,6 +331,50 @@ onMounted(async () => {});
       }
       @include media(768) {
         width: 100%;
+      }
+    }
+  }
+
+  &.list {
+    .item {
+      width: 100%;
+    }
+    .item-content {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      width: 100%;
+      @include media(768) {
+        display: block;
+      }
+      .img-wrap {
+        max-width: 450px;
+        flex-shrink: 0;
+        height: 300px;
+        display: flex;
+        align-items: stretch;
+        @include media(1024) {
+          max-width: 300px;
+          height: 200px;
+        }
+        @include media(768) {
+          max-width: 100%;
+          height: auto;
+          min-height: 300px;
+        }
+        img {
+          display: flex;
+          min-height: 300px;
+          width: 100%;
+          height: auto;
+          object-fit: cover;
+        }
+      }
+      .info {
+        padding-left: 20px;
+        @include media(768) {
+          padding-left: 0;
+        }
       }
     }
   }

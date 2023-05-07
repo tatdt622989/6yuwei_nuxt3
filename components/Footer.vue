@@ -82,6 +82,8 @@ const goTop = () => {
 };
 
 const send = async () => {
+  if (store.isLoading) return;
+  store.setLoading(true);
   if (!email.value || !message.value) {
     store.pushNotification({
       id: Date.now(),
@@ -89,7 +91,7 @@ const send = async () => {
       message: "Please fill in all fields.",
       timeout: 5000,
     });
-    return;
+    return store.setLoading(false);
   }
   if (!recaptcha) {
     await loadRecaptcha();
@@ -111,17 +113,20 @@ const send = async () => {
       message: error.data,
       timeout: 5000,
     });
-    return;
+    return store.setLoading(false);
   }
   const data = res.data.value as {
     msg: string;
   };
+  email.value = "";
+  message.value = "";
   store.pushNotification({
     id: Date.now(),
     type: "success",
     message: data.msg,
     timeout: 5000,
   });
+  store.setLoading(false);
 };
 
 const loadRecaptcha = async () => {
