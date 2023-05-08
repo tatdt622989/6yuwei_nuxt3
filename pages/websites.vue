@@ -7,8 +7,24 @@
     <div class="main">
       <div class="wrap">
         <div class="tools">
+          <div class="item active-category-box">
+            <div class="category-wrap">
+              <div
+                class="category"
+                v-for="(item, index) in categoryArr"
+                :key="Date.now() + index"
+              >
+                <span class="text">{{ item }}</span>
+                <span class="remove">
+                  <span class="material-icons" @click="removeCategory(item)">
+                    close
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
           <div class="item filter">
-            <button class="btn">
+            <button class="btn" @click="filterModal.open = true">
               <span class="material-icons"> filter_alt </span>
             </button>
           </div>
@@ -54,6 +70,12 @@
         <Pagination :total="totalPage" :current-page="currentPage" />
       </div>
     </div>
+    <FilterModal
+      :is-open="filterModal.open"
+      :category-arr="categoryArr"
+      @close-modal="filterModal.open = false"
+      @set-category-arr="setCategoryArr"
+    />
   </div>
 </template>
 
@@ -81,6 +103,11 @@ const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
 const websites = ref<Website[]>([]);
+const categoryArr = ref<string[]>([]);
+const filterModal = ref({
+  open: false,
+  data: {},
+});
 const { data: websiteReq, error } = await useFetch(
   `${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`
 );
@@ -109,6 +136,15 @@ const layoutToggler = () => {
 
 const linkTo = (website: Website) => {
   navigateTo(`/website/${website._id}`);
+};
+
+const setCategoryArr = (arr: string[]) => {
+  categoryArr.value = arr;
+};
+
+const removeCategory = (category: string) => {
+  categoryArr.value = categoryArr.value.filter((item) => item !== category);
+  navigateTo(`/websites/?category=${categoryArr.value.join(",")}&page=1`);
 };
 
 watch(sort, async (newVal) => {
@@ -226,6 +262,24 @@ onMounted(async () => {
       &:active,
       &:focus {
         outline: 0;
+      }
+    }
+  }
+  .category-wrap {
+    display: flex;
+    align-items: center;
+    .category {
+      display: flex;
+      align-items: center;
+      max-width: 160px;
+      .text {
+        font-size: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .remove {
+        @include center;
       }
     }
   }
@@ -348,9 +402,9 @@ onMounted(async () => {
         display: block;
       }
       .img-wrap {
-        max-width: 450px;
+        max-width: 420px;
         flex-shrink: 0;
-        height: 300px;
+        height: 280px;
         display: flex;
         align-items: stretch;
         @include media(1024) {
@@ -372,6 +426,15 @@ onMounted(async () => {
       }
       .info {
         padding-left: 20px;
+        .category {
+          font-size: 18px;
+        }
+        .desc {
+          line-height: 1.4;
+        }
+        .title {
+          font-size: 28px;
+        }
         @include media(768) {
           padding-left: 0;
         }

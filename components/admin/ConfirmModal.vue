@@ -25,14 +25,16 @@
             <div class="title">Are you sure you want to delete it?</div>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn cancel"
-              @click="emit('close-modal')"
-            >
-              Cancel
-            </button>
-            <button type="button" class="btn btn-primary" @click="confirm">Apply</button>
+            <div class="btn-wrap">
+              <button
+                type="button"
+                class="btn cancel"
+                @click="emit('close-modal')"
+              >
+                Cancel
+              </button>
+              <button type="button" class="btn btn-primary" @click="confirm">Apply</button>
+            </div>
           </div>
         </div>
       </div>
@@ -119,7 +121,10 @@ const confirm = () => {
     padding: 16px;
     display: flex;
     justify-content: space-between;
-    margin: 0 -10px;
+    .btn-wrap {
+      margin: 0 -10px;
+      flex-grow: 1;
+    }
     .btn {
       padding: 10px 20px;
       border-radius: 12px;
