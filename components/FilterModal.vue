@@ -62,6 +62,7 @@
 import { useStore } from "~/store";
 const props = defineProps({
   isOpen: Boolean,
+  activeCategoryArr: Array,
 });
 
 const emit = defineEmits(["close-modal", "set-category-arr"]);
@@ -94,6 +95,14 @@ const apply = () => {
   emit("close-modal");
 };
 
+watch(
+  () => props.activeCategoryArr,
+  (val) => {
+    if (!val) return;
+    filter.value = Object.assign([], val);
+  }
+);
+
 onMounted(async () => {
   interface categoryRes {
     category: string[];
@@ -105,13 +114,7 @@ onMounted(async () => {
     });
     if (!res) return;
     category.value = res.category;
-    const categoryStr = decodeURIComponent(route.query.category as string);
-    const categoryArr = categoryStr.split(",");
-    categoryArr.forEach((item) => {
-      if (category.value.includes(item)) {
-        filter.value.push(item);
-      }
-    });
+    filter.value = Object.assign([], props.activeCategoryArr);
   } catch (err) {
     if (err) {
       store.pushNotification({
@@ -159,6 +162,11 @@ onMounted(async () => {
     .modal-title {
       font-weight: bold;
       color: $secColor;
+    }
+    .btn-close {
+      &:focus {
+        box-shadow: none;
+      }
     }
   }
 

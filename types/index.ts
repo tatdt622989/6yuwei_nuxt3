@@ -34,9 +34,16 @@ export interface Website {
   updatedAt: string;
   createdAt: string;
   visible: boolean;
+  homepage: boolean;
 }
 
 export interface BreadCrumb {
   name: string;
   link: string;
+}
+
+export interface Contact {
+  _id: string;
+  email: string;
+  message: string;
 }

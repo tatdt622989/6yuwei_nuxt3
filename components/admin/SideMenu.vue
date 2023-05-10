@@ -2,7 +2,7 @@
   <div id="sidebar">
     <div class="logo">
       <NuxtLink to="/">
-        <img src="@/assets/images/logo.svg" alt="6yuwei">
+        <img src="@/assets/images/logo.svg" alt="6yuwei" />
       </NuxtLink>
     </div>
     <ul>
@@ -19,26 +19,42 @@
         <NuxtLink to="/admin/websites/">
           <i class="bi bi-window-sidebar"></i>
           <span class="text">Websites</span>
-          <span class="material-icons arrow">
-            arrow_forward_ios
-          </span>
+          <span class="material-icons arrow"> arrow_forward_ios </span>
         </NuxtLink>
       </li>
       <li>
         <NuxtLink to="/admin/contact/">
           <i class="bi bi-person-lines-fill"></i>
           <span class="text">Contact</span>
-          <span class="material-icons arrow">
-            arrow_forward_ios
-          </span>
+          <span class="material-icons arrow"> arrow_forward_ios </span>
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/admin/member/">
+          <i class="bi bi-people-fill"></i>
+          <span class="text">Member</span>
+          <span class="material-icons arrow"> arrow_forward_ios </span>
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/admin/member/">
+          <i class="bi bi-person-circle"></i>
+          <span class="text">Account</span>
+          <span class="material-icons arrow"> arrow_forward_ios </span>
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/admin/application/">
+          <i class="bi bi-app-indicator"></i>
+          <span class="text">Application</span>
+          <span class="material-icons arrow"> arrow_forward_ios </span>
         </NuxtLink>
       </li>
     </ul>
   </div>
 </template>
 
-<script lang="ts" setup>
-</script>
+<script lang="ts" setup></script>
 
 <style lang="scss">
 #sidebar {
@@ -54,6 +70,9 @@
   background-color: $terColor;
   overflow: hidden;
   border-radius: 0 40px 40px 0;
+  @include media(1600) {
+    width: 200px;
+  }
   .logo {
     display: flex;
     padding: 20px;
@@ -63,6 +82,9 @@
     margin-bottom: 10px;
     img {
       width: auto;
+      @include media(1600) {
+        width: 120px;
+      }
     }
     h1 {
       font-size: 18px;
@@ -89,6 +111,9 @@
       display: flex;
       width: 100%;
       padding: 10px 20px;
+      @include media(1600) {
+        padding: 10px;
+      }
       a {
         width: 100%;
         font-size: 16px;

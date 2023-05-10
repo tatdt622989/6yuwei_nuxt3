@@ -38,6 +38,7 @@
                 <th scope="col">Title</th>
                 <th scope="col">Category</th>
                 <th scope="col">Off/On</th>
+                <th scope="col">Homepage</th>
                 <th scope="col">Action</th>
               </tr>
             </thead>
@@ -76,6 +77,20 @@
                       v-model="website.visible"
                       @change="
                         updateVisibility(website._id ?? '', website.visible)
+                      "
+                    />
+                    <span class="bg">
+                      <span class="toggler" />
+                    </span>
+                  </label>
+                </td>
+                <td>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      v-model="website.homepage"
+                      @change="
+                        updateHomepage(website._id ?? '', website.homepage)
                       "
                     />
                     <span class="bg">
@@ -134,14 +149,21 @@
 import { Editor, Website } from "~/types";
 import { useStore } from "~/store";
 
+interface UpdateData {
+  _id: string;
+  data: {
+    [key: string]: string | boolean | Array<string>;
+  }
+}
+
 useHead({
   title: "Websites",
-  titleTemplate: "%s - 6yuwei",
+  titleTemplate: "%s - 6yuwei admin",
   meta: [
     {
       hid: "description",
       name: "description",
-      content: "6yuwei - Websites",
+      content: "6yuwei - Websites admin",
     },
   ],
 });
@@ -190,7 +212,6 @@ const openConfirmModal = (targetFunc: Function, id: string = "") => {
 };
 
 const onConfirm = async () => {
-  console.log("confirm", confirmModal);
   confirmModal.isConfirm = true;
   confirmModal.targetFunc && confirmModal.targetFunc();
 };
@@ -365,16 +386,16 @@ const deleteData = async () => {
   selector.value = [];
 };
 
-const updateVisibility = async (id: string, visible: boolean) => {
+const updateData = async (data: UpdateData) => {
   store.setLoading(true);
   const api = `${store.api}/websites/admin/list`;
   const res = await useFetch(api, {
     method: "PUT",
     credentials: "include",
-    body: JSON.stringify({ _id: id, data: { visible } }),
+    body: JSON.stringify(data),
   });
   const error = res.error.value;
-  const data = res.data.value as { msg: string; website: Website };
+  const resData = res.data.value as { msg: string; website: Website };
   if (error) {
     const status = error.status;
     status === 403 && navigateTo("/admin/login");
@@ -386,17 +407,35 @@ const updateVisibility = async (id: string, visible: boolean) => {
     });
     return store.setLoading(false);
   }
-  if (data) {
+  if (resData) {
     store.pushNotification({
       id: Date.now(),
       type: "success",
-      message: data.msg,
+      message: resData.msg,
       timeout: 3000,
     });
   }
   store.setLoading(false);
   await getList();
   editorModal.open = false;
+}
+
+const updateVisibility = async (id: string, visible: boolean) => {
+  updateData({
+    _id: id,
+    data: {
+      visible,
+    },
+  })
+};
+
+const updateHomepage = async (id: string, homepage: boolean) => {
+  updateData({
+    _id: id,
+    data: {
+      homepage,
+    },
+  })
 };
 
 onMounted(async () => {
@@ -437,6 +476,12 @@ watch(
     background-color: lighten($terColor, 5%);
     letter-spacing: 0.8px;
     font-size: 18px;
+    &:nth-of-type(3) {
+      width: 20%;
+    }
+    &:nth-of-type(4) {
+      width: 20%;
+    }
   }
   td {
     border-width: 0 0 1px 0;
@@ -476,20 +521,21 @@ watch(
 
   .action-wrap {
     margin: 0 -10px;
+    display: inline-block;
   }
 
   .action {
     background: transparent;
     border: 0;
-    display: inline-block;
+    display: block;
     line-height: 1;
     vertical-align: middle;
-    padding: 10px;
+    padding: 6px;
     // border: 1px solid $terColor;
     border-radius: 12px;
     @extend %ts;
     &:first-of-type {
-      margin-right: 10px;
+      margin-bottom: 4px;
     }
     &:hover {
       background-color: lighten($terColor, 5%);

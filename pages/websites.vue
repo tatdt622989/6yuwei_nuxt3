@@ -72,7 +72,7 @@
     </div>
     <FilterModal
       :is-open="filterModal.open"
-      :category-arr="categoryArr"
+      :active-category-arr="categoryArr"
       @close-modal="filterModal.open = false"
       @set-category-arr="setCategoryArr"
     />
@@ -167,6 +167,8 @@ watch(sort, async (newVal) => {
 });
 
 onMounted(async () => {
+  const category = decodeURIComponent((route.query.category ?? '') as string);
+  setCategoryArr(category ? (category as string).split(",") : []);
   try {
     const layoutStorage = localStorage.getItem("layout");
     if (layoutStorage) {
@@ -198,6 +200,7 @@ onMounted(async () => {
   width: 100%;
   justify-content: flex-end;
   margin-bottom: 60px;
+  align-items: flex-start;
   @include media(1200) {
     margin-bottom: 40px;
   }
@@ -239,6 +242,7 @@ onMounted(async () => {
     }
     .selectWrap {
       position: relative;
+      margin-bottom: 10px;
       @include after {
         background: no-repeat url(@/assets/images/select_arrow.svg)
           center/contain;
@@ -264,21 +268,37 @@ onMounted(async () => {
         outline: 0;
       }
     }
+    &.active-category-box {
+      flex-grow: 1;
+      display: flex;
+      justify-content: flex-end;
+      margin-left: 0;
+    }
   }
   .category-wrap {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    margin-left: -5px;
     .category {
       display: flex;
       align-items: center;
       max-width: 160px;
+      background: $mainColor;
+      padding: 7px 6px;
+      padding-left: 14px;
+      border-radius: 12px;
+      margin: 0 5px;
+      margin-bottom: 10px;
       .text {
-        font-size: 20px;
+        font-weight: bold;
+        font-size: 18px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
       .remove {
+        cursor: pointer;
         @include center;
       }
     }
@@ -440,9 +460,6 @@ onMounted(async () => {
         }
       }
     }
-  }
-
-  .btn {
   }
 }
 </style>
