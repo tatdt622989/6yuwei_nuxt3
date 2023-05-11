@@ -16,35 +16,49 @@
         </NuxtLink>
       </li> -->
       <li>
-        <NuxtLink to="/admin/websites/">
+        <NuxtLink to="/admin/websites/" :class="{ active: currentPath === '/admin/websites/' }">
           <i class="bi bi-window-sidebar"></i>
           <span class="text">Websites</span>
           <span class="material-icons arrow"> arrow_forward_ios </span>
         </NuxtLink>
       </li>
       <li>
-        <NuxtLink to="/admin/contact/">
+        <NuxtLink to="/admin/3dcg/" :class="{ active: currentPath === '/admin/3dcg/' }">
+          <i class="bi bi-box"></i>
+          <span class="text">3DCG</span>
+          <span class="material-icons arrow"> arrow_forward_ios </span>
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/admin/animation/" :class="{ active: currentPath === '/admin/animation/' }">
+          <i class="bi bi-film"></i>
+          <span class="text">Animation</span>
+          <span class="material-icons arrow"> arrow_forward_ios </span>
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/admin/contact/" :class="{ active: currentPath === '/admin/contact/' }">
           <i class="bi bi-person-lines-fill"></i>
           <span class="text">Contact</span>
           <span class="material-icons arrow"> arrow_forward_ios </span>
         </NuxtLink>
       </li>
       <li>
-        <NuxtLink to="/admin/member/">
+        <NuxtLink to="/admin/member/" :class="{ active: currentPath === '/admin/member/' }">
           <i class="bi bi-people-fill"></i>
           <span class="text">Member</span>
           <span class="material-icons arrow"> arrow_forward_ios </span>
         </NuxtLink>
       </li>
       <li>
-        <NuxtLink to="/admin/member/">
+        <NuxtLink to="/admin/account/" :class="{ active: currentPath === '/admin/account/' }">
           <i class="bi bi-person-circle"></i>
           <span class="text">Account</span>
           <span class="material-icons arrow"> arrow_forward_ios </span>
         </NuxtLink>
       </li>
       <li>
-        <NuxtLink to="/admin/application/">
+        <NuxtLink to="/admin/application/" :class="{ active: currentPath === '/admin/application/' }">
           <i class="bi bi-app-indicator"></i>
           <span class="text">Application</span>
           <span class="material-icons arrow"> arrow_forward_ios </span>
@@ -54,7 +68,10 @@
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const route = useRoute();
+const currentPath = computed(() => route.path);
+</script>
 
 <style lang="scss">
 #sidebar {
@@ -126,10 +143,10 @@
         height: 44px;
         font-weight: bold;
         border-radius: 8px;
-        padding: 0 8px;
+        padding: 0 4px 0 14px;
         @extend %ts;
-        &:hover {
-          color: $mainColor;
+        &:hover, &.active {
+          color: $fourColor;
           background-color: lighten($terColor, 5%);
         }
         .text {

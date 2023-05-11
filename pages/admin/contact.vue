@@ -52,7 +52,7 @@
                   </label>
                 </td>
                 <td class="email">
-                  <a href="javascript:;">
+                  <a href="javascript:;" @click="openTextViewerModal(item.message)">
                     {{ item.email }}
                   </a>
                 </td>
@@ -63,7 +63,7 @@
                   <div class="action-wrap">
                     <button
                       class="action"
-                      @click="openConfirmModal(deleteData, item?._id)"
+                      @click="reply(item.email)"
                     >
                       <span class="material-symbols-outlined icon">
                         reply
@@ -94,6 +94,11 @@
       @close-modal="confirmModal.open = false"
       @confirm="confirmModal.isConfirm = true"
       @on-confirm="onConfirm"
+    />
+    <AdminTextViewerModal
+    :is-open="textViewerModal.open"
+    :message="textViewerModal.message"
+    @close-modal="textViewerModal.open = false"
     />
   </div>
 </template>
@@ -126,6 +131,10 @@ const confirmModal = reactive({
   id: "",
   targetFunc: null as Function | null,
 });
+const textViewerModal = reactive({
+  open: false,
+  message: "",
+});
 const contact = ref<Array<Contact>>([]);
 const selector = ref<Array<string>>([]);
 const isAllSelected = ref(false);
@@ -143,6 +152,11 @@ const openConfirmModal = (targetFunc: Function, id: string = "") => {
   confirmModal.open = true;
   confirmModal.targetFunc = targetFunc;
   confirmModal.id = id;
+};
+
+const openTextViewerModal = (message: string) => {
+  textViewerModal.open = true;
+  textViewerModal.message = message;
 };
 
 const selectAllItem = () => {
@@ -214,6 +228,10 @@ const deleteData = async () => {
   store.setLoading(false);
   await getList();
   selector.value = [];
+};
+
+const reply = (email: string) => {
+  window.location.href = `mailto:${email}`;
 };
 
 onMounted(async () => {
