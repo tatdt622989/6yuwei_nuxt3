@@ -250,9 +250,18 @@ onMounted(async () => {
   border-radius: 12px;
   padding: 0;
   margin-bottom: 30px;
+  overflow: auto;
+  &::-webkit-scrollbar {
+    height: 6px;
+    width: auto;
+  }
+  @include media(1024) {
+    position: relative;
+  }
   table {
     margin-bottom: 20px;
     table-layout: fixed;
+    min-width: 768px;
   }
   th {
     vertical-align: middle;
@@ -262,8 +271,23 @@ onMounted(async () => {
     background-color: lighten($terColor, 5%);
     letter-spacing: 0.8px;
     font-size: 18px;
+    &:nth-of-type(1) {
+      @include media(1200) {
+        width: 64px;
+        text-align: center;
+      }
+    }
     &:nth-of-type(3) {
       width: 50%;
+      @include media(1600) {
+        width: 40%;
+      }
+      @include media(1024) {
+        width: auto;
+      }
+    }
+    &:nth-of-type(4) {
+      width: 250px;
     }
   }
   td {
@@ -273,6 +297,11 @@ onMounted(async () => {
     vertical-align: middle;
     letter-spacing: 0.8px;
     font-size: 16px;
+    &:nth-of-type(1) {
+      @include media(1200) {
+        text-align: center;
+      }
+    }
     &.message {
       white-space: nowrap;
       overflow: hidden;
@@ -283,6 +312,8 @@ onMounted(async () => {
         color: $secColor;
         font-weight: bold;
         text-decoration: none;
+        display: inline;
+        word-break: break-word;
         &:hover {
           color: $mainColor;
         }
@@ -420,6 +451,16 @@ onMounted(async () => {
   border-bottom: 1px solid lighten($terColor, 5%);
   padding: 12px 20px;
   letter-spacing: 0.8px;
+  @include media(1024) {
+    position: sticky;
+    top: 0px;
+    width: 100%;
+    left: 0;
+  }
+  @include media(768) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   .total,
   .selected {
     margin: 0;

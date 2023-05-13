@@ -23,7 +23,7 @@
           </div>
           <div class="modal-body container">
             <form action="" class="row" @submit.prevent>
-              <div class="col-6 d-flex align-stretch flex-column">
+              <div class="col-md-6 col-sm-12 d-flex align-stretch flex-column">
                 <div class="img-previewer">
                   <swiper
                     @swiper="onSwiper"
@@ -57,7 +57,7 @@
                   ref="pagination"
                 ></div>
               </div>
-              <div class="col-6 pt-3">
+              <div class="col-md-6 col-sm-12 pt-3">
                 <div class="mb-3">
                   <label
                     for="FormControlInput1"
@@ -106,7 +106,10 @@
                 <div class="mb-2">
                   <label for="FormControlTextarea1" class="form-label has-btn"
                     ><span class="text">Describe</span
-                    ><button class="btn btn-circle ai" @click="textGenerator('describe')">
+                    ><button
+                      class="btn btn-circle ai"
+                      @click="textGenerator('describe')"
+                    >
                       <span class="material-icons icon"> auto_fix_normal </span>
                       Auto
                     </button></label
@@ -121,12 +124,15 @@
               </div>
               <div class="col-12">
                 <label for="FormControlTextarea1" class="form-label has-btn"
-                    ><span class="text">Content</span
-                    ><button class="btn btn-circle ai" @click="textGenerator('content')">
-                      <span class="material-icons icon"> auto_fix_normal </span>
-                      Auto
-                    </button></label
+                  ><span class="text">Content</span
+                  ><button
+                    class="btn btn-circle ai"
+                    @click="textGenerator('content')"
                   >
+                    <span class="material-icons icon"> auto_fix_normal </span>
+                    Auto
+                  </button></label
+                >
                 <AdminTextEditor
                   :text-editor="textEditorHTML"
                   :is-open="isOpen"
@@ -184,18 +190,18 @@
                     v-for="info in fileInfoList"
                     :key="info.data?._id"
                   >
-                    <div class="file-info">
+                    <div class="file-title">
                       <span class="material-symbols-outlined">image</span>
                       <div class="file-name">
                         <span>{{ info.data?.url }}</span>
                       </div>
+                    </div>
+                    <div class="file-actions">
                       <div class="file-size">
                         <span>{{
                           info.data && fileSizeConverter(info.data.size)
                         }}</span>
                       </div>
-                    </div>
-                    <div class="file-actions">
                       <button
                         class="btn btn-sm done"
                         v-if="info.progress === 100"
@@ -657,10 +663,10 @@ const keyupHandler = (e: KeyboardEvent) => {
   }
 };
 
-const textGenerator = async (inputType: 'describe'|'content') => {
-  const title = props.data?.title ?? "";
+const textGenerator = async (inputType: "describe" | "content") => {
+  const topic = title.value ?? "";
   if (store.isLoading) return;
-  if (!title) {
+  if (!topic) {
     return store.pushNotification({
       id: Date.now(),
       type: "error",
@@ -670,19 +676,23 @@ const textGenerator = async (inputType: 'describe'|'content') => {
   }
   store.setLoading(true);
   const prompt = {
-    describe: `使用這個「${title}」作為主題，撰寫一則簡短的描述。並且與網頁內容相關。`,
-    content: `使用這個「${title}」作為主題，撰寫一篇段落分明的300字以上的文章。並且與網頁內容相關。`,
-  }
-  const text = await useAskGptModel(prompt[inputType]) as string;
+    describe: `使用這個「${topic}」作為主題，撰寫一則簡短的描述。並且與${
+      category.value ?? "網頁"
+    }內容相關。`,
+    content: `使用這個「${topic}」作為主題，撰寫一篇段落分明的文章。並且與${
+      category.value ?? "網頁"
+    }內容相關。`,
+  };
+  const text = (await useAskGptModel(prompt[inputType])) as string;
   if (text) {
-    if (inputType === 'describe') {
+    if (inputType === "describe") {
       description.value = text;
     } else {
       textEditorHTML.value = text;
     }
   }
   store.setLoading(false);
-}
+};
 
 onMounted(() => {
   window.addEventListener("keyup", keyupHandler);
@@ -730,7 +740,7 @@ watch(
     max-width: 1100px;
     margin: 0;
     margin-left: auto;
-    height: 100vh;
+    height: 100%;
   }
   .modal-header {
     border-radius: 0;
@@ -756,9 +766,16 @@ watch(
     position: relative;
     transform: translateX(30px);
     overflow: hidden;
+    @include media(1100) {
+      border-radius: 0;
+    }
     .modal-body {
       overflow: auto;
       padding: 32px 48px;
+      max-width: none;
+      @include media(1100) {
+        padding: 32px 20px;
+      }
     }
   }
   .modal-footer {
@@ -768,6 +785,11 @@ watch(
     bottom: 0;
     background-color: #fff;
     z-index: 2;
+    @include media(480) {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
+    }
     .btn {
       padding: 10px 20px;
       border-radius: 12px;
@@ -775,10 +797,22 @@ watch(
       background-color: $mainColor;
       color: $secColor;
       font-weight: bold;
+      @include media(480) {
+        width: 100%;
+      }
       &.cancel {
+        @include media(480) {
+          width: 100%;
+        }
         background-color: $terColor;
       }
       &.delete {
+        @include media(480) {
+          width: calc(50% - 8px);
+          &+.cancel {
+            width: calc(50% - 8px);
+          }
+        }
         color: #fff;
         background-color: $dangerColor;
       }
@@ -951,7 +985,10 @@ watch(
       overflow: hidden;
       border-radius: 12px;
       margin-bottom: 20px;
-      .file-info {
+      @include media(768) {
+        flex-wrap: wrap;
+      }
+      .file-title {
         display: flex;
         align-items: center;
         color: $secColor;
@@ -960,6 +997,10 @@ watch(
         padding-right: 10px;
         letter-spacing: 1px;
         max-width: 100%;
+        @include media(768) {
+          width: 100%;
+          margin-bottom: 10px;
+        }
         span {
           font-size: 32px;
           color: $secColor;
@@ -973,22 +1014,28 @@ watch(
           span {
             line-height: 1.2;
             font-size: 16px;
+            width: 100%;
+            display: inline-block;
           }
+        }
+      }
+      .file-actions {
+        display: flex;
+        @include media(768) {
+          margin-left: auto;
         }
         .file-size {
           flex-shrink: 0;
-          margin-left: 10px;
+          margin: 0 10px;
           display: flex;
           align-items: center;
           span {
             font-size: 16px;
             color: $mainColor;
             line-height: 1.2;
+            font-weight: bold;
           }
         }
-      }
-      .file-actions {
-        display: flex;
         .btn {
           border: 0;
           border-radius: 99px;

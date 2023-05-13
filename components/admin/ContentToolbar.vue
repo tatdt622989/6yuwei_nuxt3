@@ -1,8 +1,8 @@
 <template>
   <div class="toolbar">
     <button class="add btn" @click="emit('open-editor-modal', 'add')">
-      <span class="material-symbols-outlined"> add </span>
-      New Post
+      <span class="material-symbols-outlined icon"> add </span>
+      <span class="title">New Post</span>
     </button>
   </div>
 </template>
@@ -23,14 +23,26 @@ const emit = defineEmits(["open-editor-modal"]);
   border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
-  font-size: 20px;
   min-width: 0;
   width: auto;
   padding: 0 16px;
   margin: 0 8px;
   letter-spacing: 0.8px;
+  font-size: 20px;
+  .title {
+    font-weight: bold;
+    font-size: 20px;
+    @include media(480) {
+      display: none;
+    }
+  }
   span {
     margin-right: 6px;
+    @include media(480) {
+      margin-right: 0;
+    }
+  }
+  .icon {
   }
   &.delete {
     background-color: transparent;

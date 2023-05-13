@@ -38,7 +38,7 @@
                 <th scope="col">Title</th>
                 <th scope="col">Category</th>
                 <th scope="col">Off/On</th>
-                <th scope="col">Homepage</th>
+                <th scope="col">Home</th>
                 <th scope="col">Action</th>
               </tr>
             </thead>
@@ -100,13 +100,19 @@
                 </td>
                 <td>
                   <div class="action-wrap">
-                    <button class="action copy"  @click="openConfirmModal(copyWebsite, website._id)">
+                    <button
+                      class="action copy"
+                      @click="openConfirmModal(copyWebsite, website._id)"
+                    >
                       <span class="material-symbols-outlined icon">
                         content_copy
                       </span>
                       <span class="text">Copy</span>
                     </button>
-                    <button class="action delete" @click="openConfirmModal(deleteData, website._id)">
+                    <button
+                      class="action delete"
+                      @click="openConfirmModal(deleteData, website._id)"
+                    >
                       <span class="material-symbols-outlined icon">
                         delete
                       </span>
@@ -153,7 +159,7 @@ interface UpdateData {
   _id: string;
   data: {
     [key: string]: string | boolean | Array<string>;
-  }
+  };
 }
 
 useHead({
@@ -237,12 +243,13 @@ const selectAllItem = () => {
 const copyWebsite = async () => {
   const id = confirmModal.id;
   const website = websites.value.find((item) => item._id === id);
-  if (!website) return store.pushNotification({
-    id: Date.now(),
-    type: "error",
-    message: "Website not found",
-    timeout: 5000,
-  });
+  if (!website)
+    return store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: "Website not found",
+      timeout: 5000,
+    });
   const api = `${store.api}/websites/admin/list/`;
   const data = {
     title: website.title,
@@ -298,7 +305,7 @@ const getList = async () => {
     store.pushNotification({
       id: Date.now(),
       type: "error",
-      message: error.data,
+      message: 'Can not get websites list',
       timeout: 5000,
     });
     return store.setLoading(false);
@@ -418,7 +425,7 @@ const updateData = async (data: UpdateData) => {
   store.setLoading(false);
   await getList();
   editorModal.open = false;
-}
+};
 
 const updateVisibility = async (id: string, visible: boolean) => {
   updateData({
@@ -426,7 +433,7 @@ const updateVisibility = async (id: string, visible: boolean) => {
     data: {
       visible,
     },
-  })
+  });
 };
 
 const updateHomepage = async (id: string, homepage: boolean) => {
@@ -435,7 +442,7 @@ const updateHomepage = async (id: string, homepage: boolean) => {
     data: {
       homepage,
     },
-  })
+  });
 };
 
 onMounted(async () => {
@@ -464,9 +471,18 @@ watch(
   border-radius: 12px;
   padding: 0;
   margin-bottom: 30px;
+  overflow: auto;
+  &::-webkit-scrollbar {
+    height: 6px;
+    width: auto;
+  }
+  @include media(1024) {
+    position: relative;
+  }
   table {
     margin-bottom: 20px;
     table-layout: fixed;
+    min-width: 1024px;
   }
   th {
     vertical-align: middle;
@@ -476,11 +492,26 @@ watch(
     background-color: lighten($terColor, 5%);
     letter-spacing: 0.8px;
     font-size: 18px;
+    &:nth-of-type(1) {
+      @include media(1200) {
+        width: 64px;
+        text-align: center;
+      }
+    }
+    &:nth-of-type(2) {
+      @include media(1200) {
+        width: 120px;
+        padding: 20px 0;
+      }
+    }
     &:nth-of-type(3) {
       width: 20%;
     }
     &:nth-of-type(4) {
       width: 20%;
+    }
+    @include media(1200) {
+      padding: 20px 10px;
     }
   }
   td {
@@ -490,6 +521,21 @@ watch(
     vertical-align: middle;
     letter-spacing: 0.8px;
     font-size: 16px;
+    &:nth-of-type(1) {
+      @include media(1200) {
+        text-align: center;
+      }
+    }
+    &:nth-of-type(2) {
+      @include media(1200) {
+        padding: 10px 0;
+      }
+    }
+    @include media(1200) {
+      padding: 10px;
+    }
+  }
+  tr {
   }
   .preview-box {
     cursor: pointer;
@@ -667,6 +713,16 @@ watch(
   border-bottom: 1px solid lighten($terColor, 5%);
   padding: 12px 20px;
   letter-spacing: 0.8px;
+  @include media(1024) {
+    position: sticky;
+    top: 0px;
+    width: 100%;
+    left: 0;
+  }
+  @include media(768) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   .total,
   .selected {
     margin: 0;
@@ -677,11 +733,18 @@ watch(
     font-size: 20px;
     letter-spacing: 0.8px;
     line-height: 50px;
+    @include media(768) {
+      line-height: 36px;
+      margin-bottom: 6px;
+    }
   }
   .right {
     align-items: center;
     display: flex;
     margin: 0 -20px;
+    @include media(768) {
+      margin: 0;
+    }
   }
   .btn {
     border: 0;

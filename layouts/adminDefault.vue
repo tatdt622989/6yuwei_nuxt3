@@ -20,6 +20,9 @@
   display: flex;
   min-height: 100vh;
   background-color: lighten($terColor, 5%);
+  @include media(1200) {
+    flex-direction: column;
+  }
 }
 .layout {
   flex-grow: 1;
@@ -34,6 +37,11 @@
     background-color: lighten($terColor, 5%);
     padding: 0 36px 0;
     flex-direction: column;
+    padding-bottom: 36px;
+    @include media(1400) {
+      padding: 0 20px;
+      padding-bottom: 20px;
+    }
     h2.title {
       font-weight: 800;
       font-size: 32px;
@@ -41,6 +49,10 @@
       line-height: 52px;
       padding-left: 6px;
       letter-spacing: 0.8px;
+      color: $secColor;
+      @include media(768) {
+        font-size: 28px;
+      }
     }
   }
 }

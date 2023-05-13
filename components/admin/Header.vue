@@ -41,6 +41,17 @@ const isFocus = ref(false);
   padding: 20px 36px;
   padding-top: 40px;
   background-color: lighten($terColor, 5%);
+  @include media(1400) {
+    padding: 20px;
+    padding-top: 40px;
+  }
+  @include media(1200) {
+    padding: 20px;
+  }
+  @include media(768) {
+    flex-direction: column;
+    align-items: flex-end;
+  }
   .searchBox {
     @include center;
     padding: 0 20px;
@@ -55,6 +66,12 @@ const isFocus = ref(false);
     &.focus {
       border: 1px solid $mainColor;
       box-shadow: 0 0 0 1px $mainColor;
+    }
+    @include media(768) {
+      order: 2;
+      max-width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
     }
     .btn {
       @include center;
@@ -111,6 +128,9 @@ const isFocus = ref(false);
   .rightBox {
     display: flex;
     align-items: center;
+    @include media(1024) {
+      margin-bottom: 10px;
+    }
     .notification {
       margin-right: 10px;
       .btn {
