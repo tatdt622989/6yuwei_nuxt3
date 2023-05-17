@@ -1,7 +1,12 @@
 export interface User {
   _id: string;
-  name: string;
+  username: string;
   email: string;
+  phone: string;
+  country: string;
+  birth: string;
+  permissions: string;
+  createdAt: string;
 }
 
 export interface Photo {

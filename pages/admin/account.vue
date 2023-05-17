@@ -11,8 +11,8 @@
               <i class="bi bi-person-circle"></i>
             </div>
             <div class="title">Profile</div>
-            <div class="permissions general">
-              <span>General</span>
+            <div class="permissions" :class="user.permissions">
+              <span>{{ user.permissions }}</span>
             </div>
           </div>
           <div class="content">
@@ -36,6 +36,7 @@
                     class="form-control"
                     id="username"
                     placeholder=""
+                    v-model="user.username"
                   />
                 </div>
                 <div class="item">
@@ -45,6 +46,7 @@
                     class="form-control"
                     id="phone"
                     placeholder=""
+                    v-model="user.phone"
                   />
                 </div>
                 <div class="item">
@@ -54,6 +56,7 @@
                     class="form-control"
                     id="country"
                     placeholder=""
+                    v-model="user.country"
                   />
                 </div>
                 <div class="item">
@@ -63,18 +66,23 @@
                     class="form-control"
                     id="email"
                     placeholder=""
+                    v-model="user.email"
                   />
                 </div>
                 <div class="item">
                   <label for="birth" class="form-label">Birth</label>
-                  <Datepicker v-model="birth" :enable-time-picker="false" :format="format" />
+                  <Datepicker
+                    v-model="user.birth"
+                    :enable-time-picker="false"
+                    :format="format"
+                  />
                 </div>
                 <div class="item submit">
                   <div class="create-at">
                     <p class="title">Create at</p>
-                    <p class="date">2021.08.01</p>
+                    <p class="date">{{ createdAt }}</p>
                   </div>
-                  <button class="save">Save</button>
+                  <button class="save" @click="saveUser">Save</button>
                 </div>
               </div>
             </form>
@@ -85,7 +93,43 @@
             <div class="icon">
               <i class="bi bi-app-indicator"></i>
             </div>
-            <div class="title">Application</div>
+            <div class="title">Applications</div>
+          </div>
+          <div class="content">
+            <div class="application-wrap">
+              <div class="application-item">
+                <div class="preview">
+                  <span class="title"> Diary Box </span>
+                </div>
+                <NuxtLink to="/admin/application/1" class="btn link-btn"
+                  >Manage</NuxtLink
+                >
+              </div>
+              <div class="application-item">
+                <div class="preview">
+                  <span class="title"> Diary Box </span>
+                </div>
+                <NuxtLink to="/admin/application/1" class="btn link-btn"
+                  >Manage</NuxtLink
+                >
+              </div>
+              <div class="application-item">
+                <div class="preview">
+                  <span class="title"> Diary Box </span>
+                </div>
+                <NuxtLink to="/admin/application/1" class="btn link-btn"
+                  >Manage</NuxtLink
+                >
+              </div>
+              <div class="application-item">
+                <div class="preview">
+                  <span class="title"> Diary Box </span>
+                </div>
+                <NuxtLink to="/admin/application/1" class="btn link-btn"
+                  >Manage</NuxtLink
+                >
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -96,6 +140,8 @@
 <script lang="ts" setup>
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
+import { useStore } from "~/store";
+import { User } from "~/types";
 
 useHead({
   title: "Account",
@@ -109,15 +155,95 @@ useHead({
   ],
 });
 
-const birth = ref();
+const store = useStore();
+
+interface userRef {
+  msg: string;
+  user: User;
+}
+const user = ref<User>({
+  _id: "",
+  username: "",
+  phone: "",
+  country: "",
+  email: "",
+  birth: "",
+  permissions: "user",
+  createdAt: "",
+});
+const createdAt = computed(() => {
+  const date = new Date(user.value.createdAt);
+  const month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+  const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+  return `${date.getFullYear()}-${month}-${day}`;
+});
 
 const format = (date: Date) => {
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-  const month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+  const month =
+    date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
   const year = date.getFullYear();
 
   return `${year}-${month}-${day}`;
-}
+};
+
+const saveUser = async () => {
+  store.setLoading(true);
+  const formData = new FormData();
+  formData.append("username", user.value.username);
+  formData.append("phone", user.value.phone);
+  formData.append("country", user.value.country);
+  formData.append("birth", user.value.birth);
+  const { data: userRef, error } = await useFetch(`${store.api}/user/`, {
+    method: "PUT",
+    credentials: "include",
+    body: formData,
+  });
+  if (error.value) {
+    const status = error.value.status;
+    status === 403 && navigateTo("/admin/login");
+    return store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error.value.data as string,
+      timeout: 5000,
+    });
+  }
+  const data = (userRef.value as userRef).user;
+  if (data) {
+    user.value = data;
+    store.pushNotification({
+      id: Date.now(),
+      type: "success",
+      message: "User updated",
+      timeout: 5000,
+    });
+  }
+  store.setLoading(false);
+};
+
+onMounted(async () => {
+  const { data: userRef, error } = await useFetch(`${store.api}/user/`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (error.value) {
+    const status = error.value.status;
+    status === 403 && navigateTo("/admin/login");
+    return store.pushNotification({
+      id: Date.now(),
+      type: "error",
+      message: error.value.data as string,
+      timeout: 5000,
+    });
+  }
+
+  const data = (userRef.value as userRef).user;
+  if (data) {
+    user.value = data;
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -155,9 +281,15 @@ const format = (date: Date) => {
     @include center;
     letter-spacing: 0.8px;
     margin-left: 30px;
+    text-transform: capitalize;
     &.general {
       color: $secColor;
-      background: linear-gradient(90deg, #e8d39c -0.45%, #deba5d 100.45%);
+      background: linear-gradient(90deg, #E8D39C -0.45%, #E09B34 100.45%);
+    }
+
+    &.admin {
+      color: #fff;
+      background: linear-gradient(90deg, #575EFF -0.45%, #FF007A 100.45%);
     }
   }
 }
@@ -322,10 +454,81 @@ const format = (date: Date) => {
   border-radius: 30px;
   padding: 0;
   box-shadow: 0px 0px 20px rgba(40, 203, 146, 0.4);
+  display: flex;
+  flex-direction: column;
   .area-head {
-    .title, .icon {
+    .title,
+    .icon {
       color: $mainColor;
     }
+  }
+  .application-item {
+    display: flex;
+    width: 25%;
+    padding: 0 22px;
+    flex-direction: column;
+    .link-btn {
+      width: 100%;
+      height: 52px;
+      border-radius: 12px;
+      background-color: $mainColor;
+      @include center;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 30px;
+      &:hover {
+        background-color: lighten($mainColor, 10%);
+      }
+    }
+    .preview {
+      height: 200px;
+      width: 100%;
+      display: flex;
+      background: no-repeat url("@/assets/images/default.png") center/cover;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 35px;
+      position: relative;
+      @include after {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          180deg,
+          #d9d9d9 0%,
+          rgba(63, 63, 63, 0) 0.01%,
+          #28cb92 100%
+        );
+        top: 0;
+        left: 0;
+      }
+      .title {
+        font-weight: 700;
+        font-size: 28px;
+        line-height: 42px;
+        letter-spacing: 0.025em;
+        text-align: center;
+        color: #fff;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        left: 0;
+        z-index: 1;
+        bottom: 6px;
+      }
+    }
+  }
+  .content {
+    background: transparent;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 42px 53px 57px;
+  }
+  .application-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -22px;
   }
 }
 </style>
