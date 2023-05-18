@@ -7,6 +7,7 @@ export interface User {
   birth: string;
   permissions: string;
   createdAt: string;
+  photo: string;
 }
 
 export interface Photo {

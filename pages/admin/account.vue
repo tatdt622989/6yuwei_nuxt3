@@ -20,11 +20,16 @@
               <div class="photo-area">
                 <div class="preview">
                   <i class="bi bi-person-fill"></i>
+                  <img
+                    v-if="user.photo || preview"
+                    :src="userPhotoPath || preview"
+                    :alt="user.username"
+                  />
                 </div>
                 <div class="upload">
                   <label>
                     <span>Upload</span>
-                    <input type="file" />
+                    <input type="file" @change="handlePhoto" />
                   </label>
                 </div>
               </div>
@@ -161,6 +166,8 @@ interface userRef {
   msg: string;
   user: User;
 }
+const preview = ref<string>("");
+const userPhotoFile = ref<File | null>(null);
 const user = ref<User>({
   _id: "",
   username: "",
@@ -170,10 +177,15 @@ const user = ref<User>({
   birth: "",
   permissions: "user",
   createdAt: "",
+  photo: "",
+});
+const userPhotoPath = computed(() => {
+  return `${store.api}/admin/uploads/${user.value._id}/${user.value.photo}`;
 });
 const createdAt = computed(() => {
   const date = new Date(user.value.createdAt);
-  const month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+  const month =
+    date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
   return `${date.getFullYear()}-${month}-${day}`;
 });
@@ -187,6 +199,18 @@ const format = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+const handlePhoto = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => {
+    preview.value = reader.result as string;
+  };
+  userPhotoFile.value = file;
+};
+
 const saveUser = async () => {
   store.setLoading(true);
   const formData = new FormData();
@@ -194,6 +218,7 @@ const saveUser = async () => {
   formData.append("phone", user.value.phone);
   formData.append("country", user.value.country);
   formData.append("birth", user.value.birth);
+  formData.append("photo", userPhotoFile.value as File);
   const { data: userRef, error } = await useFetch(`${store.api}/user/`, {
     method: "PUT",
     credentials: "include",
@@ -251,12 +276,22 @@ onMounted(async () => {
 .container-fluid {
   padding: 0;
   padding-top: 45px;
+  .row {
+    margin: 0;
+    padding-bottom: 60px;
+  }
 }
 .area-head {
   align-items: center;
   display: flex;
   padding: 28px 52px;
   border-bottom: 1px solid $terColor;
+  @include media(1600) {
+    padding: 28px 32px;
+  }
+  @include media(480) {
+    padding: 20px 24px;
+  }
   .icon {
     color: $secColor;
     font-size: 38px;
@@ -269,6 +304,9 @@ onMounted(async () => {
     line-height: 42px;
     color: $secColor;
     letter-spacing: 1px;
+    @include media(480) {
+      font-size: 24px;
+    }
   }
   .permissions {
     font-style: normal;
@@ -282,14 +320,21 @@ onMounted(async () => {
     letter-spacing: 0.8px;
     margin-left: 30px;
     text-transform: capitalize;
+    @include media(480) {
+      font-size: 16px;
+      margin-left: auto;
+    }
+    @include media(374) {
+      padding: 5px 12px;
+    }
     &.general {
       color: $secColor;
-      background: linear-gradient(90deg, #E8D39C -0.45%, #E09B34 100.45%);
+      background: linear-gradient(90deg, #e8d39c -0.45%, #e09b34 100.45%);
     }
 
     &.admin {
       color: #fff;
-      background: linear-gradient(90deg, #575EFF -0.45%, #FF007A 100.45%);
+      background: linear-gradient(90deg, #575eff -0.45%, #ff007a 100.45%);
     }
   }
 }
@@ -304,13 +349,34 @@ onMounted(async () => {
     background: transparent;
     display: flex;
     padding: 42px 53px 57px;
+    @include media(1600) {
+      padding: 32px;
+      padding-bottom: 14px;
+    }
+    @include media(1200) {
+      padding: 28px 20px;
+      padding-bottom: 22px;
+    }
   }
   .form {
     display: flex;
+    @include media(540) {
+      flex-direction: column;
+    }
   }
   .photo-area {
     padding-right: 53px;
     flex-shrink: 0;
+    display: block;
+    @include media(1600) {
+      padding-right: 32px;
+    }
+    @include media(540) {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 30px;
+    }
     .preview {
       display: flex;
       width: 126px;
@@ -320,9 +386,19 @@ onMounted(async () => {
       background-color: $secColor;
       @include center;
       margin-bottom: 11px;
+      position: relative;
+      overflow: hidden;
       i {
         font-size: 80px;
         color: $mainColor;
+        @include center(transform, all);
+      }
+      img {
+        position: absolute;
+        @include center(transform, all);
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
     }
     .upload {
@@ -353,15 +429,36 @@ onMounted(async () => {
     display: flex;
     flex-wrap: wrap;
     margin: 0 -28px;
+    @include media(1600) {
+      margin: 0 -16px;
+    }
     .item {
       width: calc(100% / 3);
       padding: 0 28px;
       margin-bottom: 21px;
+      // @include media()
+      @include media(1600) {
+        padding: 0 16px;
+      }
+      @include media(1200) {
+        width: 50%;
+      }
+      @include media(960) {
+        width: 100%;
+      }
     }
     .submit {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
+      @include media(1400) {
+        flex-direction: column;
+        align-items: flex-end;
+      }
+      @include media(1200) {
+        flex-direction: row;
+        align-items: flex-end;
+      }
     }
     label {
       font-style: normal;
@@ -387,6 +484,14 @@ onMounted(async () => {
       }
     }
     .create-at {
+      @include media(1400) {
+        text-align: right;
+        margin-bottom: 10px;
+      }
+      @include media(1200) {
+        text-align: left;
+        margin-bottom: 0;
+      }
       .title {
         font-style: normal;
         font-weight: 600;
@@ -417,9 +522,16 @@ onMounted(async () => {
       letter-spacing: 0.025em;
       width: 200px;
       height: 52px;
+      margin-left: 10px;
       @include center;
       &:hover {
         background-color: lighten($secColor, 10%);
+      }
+      @include media(1800) {
+        width: 150px;
+      }
+      @include media(540) {
+        width: 120px;
       }
     }
   }
@@ -467,6 +579,21 @@ onMounted(async () => {
     width: 25%;
     padding: 0 22px;
     flex-direction: column;
+    @include media(1400) {
+      width: 33.33%;
+      padding: 0 10px;
+      margin-bottom: 40px;
+    }
+    @include media(960) {
+      width: 50%;
+      padding: 0 10px;
+      margin-bottom: 40px;
+    }
+    @include media(640) {
+      width: 100%;
+      padding: 0 10px;
+      margin-bottom: 40px;
+    }
     .link-btn {
       width: 100%;
       height: 52px;
@@ -482,7 +609,7 @@ onMounted(async () => {
       }
     }
     .preview {
-      height: 200px;
+      min-height: 300px;
       width: 100%;
       display: flex;
       background: no-repeat url("@/assets/images/default.png") center/cover;
@@ -490,6 +617,12 @@ onMounted(async () => {
       overflow: hidden;
       margin-bottom: 35px;
       position: relative;
+      @include media(1920) {
+        min-height: 250px;
+      }
+      @include media(1600) {
+        min-height: 200px;
+      }
       @include after {
         display: flex;
         width: 100%;
@@ -524,11 +657,20 @@ onMounted(async () => {
     display: flex;
     flex-wrap: wrap;
     padding: 42px 53px 57px;
+    @include media(1600) {
+      padding: 32px;
+    }
+    @include media(1200) {
+      padding: 40px 20px 0;
+    }
   }
   .application-wrap {
     display: flex;
     flex-wrap: wrap;
     margin: 0 -22px;
+    @include media(1200) {
+      margin: 0 -10px;
+    }
   }
 }
 </style>

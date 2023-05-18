@@ -79,6 +79,7 @@ const breadcrumb = ref([
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-left: -7px;
+      font-weight: bold;
       @include media(1200) {
         font-size: 45px;
         margin-top: 20px;
