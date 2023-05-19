@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { User } from "~/types";
 
 interface Toast {
-  id: number;
+  id?: number;
   message: string;
   type: "success" | "error" | "info";
   timeout: number;
@@ -21,6 +21,7 @@ export const useStore = defineStore("main", {
       // ...
     },
     pushNotification(notification: Toast) {
+      notification.id = Date.now();
       this.notifications.push(notification);
       setTimeout(() => {
         this.notifications = this.notifications.filter(

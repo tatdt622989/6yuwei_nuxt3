@@ -383,7 +383,6 @@ const verify = () => {
   }
   if (errMsg) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: errMsg,
       timeout: 5000,
@@ -448,7 +447,6 @@ const save = async () => {
   if (res.error) {
     navigateTo("/admin/login");
     return store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: res.error.message,
       timeout: 5000,
@@ -456,7 +454,6 @@ const save = async () => {
   }
   if (res.resData) {
     store.pushNotification({
-      id: Date.now(),
       type: "success",
       message: "Saved successfully",
       timeout: 3000,
@@ -476,7 +473,6 @@ const uploadImg = async (files: FileList, id: string) => {
 
   if (fileInfoList.value.length + files.length > 5) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: "You can only upload 5 photos at a time",
       timeout: 5000,
@@ -534,7 +530,6 @@ const uploadImg = async (files: FileList, id: string) => {
     (await Promise.all(reqList)) as ResData[];
     console.log("reqList", reqList);
     store.pushNotification({
-      id: Date.now(),
       type: "success",
       message: "Upload successfully",
       timeout: 3000,
@@ -543,7 +538,6 @@ const uploadImg = async (files: FileList, id: string) => {
     const status = err.response?.status;
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: err as string,
       timeout: 5000,
@@ -560,7 +554,6 @@ const handleDrop = (e: DragEvent) => {
   inDropZone.value = false;
   if (!props.data) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: "Please save the data first",
       timeout: 5000,
@@ -579,7 +572,6 @@ const fileChange = (e: Event) => {
   if (!props.data) {
     console.log(el);
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: "Please save the data first",
       timeout: 5000,
@@ -612,7 +604,6 @@ const fileDelete = async () => {
       const status = error.status;
       status === 403 && navigateTo("/admin/login");
       return store.pushNotification({
-        id: Date.now(),
         type: "error",
         message: error.message,
         timeout: 5000,
@@ -625,7 +616,6 @@ const fileDelete = async () => {
     } | null;
     if (resData) {
       store.pushNotification({
-        id: Date.now(),
         type: "success",
         message: "Deleted successfully",
         timeout: 3000,
@@ -634,7 +624,6 @@ const fileDelete = async () => {
     }
   } catch (error) {
     return store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error as string,
       timeout: 5000,
@@ -668,7 +657,6 @@ const textGenerator = async (inputType: "describe" | "content") => {
   if (store.isLoading) return;
   if (!topic) {
     return store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: "Please enter the title first",
       timeout: 5000,

@@ -98,7 +98,6 @@ const submit = async () => {
 
   if (error) {
     store.pushNotification({
-      id: Date.now(),
       type: 'error',
       message: error.message,
       timeout: 5000,
@@ -113,7 +112,6 @@ const submit = async () => {
     if (user) {
       store.setUser(user);
       store.pushNotification({
-        id: Date.now(),
         type: 'success',
         message: 'Register successfully!',
         timeout: 3000,

@@ -86,7 +86,6 @@ const send = async () => {
   store.setLoading(true);
   if (!email.value || !message.value) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: "Please fill in all fields.",
       timeout: 5000,
@@ -108,7 +107,6 @@ const send = async () => {
   const error = res.error.value;
   if (error) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.data,
       timeout: 5000,
@@ -121,7 +119,6 @@ const send = async () => {
   email.value = "";
   message.value = "";
   store.pushNotification({
-    id: Date.now(),
     type: "success",
     message: data.msg,
     timeout: 5000,

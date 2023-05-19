@@ -13,7 +13,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const error = res.error.value as Error;
   if (error) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.message,
       timeout: 5000,

@@ -73,7 +73,6 @@ interface LoginRes {
 const submit = async () => {
   if (!email.value || !password.value) {
     store.pushNotification({
-      id: Date.now(),
       type: 'error',
       message: 'Please fill in all the fields.',
       timeout: 5000,
@@ -99,7 +98,6 @@ const submit = async () => {
   if (error) {
     const status = error.status;
     store.pushNotification({
-      id: Date.now(),
       type: 'error',
       message: error?.data,
       timeout: 5000,
@@ -112,7 +110,6 @@ const submit = async () => {
     if (user) {
       store.setUser(user);
       store.pushNotification({
-        id: Date.now(),
         type: 'success',
         message: 'Login successfully!',
         timeout: 3000,

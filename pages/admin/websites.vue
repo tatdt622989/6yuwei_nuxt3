@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="titleWrap">
-      <h2 class="title">Websites</h2>
+      <div class="text">
+        <h2 class="title">Websites</h2>
+        <p class="result" v-if="keyword">Search result: <span>{{ keyword ? `${keyword}` : '' }}</span></p>
+      </div>
       <AdminContentToolbar @open-editor-modal="openEditorModal" />
     </div>
     <div class="container-fluid">
@@ -180,7 +183,7 @@ definePageMeta({
 });
 
 const store = useStore();
-const user = computed(() => store.user);
+const keyword = inject("keyword") as Ref<string>;
 
 const editorModal = reactive({
   open: false,
@@ -245,7 +248,6 @@ const copyWebsite = async () => {
   const website = websites.value.find((item) => item._id === id);
   if (!website)
     return store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: "Website not found",
       timeout: 5000,
@@ -272,7 +274,6 @@ const copyWebsite = async () => {
     const status = error.status;
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.data,
       timeout: 5000,
@@ -281,7 +282,6 @@ const copyWebsite = async () => {
   }
   if (res.data.value) {
     store.pushNotification({
-      id: Date.now(),
       type: "success",
       message: "Website copied",
       timeout: 5000,
@@ -292,7 +292,7 @@ const copyWebsite = async () => {
 
 const getList = async () => {
   store.setLoading(true);
-  const api = `${store.api}/websites/admin/list/?page=${currentPage.value}`;
+  const api = `${store.api}/websites/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
   const res = await useFetch(api, {
     method: "GET",
     credentials: "include",
@@ -303,7 +303,6 @@ const getList = async () => {
     const status = error.status;
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: 'Can not get websites list',
       timeout: 5000,
@@ -339,7 +338,6 @@ const getCategory = async () => {
       const status = error.status;
       status === 403 && navigateTo("/admin/login");
       store.pushNotification({
-        id: Date.now(),
         type: "error",
         message: error.data,
         timeout: 5000,
@@ -357,7 +355,6 @@ const getCategory = async () => {
     }
   } catch (err) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: err as string,
       timeout: 5000,
@@ -380,7 +377,6 @@ const deleteData = async () => {
     const status = error.status;
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.data,
       timeout: 5000,
@@ -407,7 +403,6 @@ const updateData = async (data: UpdateData) => {
     const status = error.status;
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.data,
       timeout: 5000,
@@ -416,7 +411,6 @@ const updateData = async (data: UpdateData) => {
   }
   if (resData) {
     store.pushNotification({
-      id: Date.now(),
       type: "success",
       message: resData.msg,
       timeout: 3000,
@@ -458,6 +452,14 @@ watch(
     const allId = websites.value.map((item) => item._id);
     const isChecked = val.length === allId.length;
     isAllSelected.value = isChecked;
+  }
+);
+
+watch(
+  () => keyword.value,
+  () => {
+    currentPage.value = 1;
+    getList();
   }
 );
 </script>
@@ -776,6 +778,21 @@ watch(
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-width: 0;
   margin-bottom: 30px;
+  .text {
+    padding-right: 10px;
+  }
+  .result {
+    padding-left: 8px;
+    font-size: 20px;
+    span {
+      font-weight: bold;
+    }
+  }
+  &:deep(.toolbar) {
+    min-width: 0;
+    flex-shrink: 0;
+  }
 }
 </style>

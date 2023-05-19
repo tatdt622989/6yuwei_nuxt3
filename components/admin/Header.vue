@@ -1,6 +1,6 @@
 <template>
   <header id="header">
-    <div :class="['searchBox', { focus: isFocus }]">
+    <div :class="['searchBox', { focus: isFocus }]" v-if="hasSearch">
       <input
         id="headerSearch"
         type="search"
@@ -8,8 +8,9 @@
         placeholder="Search"
         @focus="isFocus = true"
         @blur="isFocus = false"
+        v-model="keyword"
       />
-      <button class="btn">
+      <button class="btn" @click="setKeyword">
         <span class="material-icons"> search </span>
       </button>
     </div>
@@ -28,7 +29,42 @@
 </template>
 
 <script lang="ts" setup>
+const route = useRoute();
 const isFocus = ref(false);
+const externalKeyword = inject("keyword") as Ref<string>;
+const keyword = ref("");
+const hasSearch = computed(() => {
+  const regex = /\/admin\/(account|dashboard)/;
+  return !regex.test(route.path);
+});
+const setKeyword = () => {
+  externalKeyword.value = keyword.value;
+};
+onMounted(() => {
+  keyword.value = externalKeyword.value;
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      setKeyword();
+    }
+  });
+});
+
+watch(
+  () => route.path,
+  () => {
+    keyword.value = "";
+    setKeyword();
+  }
+);
+
+watch(
+  () => keyword.value,
+  (newVal) => {
+    if (newVal === "") {
+      externalKeyword.value = "";
+    }
+  }
+);
 </script>
 
 <style lang="scss">
@@ -102,6 +138,13 @@ const isFocus = ref(false);
       &:focus {
         outline: 0;
       }
+      &::-webkit-clear-button,
+      &::-webkit-search-cancel-button {
+        appearance: none;
+        width: 44px;
+        height: 44px;
+        background: no-repeat url(@/assets/images/close.svg) center / 24px;
+      }
     }
   }
   .member {
@@ -128,6 +171,7 @@ const isFocus = ref(false);
   .rightBox {
     display: flex;
     align-items: center;
+    margin-left: auto;
     @include media(1024) {
       margin-bottom: 10px;
     }

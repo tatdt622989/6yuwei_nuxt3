@@ -13,6 +13,8 @@
 </template>
 
 <script lang="ts" setup>
+const keyword = ref('');
+provide('keyword', keyword);
 </script>
 
 <style lang="scss">

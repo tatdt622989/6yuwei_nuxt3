@@ -144,7 +144,6 @@ const setCategoryArr = (arr: string[]) => {
 
 const removeCategory = (category: string) => {
   categoryArr.value = categoryArr.value.filter((item) => item !== category);
-  navigateTo(`/websites/?category=${categoryArr.value.join(",")}&page=1`);
 };
 
 watch(sort, async (newVal) => {
@@ -154,7 +153,6 @@ watch(sort, async (newVal) => {
   const error = res.error.value;
   if (error) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.message,
       timeout: 5000,
@@ -164,6 +162,30 @@ watch(sort, async (newVal) => {
   const data = res.data.value as ResRef;
   websites.value = data.list;
   navigateTo(`/websites/?sort=${newVal}`);
+});
+
+watch(categoryArr, async (newVal) => {
+  store.setLoading(true);
+  const res = await useFetch(
+    `${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}&category=${newVal.join(
+      ","
+    )}`
+  );
+  const error = res.error.value;
+  if (error) {
+    store.pushNotification({
+      type: "error",
+      message: error.message,
+      timeout: 5000,
+    });
+    return;
+  }
+  const data = res.data.value as ResRef;
+  websites.value = data.list;
+  store.setLoading(false);
+  navigateTo(`/websites/?page=${currentPage.value}&sort=${sort.value}&category=${newVal.join(
+    ","
+  )}`);
 });
 
 onMounted(async () => {

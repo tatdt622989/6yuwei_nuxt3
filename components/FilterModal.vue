@@ -118,7 +118,6 @@ onMounted(async () => {
   } catch (err) {
     if (err) {
       store.pushNotification({
-        id: Date.now(),
         type: "error",
         message: err.toString(),
         timeout: 5000,

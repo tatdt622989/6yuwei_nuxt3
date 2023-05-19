@@ -182,7 +182,6 @@ const getList = async () => {
     const status = error.status;
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.data,
       timeout: 5000,
@@ -218,7 +217,6 @@ const deleteData = async () => {
     const status = error.status;
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.data,
       timeout: 5000,

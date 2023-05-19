@@ -11,7 +11,6 @@ export const useAskGptModel = async (prompt: string) => {
   const data = res.data.value;
   if (error) {
     store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error?.data,
       timeout: 5000,

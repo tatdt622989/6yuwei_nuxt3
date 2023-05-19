@@ -228,7 +228,6 @@ const saveUser = async () => {
     const status = error.value.status;
     status === 403 && navigateTo("/admin/login");
     return store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.value.data as string,
       timeout: 5000,
@@ -238,7 +237,6 @@ const saveUser = async () => {
   if (data) {
     user.value = data;
     store.pushNotification({
-      id: Date.now(),
       type: "success",
       message: "User updated",
       timeout: 5000,
@@ -257,7 +255,6 @@ onMounted(async () => {
     const status = error.value.status;
     status === 403 && navigateTo("/admin/login");
     return store.pushNotification({
-      id: Date.now(),
       type: "error",
       message: error.value.data as string,
       timeout: 5000,
