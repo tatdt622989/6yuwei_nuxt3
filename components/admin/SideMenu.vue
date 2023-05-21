@@ -28,8 +28,8 @@
         </li>
         <li>
           <NuxtLink
-            to="/admin/3dcg/"
-            :class="{ active: currentPath === '/admin/3dcg/' }"
+            to="/admin/3dcgs/"
+            :class="{ active: currentPath === '/admin/3dcgs/' }"
           >
             <i class="bi bi-box"></i>
             <span class="text">3DCG</span>
@@ -38,8 +38,8 @@
         </li>
         <li>
           <NuxtLink
-            to="/admin/animation/"
-            :class="{ active: currentPath === '/admin/animation/' }"
+            to="/admin/animations/"
+            :class="{ active: currentPath === '/admin/animations/' }"
           >
             <i class="bi bi-film"></i>
             <span class="text">Animation</span>

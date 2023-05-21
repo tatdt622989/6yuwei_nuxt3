@@ -61,7 +61,7 @@
         <span class="material-symbols-outlined"> format_align_justify </span>
       </button>
       <select
-        class="form-control"
+        class="form-select"
         id="text-selector"
         v-model="textSelector"
         @change="changeTextSelector"
@@ -339,19 +339,20 @@ defineExpose({
   flex-shrink: 0;
   display: flex;
   justify-content: flex-start;
-  padding: 5px 5px;
+  padding: 2.5px 5px;
   border-bottom: 2px solid darken($terColor, 10%);
   background-color: lighten($terColor, 5%);
   margin: 0 -2.5px;
   align-items: center;
   box-sizing: border-box;
   min-width: 0;
+  flex-wrap: wrap;
   button {
     border: none;
     background: none;
     cursor: pointer;
     padding: 0;
-    margin: 0 2.5px;
+    margin: 2.5p;
     font-size: 1.5rem;
     color: $secColor;
     @include center;
@@ -359,6 +360,7 @@ defineExpose({
     height: 40px;
     border-radius: 12px;
     @extend %ts;
+    flex-shrink: 0;
     &:hover {
       background-color: darken($terColor, 10%);
     }
@@ -374,8 +376,12 @@ defineExpose({
   height: 36px;
   border-radius: 12px;
   padding: 0 10px;
+  padding-right: 40px;
   border: 0;
-  margin: 0 2.5px;
+  margin: 2.5px;
+  flex-grow: 0;
+  width: auto;
+  position: relative;
   &:focus-visible {
     outline: 0;
     box-shadow: none;

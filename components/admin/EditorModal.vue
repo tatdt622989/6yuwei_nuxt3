@@ -23,7 +23,7 @@
           </div>
           <div class="modal-body container">
             <form action="" class="row" @submit.prevent>
-              <div class="col-md-6 col-sm-12 d-flex align-stretch flex-column">
+              <div class="col-md-6 col-sm-12 d-flex align-items-start justify-content-start flex-wrap">
                 <div class="img-previewer">
                   <swiper
                     @swiper="onSwiper"
@@ -393,7 +393,7 @@ const verify = () => {
 };
 
 const save = async () => {
-  const api = `${store.api}/websites/admin/list/`;
+  const api = `${store.api}/${props.unit}/admin/list/`;
   if (textEditorRef.value) {
     textEditorRef.value.generateEditorHTML();
   }
@@ -899,13 +899,15 @@ watch(
     overflow: hidden;
     position: relative;
     flex-grow: 1;
+    align-self: flex-start;
+    min-height: 285px;
     .swiper {
       width: 100%;
     }
     .swiper-slide {
       img {
         width: 100%;
-        height: 266px;
+        height: 285px;
         object-fit: cover;
       }
     }

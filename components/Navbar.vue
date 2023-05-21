@@ -7,14 +7,11 @@
       <a href="https://blog.6yuwei.com">Blog</a>
     </li>
     <li>
-      <NuxtLink to="/">3DCGs</NuxtLink>
+      <NuxtLink to="/3dcgs">3DCGs</NuxtLink>
     </li>
     <li>
-      <NuxtLink to="/">Animations</NuxtLink>
+      <NuxtLink to="/animations">Animations</NuxtLink>
     </li>
-    <!-- <li>
-      <NuxtLink to="/contact">Contact</NuxtLink>
-    </li> -->
     <li v-if="place === 'header'">
       <NuxtLink to="/admin/login/" class="signIn">Sign in</NuxtLink>
     </li>
