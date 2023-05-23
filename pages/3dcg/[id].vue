@@ -8,7 +8,7 @@
             <div class="showcase">
               <img
                 :src="showcaseURL"
-                :alt="website?.title"
+                :alt="threeDCG?.title"
                 v-if="showcaseURL"
                 @click="openLightbox"
               />
@@ -20,7 +20,7 @@
                 :key="item"
               >
                 <div class="img-wrap" @click="changeShowcase(index)">
-                  <img :src="item" :alt="website?.title" />
+                  <img :src="item" :alt="threeDCG?.title" />
                 </div>
               </div>
             </div>
@@ -34,11 +34,11 @@
             </vue-easy-lightbox>
           </div>
           <div class="text-wrap">
-            <div class="category">{{ website?.category }}</div>
-            <h1 class="title">{{ website?.title }}</h1>
-            <div class="desc">{{ website?.description }}</div>
+            <div class="category">{{ threeDCG?.category }}</div>
+            <h1 class="title">{{ threeDCG?.title }}</h1>
+            <div class="desc">{{ threeDCG?.description }}</div>
             <div class="btn-wrap">
-              <a :href="website?.externalLink" class="btn">Visit</a>
+              <a :href="threeDCG?.externalLink" class="btn">Visit</a>
             </div>
           </div>
         </div>
@@ -52,18 +52,18 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { Website, BreadCrumb } from "~~/types";
+import { ThreeDCG, BreadCrumb } from "~~/types";
 import VueEasyLightbox from "vue-easy-lightbox";
-import StarterKit from '@tiptap/starter-kit';
+import StarterKit from "@tiptap/starter-kit";
 import { Editor, EditorContent } from "@tiptap/vue-3";
 
 const store = useStore();
 const route = useRoute();
 const id = ref(route.params.id);
-const { data: websiteReq, error } = await useFetch(
-  `${store.api}/websites/${id.value}/`
-); // get website by id
-const website = ref<Website | null>(null);
+const { data: threeDCGReq, error } = await useFetch(
+  `${store.api}/3dcgs/${id.value}/`
+); // get 3dcg by id
+const threeDCG = ref<ThreeDCG | null>(null);
 const breadcrumb = ref<BreadCrumb[]>([]);
 const showcaseURL = ref("");
 const visibleRef = ref(false);
@@ -71,27 +71,27 @@ const indexRef = ref(0); // default 0
 const imgsRef = ref<string[]>([]);
 const editor = ref<any | null>(null);
 
-const req = websiteReq.value as { data: Website; msg: string };
-website.value = req.data as Website; // set website
+const req = threeDCGReq.value as { data: ThreeDCG; msg: string };
+threeDCG.value = req.data as ThreeDCG; // set 3dcg
 
 useHead({
-  title: `${website.value?.title}`,
+  title: `${threeDCG.value?.title}`,
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
       hid: "description",
       name: "description",
-      content: `${website.value?.description}`,
+      content: `${threeDCG.value?.description}`,
     },
   ],
 });
 
 useServerSeoMeta({
-  title: `${website.value?.title}`,
-  ogTitle: `${website.value?.title}`,
-  description: `${website.value?.description}`,
-  ogDescription: `${website.value?.description}`,
-  ogImage: `${store.api}/admin/uploads/${website.value?.description}`,
+  title: `${threeDCG.value?.title}`,
+  ogTitle: `${threeDCG.value?.title}`,
+  description: `${threeDCG.value?.description}`,
+  ogDescription: `${threeDCG.value?.description}`,
+  ogImage: `${store.api}/admin/uploads/${threeDCG.value?.description}`,
   twitterCard: "summary_large_image",
 });
 
@@ -101,12 +101,12 @@ breadcrumb.value = [
     link: "/",
   },
   {
-    name: "Websites",
-    link: "/websites",
+    name: "ThreeDCGs",
+    link: "/3dcgs",
   },
   {
-    name: website.value?.title ?? "",
-    link: `/websites/${id.value}`,
+    name: threeDCG.value?.title ?? "",
+    link: `/3dcgs/${id.value}`,
   },
 ];
 
@@ -124,21 +124,19 @@ const closeLightbox = () => {
 };
 
 onMounted(() => {
-  if (!website.value) return;
-  if (website.value?.photos.length > 0) {
+  if (!threeDCG.value) return;
+  if (threeDCG.value?.photos.length > 0) {
     showcaseURL.value = `${store.api}/admin/uploads/${
-      website.value?.photos[0]?.url as string
+      threeDCG.value?.photos[0]?.url as string
     }`;
-    imgsRef.value = website.value?.photos.map((item) => {
+    imgsRef.value = threeDCG.value?.photos.map((item) => {
       return `${store.api}/admin/uploads/${item.url}`;
     });
-  };
+  }
   editor.value = new Editor({
     editable: false,
-    content: website.value?.textEditor ?? "",
-    extensions: [
-      StarterKit,
-    ],
+    content: threeDCG.value?.textEditor ?? "",
+    extensions: [StarterKit],
   });
 });
 </script>

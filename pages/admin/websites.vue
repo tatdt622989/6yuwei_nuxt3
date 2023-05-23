@@ -3,7 +3,7 @@
     <div class="titleWrap">
       <div class="text">
         <h2 class="title">Websites</h2>
-        <p class="result" v-if="keyword">Search result: <span>{{ keyword ? `${keyword}` : '' }}</span></p>
+        <p class="result" v-if="keyword">Search keyword: <span>{{ keyword ? `${keyword}` : '' }}</span></p>
       </div>
       <AdminContentToolbar @open-editor-modal="openEditorModal" />
     </div>

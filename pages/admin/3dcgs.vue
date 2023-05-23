@@ -4,7 +4,7 @@
       <div class="text">
         <h2 class="title">3DCGs</h2>
         <p class="result" v-if="keyword">
-          Search result: <span>{{ keyword ? `${keyword}` : "" }}</span>
+          Search keyword: <span>{{ keyword ? `${keyword}` : "" }}</span>
         </p>
       </div>
       <AdminContentToolbar @open-editor-modal="openEditorModal" />

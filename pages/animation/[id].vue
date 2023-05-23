@@ -8,7 +8,7 @@
             <div class="showcase">
               <img
                 :src="showcaseURL"
-                :alt="website?.title"
+                :alt="animation?.title"
                 v-if="showcaseURL"
                 @click="openLightbox"
               />
@@ -20,7 +20,7 @@
                 :key="item"
               >
                 <div class="img-wrap" @click="changeShowcase(index)">
-                  <img :src="item" :alt="website?.title" />
+                  <img :src="item" :alt="animation?.title" />
                 </div>
               </div>
             </div>
@@ -34,11 +34,11 @@
             </vue-easy-lightbox>
           </div>
           <div class="text-wrap">
-            <div class="category">{{ website?.category }}</div>
-            <h1 class="title">{{ website?.title }}</h1>
-            <div class="desc">{{ website?.description }}</div>
+            <div class="category">{{ animation?.category }}</div>
+            <h1 class="title">{{ animation?.title }}</h1>
+            <div class="desc">{{ animation?.description }}</div>
             <div class="btn-wrap">
-              <a :href="website?.externalLink" class="btn">Visit</a>
+              <a :href="animation?.externalLink" class="btn">Visit</a>
             </div>
           </div>
         </div>
@@ -52,7 +52,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { Website, BreadCrumb } from "~~/types";
+import { Animation, BreadCrumb } from "~~/types";
 import VueEasyLightbox from "vue-easy-lightbox";
 import StarterKit from '@tiptap/starter-kit';
 import { Editor, EditorContent } from "@tiptap/vue-3";
@@ -60,10 +60,10 @@ import { Editor, EditorContent } from "@tiptap/vue-3";
 const store = useStore();
 const route = useRoute();
 const id = ref(route.params.id);
-const { data: websiteReq, error } = await useFetch(
-  `${store.api}/websites/${id.value}/`
-); // get website by id
-const website = ref<Website | null>(null);
+const { data: animationReq, error } = await useFetch(
+  `${store.api}/animations/${id.value}/`
+); // get animation by id
+const animation = ref<Animation | null>(null);
 const breadcrumb = ref<BreadCrumb[]>([]);
 const showcaseURL = ref("");
 const visibleRef = ref(false);
@@ -71,27 +71,27 @@ const indexRef = ref(0); // default 0
 const imgsRef = ref<string[]>([]);
 const editor = ref<any | null>(null);
 
-const req = websiteReq.value as { data: Website; msg: string };
-website.value = req.data as Website; // set website
+const req = animationReq.value as { data: Animation; msg: string };
+animation.value = req.data as Animation; // set animation
 
 useHead({
-  title: `${website.value?.title}`,
+  title: `${animation.value?.title}`,
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
       hid: "description",
       name: "description",
-      content: `${website.value?.description}`,
+      content: `${animation.value?.description}`,
     },
   ],
 });
 
 useServerSeoMeta({
-  title: `${website.value?.title}`,
-  ogTitle: `${website.value?.title}`,
-  description: `${website.value?.description}`,
-  ogDescription: `${website.value?.description}`,
-  ogImage: `${store.api}/admin/uploads/${website.value?.description}`,
+  title: `${animation.value?.title}`,
+  ogTitle: `${animation.value?.title}`,
+  description: `${animation.value?.description}`,
+  ogDescription: `${animation.value?.description}`,
+  ogImage: `${store.api}/admin/uploads/${animation.value?.description}`,
   twitterCard: "summary_large_image",
 });
 
@@ -101,12 +101,12 @@ breadcrumb.value = [
     link: "/",
   },
   {
-    name: "Websites",
-    link: "/websites",
+    name: "Animations",
+    link: "/animations",
   },
   {
-    name: website.value?.title ?? "",
-    link: `/websites/${id.value}`,
+    name: animation.value?.title ?? "",
+    link: `/animations/${id.value}`,
   },
 ];
 
@@ -124,18 +124,18 @@ const closeLightbox = () => {
 };
 
 onMounted(() => {
-  if (!website.value) return;
-  if (website.value?.photos.length > 0) {
+  if (!animation.value) return;
+  if (animation.value?.photos.length > 0) {
     showcaseURL.value = `${store.api}/admin/uploads/${
-      website.value?.photos[0]?.url as string
+      animation.value?.photos[0]?.url as string
     }`;
-    imgsRef.value = website.value?.photos.map((item) => {
+    imgsRef.value = animation.value?.photos.map((item) => {
       return `${store.api}/admin/uploads/${item.url}`;
     });
   };
   editor.value = new Editor({
     editable: false,
-    content: website.value?.textEditor ?? "",
+    content: animation.value?.textEditor ?? "",
     extensions: [
       StarterKit,
     ],

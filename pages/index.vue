@@ -44,7 +44,8 @@
               <img src="@/assets/images/advantages1.svg" alt="advantages" />
             </div>
             <div class="num" :data-num="nowYear">
-              <span class="main-text">{{ nowYear }}</span><span class="unit">+</span>
+              <span class="main-text">{{ nowYear }}</span
+              ><span class="unit">+</span>
             </div>
             <p class="text">years of experience</p>
           </div>
@@ -72,66 +73,47 @@
     <div class="side-project">
       <div class="wrap">
         <div class="content">
+          <h2>Side project</h2>
           <div class="item-wrap">
-            <h2>Side project</h2>
-            <div class="item react">
-              <h3 class="title">Topic chat</h3>
+            <div
+              class="item"
+              v-for="(item, i) in sideProjectData"
+              :key="item._id"
+              :id="item._id"
+            >
+              <h3 class="title">{{ item.title }}</h3>
               <client-only>
                 <swiper
+                  class="slider"
                   :modules="modules"
                   :slides-per-view="1"
                   :autoplay="{ delay: 3000 }"
-                  :pagination="{ clickable: true, el: sideProjectPage1 }"
+                  :pagination="{
+                    clickable: true,
+                    el: paginationElList[i],
+                  }"
                   :loop="true"
-                  class="slider swiperReact"
+                  :id="'swiper-'+i"
                 >
-                  <swiper-slide>
-                    <img src="@/assets/images/my-topic1.jpg" alt="my-topic" />
-                  </swiper-slide>
-                  <swiper-slide>
-                    <img src="@/assets/images/my-topic2.jpg" alt="my-topic" />
-                  </swiper-slide>
-                  <swiper-slide>
-                    <img src="@/assets/images/my-topic2.jpg" alt="my-topic" />
+                  <swiper-slide v-for="photo in item.photos" :key="photo._id">
+                    <NuxtLink :to="`/website/${item._id}`" class="visit">
+                      <img
+                        :src="`${store.api}/admin/uploads/${photo.url}`"
+                        alt="my-topic"
+                      />
+                    </NuxtLink>
                   </swiper-slide>
                 </swiper>
               </client-only>
               <!-- <h3>Topic chat</h3> -->
               <p class="text">
-                An easy to use multiplayer chat web application.
+                {{ item.description }}
               </p>
-              <NuxtLink to="/" class="visit"> Visit </NuxtLink>
-              <div ref="sideProjectPage1" class="swiper-pagination" />
+              <NuxtLink :to="`/website/${item._id}`" class="visit">
+                Visit
+              </NuxtLink>
+              <div class="swiper-pagination"/>
             </div>
-          </div>
-          <div class="item vue">
-            <h3 class="title">Diary box</h3>
-            <client-only>
-              <swiper
-                :modules="modules"
-                :slides-per-view="1"
-                :autoplay="{ delay: 3000 }"
-                :pagination="{ clickable: true, el: sideProjectPage2 }"
-                :loop="true"
-                class="slider swiperVue"
-              >
-                <swiper-slide>
-                  <img src="@/assets/images/diary-box1.jpg" alt="diaryBox" />
-                </swiper-slide>
-                <swiper-slide>
-                  <img src="@/assets/images/my-topic2.jpg" alt="diaryBox" />
-                </swiper-slide>
-                <swiper-slide>Slide 3</swiper-slide>
-              </swiper>
-            </client-only>
-            <!-- <h3>Diary box</h3> -->
-            <p class="text">
-              A web application that combines diary and 3d games.
-            </p>
-            <a href="https://diary-box.6yuwei.com" class="visit" target="_blank"
-              >visit</a
-            >
-            <div ref="sideProjectPage2" class="swiper-pagination" />
           </div>
         </div>
       </div>
@@ -248,9 +230,11 @@
 </template>
 
 <script setup lang="ts">
+import { useStore } from "~/store";
 import { Pagination, Autoplay, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
+import { Website } from "~/types";
 
 interface Post {
   data: string;
@@ -273,12 +257,18 @@ useHead({
   ],
 });
 
+const store = useStore();
 const advantagesEl = ref<HTMLDivElement | null>(null);
 const banner = ref<HTMLDivElement | null>(null);
 const nowYear = new Date().getFullYear() - 2021;
 const modules = [Pagination, Autoplay, Navigation];
-const sideProjectPage1 = ref<HTMLDivElement | null>(null);
-const sideProjectPage2 = ref<HTMLDivElement | null>(null);
+const { data: sideProjectReq, error } = await useFetch(
+  `${store.api}/websites/list/?homepage=1`,
+  {
+    method: "GET",
+  }
+);
+const sideProjectData = ref<Website[]>([]);
 const threeDCGsPage = ref<HTMLDivElement | null>(null);
 let advantagesIsCounter = false;
 const other = [
@@ -347,12 +337,24 @@ const threeDCGs = [
 ];
 const { data: blogsJson } = await useFetch("https://blog.6yuwei.com/api.php");
 const posts = ref<Post[] | null>(null);
+const paginationElList = ref<HTMLDivElement[] | []>([]);
+
+interface SideProjectReq {
+  list: Website[];
+  total: number;
+  totalPage: number;
+}
+
+if (sideProjectReq.value) {
+  const { list } = sideProjectReq.value as SideProjectReq;
+  sideProjectData.value = list;
+}
 
 const advantagesCounter = () => {
   advantagesIsCounter = true;
   const el = advantagesEl.value;
   if (!el) return;
-  setTimeout(() => {    
+  setTimeout(() => {
     const numEl = el.querySelectorAll(".num");
     const numAry = Array.from(numEl);
     numAry.forEach((item) => {
@@ -383,6 +385,9 @@ const onScroll = () => {
 };
 
 onMounted(() => {
+  paginationElList.value = Array.from(
+    document.querySelectorAll(".swiper-pagination")
+  );
   if (blogsJson.value) {
     posts.value = JSON.parse(blogsJson.value as string).posts as Post[];
     if (posts.value.length > 3) {
@@ -806,25 +811,33 @@ h2 {
     }
   }
   .item-wrap {
-    width: calc(50% - 60px);
+    width: calc(100% + 60px);
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
     // padding-right: 30px;
     box-sizing: border-box;
-    margin: 0 30px;
+    margin: 0 -30px;
+    flex-wrap: wrap;
     flex-grow: 1;
     @include media(1400) {
-      margin: 0 10px;
-      width: calc(50% - 20px);
+      margin: 0 -20px;
+      width: calc(100% + 40px);
     }
     @include media(840) {
-      width: calc(100% - 20px);
       margin-bottom: 40px;
+      margin: 0 -10px;
+      width: calc(100% + 20px);
+    }
+    @include media(768) {
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin: 0;
+      padding: 0;
     }
   }
   .item {
-    padding: 45px 45px 80px 45px;
+    padding: 45px 45px 70px 45px;
     // min-height: 800px;
     box-shadow: 0 0 52px rgba(40, 203, 146, 0.3);
     display: flex;
@@ -832,8 +845,26 @@ h2 {
     box-sizing: border-box;
     flex-grow: 1;
     position: relative;
+    margin: 0 30px;
+    border-radius: 16px;
+    width: calc(50% - 60px);
+    flex-grow: 0;
+    margin-bottom: 60px;
     @include media(1400) {
       padding: 30px 20px 30px 20px;
+      margin: 0 20px;
+      margin-bottom: 40px;
+      width: calc(50% - 40px);
+    }
+    @include media(840) {
+      margin: 0 10px;
+      margin-bottom: 40px;
+      width: calc(50% - 20px);
+    }
+    @include media(768) {
+      width: 100%;
+      margin: 0;
+      margin-bottom: 40px;
     }
     > p.title {
       font-size: 45px;
@@ -851,25 +882,26 @@ h2 {
       font-size: 20px;
       line-height: 30px;
       letter-spacing: 0.015em;
-      margin-top: 24px;
+      margin-top: 28px;
       margin-bottom: 24px;
+      @include clamp(3);
     }
     :deep(.swiper-pagination) {
-      bottom: 40px;
-      left: 50%;
       transform: translateX(-50%);
       width: auto;
+      transform: none;
+      max-width: calc(100% - 120px);
+      bottom: 88px;
+      left: 32px;
       @include media(1400) {
-        bottom: 45px;
         left: 10px;
-        transform: none;
-        max-width: calc(100% - 120px);
+        bottom: 45px;
+      }
+      @include media(840) {
+        left: 10px;
+        bottom: 48px;
       }
     }
-    border-radius: 16px;
-    width: 50%;
-    display: flex;
-    flex-direction: column;
     .slider {
       width: 100%;
       height: 305px;
@@ -881,8 +913,16 @@ h2 {
       @include media(840) {
         height: 240px;
       }
+      @include media(768) {
+        height: 200px;
+      }
     }
     .swiper-slide {
+      a {
+        display: flex;
+        width: 100%;
+        height: 100%;
+      }
       img {
         width: 100%;
         height: 100%;
@@ -915,59 +955,58 @@ h2 {
         width: 120px;
       }
     }
-  }
-  .react {
-    width: auto;
-    display: flex;
-    background-color: #1f2229;
-    :deep(.swiper-pagination-bullet-active) {
-      background-color: #60dbfa;
-    }
-    .title {
-      color: #60dbfa;
-    }
-    .visit {
-      background-color: #60dbfa;
-      color: #1f2229;
-      &:hover {
-        background-color: darken(#60dbfa, 15%);
+    &.item:nth-of-type(2n) {
+      display: flex;
+      background-color: #1f2229;
+      margin-top: -160px;
+      @include media(1400) {
+        margin-top: -120px;
+      }
+      @include media(860) {
+        margin-top: -80px;
+      }
+      @include media(768) {
+        margin-top: 0;
+      }
+      :deep(.swiper-pagination-bullet-active) {
+        background-color: #60dbfa;
+      }
+      .title {
+        color: #60dbfa;
+      }
+      .visit {
+        background-color: #60dbfa;
+        color: #1f2229;
+        &:hover {
+          background-color: darken(#60dbfa, 15%);
+        }
       }
     }
-  }
-  .vue {
-    margin-left: 30px;
-    margin-top: 12px;
-    background: #34495e;
-    width: calc(50% - 60px);
-    margin: 0 30px;
-    min-width: 0;
-    @include media(1400) {
-      margin: 0 10px;
-      width: calc(50% - 20px);
-    }
-    @include media(840) {
-      width: calc(100% - 20px);
-    }
-    :deep(.swiper-pagination-bullet-active) {
-      background-color: #41b883;
-    }
-    .title {
-      color: #41b883;
-    }
-    .visit {
-      background-color: #41b883;
-      color: #34495e;
-      &:hover {
-        background-color: saturate(#41b883, 15%);
+    &.item:nth-of-type(2n + 1) {
+      display: flex;
+      background: #34495e;
+      :deep(.swiper-pagination-bullet-active) {
+        background-color: #41b883;
+      }
+      .title {
+        color: #41b883;
+      }
+      .visit {
+        background-color: #41b883;
+        color: #34495e;
+        &:hover {
+          background-color: saturate(#41b883, 15%);
+        }
       }
     }
   }
   .content {
     display: flex;
-    margin: 0 -30px;
+    // margin: 0 -30px;
     align-items: flex-start;
+    flex-direction: column;
+    width: 100%;
     @include media(1400) {
-      margin: 0 -10px;
     }
     @include media(840) {
       flex-direction: column;
@@ -1479,9 +1518,8 @@ h2 {
   @include center(transform, x);
   bottom: -50px;
   justify-content: center;
-  display: none;
+  display: flex;
   @include media(540) {
-    display: flex;
     bottom: -20px;
   }
   span {
@@ -1492,12 +1530,20 @@ h2 {
     border-radius: 99px;
     margin: 0 10px;
     @extend %ts;
+    @include media(480) {
+      margin: 0 5px;
+      width: 10px;
+      height: 10px;
+    }
     &.swiper-pagination-bullet {
       background-color: $secColor;
       opacity: 1;
       &-active {
         background-color: $mainColor;
         width: 40px;
+        @include media(480) {
+          width: 20px;
+        }
       }
     }
   }

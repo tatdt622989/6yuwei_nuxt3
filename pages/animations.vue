@@ -1,8 +1,8 @@
 <template>
   <div class="inner-page">
     <Banner
-      :unit-name="'3DCGs'"
-      :describe="'3DCGs created using various technologies'"
+      :unit-name="'Animations'"
+      :describe="'Animations created using various technologies'"
     />
     <div class="main">
       <div class="wrap">
@@ -46,26 +46,22 @@
           </div>
         </div>
         <div class="content" :class="[layout]">
-          <div
-            class="item card"
-            v-for="threeDCG in threeDCGs"
-            :key="threeDCG._id"
-          >
+          <div class="item card" v-for="animation in animations" :key="animation._id">
             <div class="item-content">
-              <div class="img-wrap" @click="linkTo(threeDCG)">
+              <div class="img-wrap" @click="linkTo(animation)">
                 <img
-                  v-if="threeDCG.photos[0]"
-                  :src="`${store.api}/admin/uploads/${threeDCG.photos[0]?.url}`"
-                  :alt="threeDCG.title"
+                  v-if="animation.photos[0]"
+                  :src="`${store.api}/admin/uploads/${animation.photos[0]?.url}`"
+                  :alt="animation.title"
                 />
               </div>
               <div class="info">
-                <p class="category">{{ threeDCG.category }}</p>
+                <p class="category">{{ animation.category }}</p>
                 <h3 class="title">
-                  {{ threeDCG.title }}
+                  {{ animation.title }}
                 </h3>
                 <p class="desc">
-                  {{ threeDCG.description }}
+                  {{ animation.description }}
                 </p>
               </div>
             </div>
@@ -84,17 +80,17 @@
 </template>
 
 <script lang="ts" setup>
-import { ThreeDCG } from "~/types";
+import { Animation } from "~/types";
 import { useStore } from "~/store";
 
 useHead({
-  title: "3DCGs",
+  title: "Animations",
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
       hid: "description",
       name: "description",
-      content: "6yuwei 3DCGs page",
+      content: "6yuwei animations page",
     },
   ],
 });
@@ -106,25 +102,25 @@ const sort = ref(route.query.sort || "asc");
 const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
-const threeDCGs = ref<ThreeDCG[]>([]);
+const animations = ref<Animation[]>([]);
 const categoryArr = ref<string[]>([]);
 const filterModal = ref({
   open: false,
   data: {},
 });
-const { data: threeDCGReq, error } = await useFetch(
-  `${store.api}/3dcgs/list/?page=${currentPage.value}&sort=${sort.value}`
+const { data: animationReq, error } = await useFetch(
+  `${store.api}/animations/list/?page=${currentPage.value}&sort=${sort.value}`
 );
 
 interface ResRef {
-  list: ThreeDCG[];
+  list: Animation[];
   total: number;
   totalPage: number;
 }
 
-if (threeDCGReq.value) {
-  const res = threeDCGReq.value as ResRef;
-  threeDCGs.value = res.list as ThreeDCG[];
+if (animationReq.value) {
+  const res = animationReq.value as ResRef;
+  animations.value = res.list as Animation[];
   total.value = res.total;
   totalPage.value = res.totalPage;
 }
@@ -138,8 +134,8 @@ const layoutToggler = () => {
   }
 };
 
-const linkTo = (threeDCG: ThreeDCG) => {
-  navigateTo(`/3dcg/${threeDCG._id}`);
+const linkTo = (animation: Animation) => {
+  navigateTo(`/animation/${animation._id}`);
 };
 
 const setCategoryArr = (arr: string[]) => {
@@ -152,7 +148,7 @@ const removeCategory = (category: string) => {
 
 watch(sort, async (newVal) => {
   const res = await useFetch(
-    `${store.api}/3dcgs/list/?page=${currentPage.value}&sort=${newVal}`
+    `${store.api}/animations/list/?page=${currentPage.value}&sort=${newVal}`
   );
   const error = res.error.value;
   if (error) {
@@ -164,16 +160,16 @@ watch(sort, async (newVal) => {
     return;
   }
   const data = res.data.value as ResRef;
-  threeDCGs.value = data.list;
-  navigateTo(`/3dcgs/?sort=${newVal}`);
+  animations.value = data.list;
+  navigateTo(`/animations/?sort=${newVal}`);
 });
 
 watch(categoryArr, async (newVal) => {
   store.setLoading(true);
   const res = await useFetch(
-    `${store.api}/3dcgs/list/?page=${currentPage.value}&sort=${
-      sort.value
-    }&category=${newVal.join(",")}`
+    `${store.api}/animations/list/?page=${currentPage.value}&sort=${sort.value}&category=${newVal.join(
+      ","
+    )}`
   );
   const error = res.error.value;
   if (error) {
@@ -185,17 +181,15 @@ watch(categoryArr, async (newVal) => {
     return;
   }
   const data = res.data.value as ResRef;
-  threeDCGs.value = data.list;
+  animations.value = data.list;
   store.setLoading(false);
-  navigateTo(
-    `/3dcgs/?page=${currentPage.value}&sort=${
-      sort.value
-    }&category=${newVal.join(",")}`
-  );
+  navigateTo(`/animations/?page=${currentPage.value}&sort=${sort.value}&category=${newVal.join(
+    ","
+  )}`);
 });
 
 onMounted(async () => {
-  const category = decodeURIComponent((route.query.category ?? "") as string);
+  const category = decodeURIComponent((route.query.category ?? '') as string);
   setCategoryArr(category ? (category as string).split(",") : []);
   try {
     const layoutStorage = localStorage.getItem("layout");

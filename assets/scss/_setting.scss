@@ -129,6 +129,14 @@ $dangerColor: #e75e5e;
     @content;
 }
 
+// 限制行數
+@mixin clamp($line: 1) {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: $line;
+    -webkit-box-orient: vertical;
+}
+
 :root,
 [data-bs-theme="light"] {
     --bs-blue: #0d6efd;
