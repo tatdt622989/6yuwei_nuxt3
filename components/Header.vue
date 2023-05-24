@@ -5,12 +5,12 @@
         <img src="@/assets/images/logo.svg" alt="6yuwei">
       </NuxtLink>
     </div>
-    <button :class="{ open: isMenuOpen }" class="toggler" @click="openMenu">
+    <button :class="{ open: isMenuOpen }" class="toggler" @click="toggleMenu">
       <span class="bar"></span>
     </button>
-    <div class="menu m_menu" :class="{ open: isMenuOpen }">
+    <div class="menu mobile-menu" :class="{ open: isMenuOpen }">
       <nav>
-        <Navbar />
+        <Navbar @close-menu="closeMenu" />
       </nav>
       <SocialBar />
     </div>
@@ -19,13 +19,18 @@
 
 <script lang="ts" setup>
 const isMenuOpen = ref(false);
-const openMenu = () => {
+const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
   if (isMenuOpen.value) {
     document.body.style.overflow = "hidden";
   } else {
     document.body.style.overflow = "";
   }
+};
+
+const closeMenu = () => {
+  isMenuOpen.value = false;
+  document.body.style.overflow = "";
 };
 
 onMounted(() => {
@@ -74,7 +79,7 @@ header {
 .menu {
 }
 
-.m_menu {
+.mobile-menu {
   @include media(1200) {
     display: none;
   }
@@ -86,7 +91,7 @@ header {
   }
 }
 
-.m_menu.open {
+.mobile-menu.open {
   position: absolute;
   display: flex;
   top: 75px;

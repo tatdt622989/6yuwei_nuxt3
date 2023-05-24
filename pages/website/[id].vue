@@ -148,29 +148,59 @@ onMounted(() => {
   background-color: $terColor;
   padding: 60px 0 90px;
   min-height: 0;
+  @include media(1200) {
+    padding: 40px 0 60px;
+  }
+  @include media(720) {
+    padding: 30px 0 40px;
+  }
   :deep(.breadcrumb) {
-    margin-bottom: 40px;
+    margin-bottom: 32px;
+    @include media(720) {
+      margin-bottom: 22px;
+    }
+    @include media(480) {
+      margin-bottom: 16px;
+    }
   }
   .wrap {
     max-width: 1600px;
     width: 100%;
     padding: 0 20px;
     margin: 0 auto;
+    box-sizing: border-box;
   }
   .info {
     display: flex;
     width: 100%;
+    @include media(1200) {
+      flex-direction: column;
+    }
     .img-area {
       margin-right: 50px;
       flex-shrink: 0;
       min-width: 0;
       width: 55%;
+      @include media(1400) {
+        margin-right: 30px;
+      }
+      @include media(1200) {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 30px;
+      }
+      @include media(720) {
+        margin-bottom: 20px;
+      }
     }
     .showcase {
       border-radius: 20px;
       overflow: hidden;
       margin-bottom: 20px;
       cursor: pointer;
+      @include media(1200) {
+        margin-bottom: 10px;
+      }
       img {
         max-width: 100%;
         width: 100%;
@@ -180,10 +210,16 @@ onMounted(() => {
       display: flex;
       flex-grow: 1;
       margin: 0 -10px;
+      @include media(720) {
+        margin: 0 -5px;
+      }
       .preview-item {
         width: 20%;
         padding: 0 10px;
         cursor: pointer;
+        @include media(720) {
+          padding: 0 5px;
+        }
         .img-wrap {
           flex-grow: 1;
           border-radius: 12px;
@@ -211,11 +247,17 @@ onMounted(() => {
           max-width: 100%;
           height: 100px;
           object-fit: cover;
+          @include media(720) {
+            height: 80px;
+          }
+          @include media(480) {
+            height: auto;
+            aspect-ratio: 1/1;
+          }
         }
       }
     }
     .text-wrap {
-      min-width: 600px;
       flex-grow: 1;
       letter-spacing: 1px;
       padding-top: 20px;
@@ -233,6 +275,7 @@ onMounted(() => {
         margin-bottom: 30px;
         font-size: 18px;
         line-height: 1.5;
+        letter-spacing: 0.8px;
       }
       .btn-wrap {
         .btn {

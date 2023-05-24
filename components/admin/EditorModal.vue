@@ -23,7 +23,9 @@
           </div>
           <div class="modal-body container">
             <form action="" class="row" @submit.prevent>
-              <div class="col-md-6 col-sm-12 d-flex align-items-start justify-content-start flex-wrap">
+              <div
+                class="col-md-6 col-sm-12 d-flex align-items-start justify-content-start flex-wrap"
+              >
                 <div class="img-previewer">
                   <swiper
                     @swiper="onSwiper"
@@ -52,7 +54,7 @@
                   </swiper>
                 </div>
                 <div
-                  v-if="fileInfoList.length > 0"
+                  v-show="fileInfoList.length > 0"
                   class="pagination"
                   ref="pagination"
                 ></div>
@@ -102,18 +104,30 @@
                   </datalist>
                 </div>
               </div>
+              <!-- <div class="col-12">
+                <div class="mb-2">
+                  <label for="FormControlTextarea1" class="form-label has-btn">
+                    <span class="text">Youtube URL</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    v-model="youtubeLink"
+                  />
+                </div>
+              </div> -->
               <div class="col-12">
                 <div class="mb-2">
-                  <label for="FormControlTextarea1" class="form-label has-btn"
-                    ><span class="text">Describe</span
-                    ><button
+                  <label for="FormControlTextarea1" class="form-label has-btn">
+                    <span class="text">Describe</span>
+                    <button
                       class="btn btn-circle ai"
                       @click="textGenerator('describe')"
                     >
                       <span class="material-icons icon"> auto_fix_normal </span>
                       Auto
-                    </button></label
-                  >
+                    </button>
+                  </label>
                   <textarea
                     id="FormControlTextarea1"
                     class="form-control"
@@ -332,6 +346,7 @@ const emit = defineEmits([
 const isOpen = ref(props.isOpen);
 const title = ref("");
 const externalLink = ref("");
+// const youtubeLink = ref("");
 const category = ref("");
 const description = ref("");
 const textEditorHTML = ref("");
@@ -797,7 +812,7 @@ watch(
       &.delete {
         @include media(480) {
           width: calc(50% - 8px);
-          &+.cancel {
+          & + .cancel {
             width: calc(50% - 8px);
           }
         }

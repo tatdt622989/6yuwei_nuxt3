@@ -32,7 +32,11 @@ const props = defineProps({
 <style lang="scss" scoped>
 @import "bootstrap/scss/bootstrap";
 .breadcrumb {
+  @include media(480) {
+    display: none;
+  }
   .breadcrumb-item {
+    margin-bottom: 8px;
     a {
       color: $secColor;
       font-weight: 500;

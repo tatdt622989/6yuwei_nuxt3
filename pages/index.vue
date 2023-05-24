@@ -204,19 +204,19 @@
               },
             }"
           >
-            <swiper-slide v-for="(item, i) in threeDCGs" :key="i">
+            <swiper-slide v-for="item in threeDCGsData" :key="item._id">
               <div class="item">
                 <div class="img-box">
-                  <a href="">
-                    <img :src="`/images/${item.imgName}.jpg`" alt="my-topic" />
-                  </a>
+                  <NuxtLink :to="`/3dcg/${item._id}`">
+                    <img :src="`${store.api}/admin/uploads/${item.photos[0].url}`" alt="my-topic" />
+                  </NuxtLink>
                 </div>
                 <div class="text-box">
-                  <p class="en-title">
-                    {{ item.enTitle }}
-                  </p>
-                  <h3 class="title">
+                  <p class="title">
                     {{ item.title }}
+                  </p>
+                  <h3 class="description">
+                    {{ item.description }}
                   </h3>
                 </div>
               </div>
@@ -234,7 +234,7 @@ import { useStore } from "~/store";
 import { Pagination, Autoplay, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
-import { Website } from "~/types";
+import { Website, ThreeDCG } from "~/types";
 
 interface Post {
   data: string;
@@ -262,13 +262,20 @@ const advantagesEl = ref<HTMLDivElement | null>(null);
 const banner = ref<HTMLDivElement | null>(null);
 const nowYear = new Date().getFullYear() - 2021;
 const modules = [Pagination, Autoplay, Navigation];
-const { data: sideProjectReq, error } = await useFetch(
+const { data: sideProjectReq } = await useFetch(
   `${store.api}/websites/list/?homepage=1`,
   {
     method: "GET",
   }
 );
+const { data:threeDCGsReq } = await useFetch(
+  `${store.api}/3dcgs/list/?homepage=1`,
+  {
+    method: "GET",
+  }
+);
 const sideProjectData = ref<Website[]>([]);
+const threeDCGsData = ref<ThreeDCG[]>([]);
 const threeDCGsPage = ref<HTMLDivElement | null>(null);
 let advantagesIsCounter = false;
 const other = [
@@ -313,28 +320,6 @@ const other = [
     url: "https://www.auto-bruce.com/",
   },
 ];
-const threeDCGs = [
-  {
-    title: "人物建模",
-    enTitle: "Character modeling",
-    imgName: "3dcg1",
-  },
-  {
-    title: "小木屋",
-    enTitle: "Cabin",
-    imgName: "3dcg2",
-  },
-  {
-    title: "小木屋",
-    enTitle: "Cabin",
-    imgName: "3dcg3",
-  },
-  {
-    title: "室內場景",
-    enTitle: "Indoor Scenes",
-    imgName: "3dcg4",
-  },
-];
 const { data: blogsJson } = await useFetch("https://blog.6yuwei.com/api.php");
 const posts = ref<Post[] | null>(null);
 const paginationElList = ref<HTMLDivElement[] | []>([]);
@@ -345,9 +330,20 @@ interface SideProjectReq {
   totalPage: number;
 }
 
+interface ThreeDCGReq {
+  list: ThreeDCG[];
+  total: number;
+  totalPage: number;
+}
+
 if (sideProjectReq.value) {
   const { list } = sideProjectReq.value as SideProjectReq;
   sideProjectData.value = list;
+}
+
+if (threeDCGsReq.value) {
+  const { list } = threeDCGsReq.value as ThreeDCGReq;
+  threeDCGsData.value = list;
 }
 
 const advantagesCounter = () => {
@@ -1486,13 +1482,13 @@ h2 {
       opacity: 0;
       pointer-events: none;
       @extend %ts;
-      .en-title {
+      .title {
         font-size: 30px;
         margin-bottom: 20px;
         font-weight: bold;
         line-height: 1.2;
       }
-      .title {
+      .description {
         font-size: 18px;
         flex-grow: 1;
       }

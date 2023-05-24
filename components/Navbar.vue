@@ -1,16 +1,16 @@
 <template>
   <ul>
     <li>
-      <NuxtLink to="/websites">Websites</NuxtLink>
+      <NuxtLink to="/websites" @click="emit('close-menu')">Websites</NuxtLink>
     </li>
     <li>
       <a href="https://blog.6yuwei.com">Blog</a>
     </li>
     <li>
-      <NuxtLink to="/3dcgs">3DCGs</NuxtLink>
+      <NuxtLink to="/3dcgs"  @click="emit('close-menu')">3DCGs</NuxtLink>
     </li>
     <li>
-      <NuxtLink to="/animations">Animations</NuxtLink>
+      <NuxtLink to="/animations"  @click="emit('close-menu')">Animations</NuxtLink>
     </li>
     <li v-if="place === 'header'">
       <NuxtLink to="/admin/login/" class="signIn">Sign in</NuxtLink>
@@ -25,6 +25,7 @@ const props = defineProps({
     default: "header",
   },
 });
+const emit = defineEmits(["close-menu"]);
 const current = ref(0);
 
 onMounted(() => {

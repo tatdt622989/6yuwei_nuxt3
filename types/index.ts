@@ -22,6 +22,7 @@ export interface Editor {
   _id: string;
   title: string;
   externalLink: string;
+  youtubeLink: string;
   category: string;
   description: string;
   textEditor: string;

@@ -60,6 +60,18 @@
       >
         <span class="material-symbols-outlined"> format_align_justify </span>
       </button>
+      <button
+        @click="editor?.chain().focus().toggleBulletList().run()"
+        :class="{ 'is-active': editor.isActive('bulletList') }"
+      >
+        <span class="material-symbols-outlined"> format_list_bulleted </span>
+      </button>
+      <button
+        @click="editor?.chain().focus().toggleOrderedList().run()"
+        :class="{ 'is-active': editor.isActive('orderedList') }"
+      >
+        <span class="material-symbols-outlined"> format_list_numbered </span>
+      </button>
       <select
         class="form-select"
         id="text-selector"
@@ -82,9 +94,12 @@
 <script lang="ts" setup>
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Document from "@tiptap/extension-document";
+import BulletList from "@tiptap/extension-bullet-list";
+import ListItem from "@tiptap/extension-list-item";
+import OrderedList from "@tiptap/extension-ordered-list";
 import Heading from "@tiptap/extension-heading";
 import Paragraph from "@tiptap/extension-paragraph";
-import HardBreak from '@tiptap/extension-hard-break'
+import HardBreak from "@tiptap/extension-hard-break";
 import Text from "@tiptap/extension-text";
 import Bold from "@tiptap/extension-bold";
 import Italic from "@tiptap/extension-italic";
@@ -101,7 +116,7 @@ import { lowlight } from "lowlight";
 
 HardBreak.configure({
   keepMarks: false,
-})
+});
 
 lowlight.registerLanguage("html", html);
 lowlight.registerLanguage("css", css);
@@ -136,6 +151,9 @@ const editor = useEditor({
     CodeBlockLowlight.configure({
       lowlight,
     }),
+    BulletList,
+    ListItem,
+    OrderedList,
   ],
 });
 
@@ -229,6 +247,15 @@ defineExpose({
   &:focus-visible {
     outline: 0;
     box-shadow: none;
+  }
+
+  ul,
+  ol {
+    padding: 0 1rem;
+  }
+
+  ul {
+    list-style: disc;
   }
 
   pre {
