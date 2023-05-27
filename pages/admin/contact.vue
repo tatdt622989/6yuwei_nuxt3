@@ -85,7 +85,7 @@
             </tbody>
           </table>
         </div>
-        <Pagination :total="totalPage" :current-page="currentPage" />
+        <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/contact/'" />
       </div>
     </div>
     <AdminConfirmModal

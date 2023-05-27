@@ -63,6 +63,7 @@ import { useStore } from "~/store";
 const props = defineProps({
   isOpen: Boolean,
   activeCategoryArr: Array,
+  unitName: String,
 });
 
 const emit = defineEmits(["close-modal", "set-category-arr"]);
@@ -109,7 +110,7 @@ onMounted(async () => {
     msg: string;
   }
   try {
-    const res: categoryRes = await $fetch(`${store.api}/websites/category/`, {
+    const res: categoryRes = await $fetch(`${store.api}/${props.unitName}/category/`, {
       method: "GET",
     });
     if (!res) return;

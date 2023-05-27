@@ -136,7 +136,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   position: relative;
-  z-index: 2;
+  z-index: 99;
   background-color: $terColor;
   overflow: hidden;
   border-radius: 0 40px 40px 0;

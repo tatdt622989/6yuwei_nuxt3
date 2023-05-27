@@ -73,6 +73,7 @@
     <FilterModal
       :is-open="filterModal.open"
       :active-category-arr="categoryArr"
+      :unit-name="'animations'"
       @close-modal="filterModal.open = false"
       @set-category-arr="setCategoryArr"
     />
@@ -98,7 +99,7 @@ useHead({
 const store = useStore();
 const route = useRoute();
 const layout = ref("card");
-const sort = ref(route.query.sort || "asc");
+const sort = ref(route.query.sort || "desc");
 const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
@@ -394,6 +395,7 @@ onMounted(async () => {
       margin-bottom: 20px;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
+      line-height: 1.5;
     }
   }
   .item {

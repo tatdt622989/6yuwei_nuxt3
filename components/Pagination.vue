@@ -2,15 +2,15 @@
   <nav aria-label="Page navigation" class="justify-content-center d-flex">
     <ul class="pagination">
       <li class="page-item">
-        <a class="page-link" href="#" aria-label="Previous">
+        <a class="page-link" href="javascript:;" aria-label="Previous">
           <span class="material-symbols-outlined">chevron_left</span>
         </a>
       </li>
       <li class="page-item" v-for="page in pages" :key="page" :class="{ active: page === currentPage }">
-        <a class="page-link" href="#">{{ page }}</a>
+        <a class="page-link" href="javascript:;" @click="goToPage(page)">{{ page }}</a>
       </li>
       <li class="page-item">
-        <a class="page-link" href="#" aria-label="Next">
+        <a class="page-link" href="javascript:;" aria-label="Next" >
           <span class="material-symbols-outlined">chevron_right</span>
         </a>
       </li>
@@ -28,6 +28,10 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  url: {
+    type: String,
+    required: true,
+  },
 });
 
 const { total, currentPage } = toRefs(props);
@@ -41,6 +45,17 @@ const pages = computed(() => {
   }
   return pages;
 });
+
+const goToPage = (num: number) => {
+  const urlParams = new URLSearchParams(window.location.search);
+  // if page param exists, replace it with new value
+  if (urlParams.has("page")) {
+    urlParams.set("page", num.toString());
+  } else {
+    urlParams.append("page", num.toString());
+  }
+  navigateTo(`${props.url}?${urlParams.toString()}`);
+}
 
 </script>
 

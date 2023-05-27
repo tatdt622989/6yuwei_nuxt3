@@ -23,6 +23,7 @@ export default defineNuxtConfig({
       }
     }
   },
+  router: {},
   // typescript: {
   //   typeCheck: true
   // },

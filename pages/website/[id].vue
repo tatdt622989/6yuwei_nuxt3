@@ -42,9 +42,7 @@
             </div>
           </div>
         </div>
-        <div class="text-editor">
-          <editor-content :editor="editor" />
-        </div>
+        <TextEditor :import-data="website?.textEditor" />
       </div>
     </div>
   </div>
@@ -54,8 +52,6 @@
 import { useStore } from "~/store";
 import { Website, BreadCrumb } from "~~/types";
 import VueEasyLightbox from "vue-easy-lightbox";
-import StarterKit from '@tiptap/starter-kit';
-import { Editor, EditorContent } from "@tiptap/vue-3";
 
 const store = useStore();
 const route = useRoute();
@@ -69,7 +65,6 @@ const showcaseURL = ref("");
 const visibleRef = ref(false);
 const indexRef = ref(0); // default 0
 const imgsRef = ref<string[]>([]);
-const editor = ref<any | null>(null);
 
 const req = websiteReq.value as { data: Website; msg: string };
 website.value = req.data as Website; // set website
@@ -133,13 +128,6 @@ onMounted(() => {
       return `${store.api}/admin/uploads/${item.url}`;
     });
   };
-  editor.value = new Editor({
-    editable: false,
-    content: website.value?.textEditor ?? "",
-    extensions: [
-      StarterKit,
-    ],
-  });
 });
 </script>
 
@@ -204,6 +192,8 @@ onMounted(() => {
       img {
         max-width: 100%;
         width: 100%;
+        max-height: 500px;
+        object-fit: cover;
       }
     }
     .preview-list {
@@ -286,12 +276,6 @@ onMounted(() => {
         }
       }
     }
-  }
-  .text-editor {
-    padding: 60px 0 40px;
-    letter-spacing: 0.8px;
-    color: $secColor;
-    line-height: 1.5;
   }
 }
 </style>
