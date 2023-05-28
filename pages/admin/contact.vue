@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="titleWrap">
-      <h2 class="title">Contact</h2>
+      <div class="text">
+        <h2 class="title">Contact</h2>
+        <p class="result" v-if="keyword">Search keyword: <span>{{ keyword ? `${keyword}` : '' }}</span></p>
+      </div>
     </div>
     <div class="container-fluid">
       <div class="row">
@@ -85,7 +88,7 @@
             </tbody>
           </table>
         </div>
-        <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/contact/'" />
+        <Pagination :total="totalPage" :url="'/admin/contact/'" />
       </div>
     </div>
     <AdminConfirmModal
@@ -125,6 +128,7 @@ definePageMeta({
 });
 
 const store = useStore();
+const route = useRoute();
 const confirmModal = reactive({
   open: false,
   isConfirm: false,
@@ -138,9 +142,12 @@ const textViewerModal = reactive({
 const contact = ref<Array<Contact>>([]);
 const selector = ref<Array<string>>([]);
 const isAllSelected = ref(false);
-const currentPage = ref(1);
+const currentPage = computed(() => {
+  return Number(route.query.page) || 1;
+});
 const total = ref(0);
 const totalPage = ref(1);
+const keyword = inject("keyword") as Ref<string>;
 
 const onConfirm = async () => {
   confirmModal.isConfirm = true;
@@ -171,7 +178,7 @@ const selectAllItem = () => {
 
 const getList = async () => {
   store.setLoading(true);
-  const api = `${store.api}/contact/admin/list/?page=${currentPage.value}`;
+  const api = `${store.api}/contact/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
   const res = await useFetch(api, {
     method: "GET",
     credentials: "include",
@@ -237,6 +244,21 @@ onMounted(async () => {
   await getList();
   store.setLoading(false);
 });
+
+watch(
+  () => currentPage.value,
+  async () => {
+    await getList();
+  }
+);
+
+watch(
+  () => keyword.value,
+  () => {
+    navigateTo(`/admin/contact/?page=1&keyword=${keyword.value}`);
+    getList();
+  }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -506,5 +528,15 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  .text {
+    padding-right: 10px;
+  }
+  .result {
+    padding-left: 8px;
+    font-size: 20px;
+    span {
+      font-weight: bold;
+    }
+  }
 }
 </style>

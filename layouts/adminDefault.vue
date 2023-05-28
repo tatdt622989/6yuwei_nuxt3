@@ -31,6 +31,9 @@ provide('keyword', keyword);
   flex-direction: column;
   align-items: stretch;
   display: flex;
+  @include media(1200 ){
+    padding-top: 65px;
+  }
   .content {
     display: flex;
     box-sizing: border-box;

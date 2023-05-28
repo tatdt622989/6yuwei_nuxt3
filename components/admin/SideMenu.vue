@@ -16,7 +16,7 @@
             </span>
           </NuxtLink>
         </li> -->
-        <li>
+        <li v-if="user?.permissions === 'admin'">
           <NuxtLink
             to="/admin/websites/"
             :class="{ active: currentPath === '/admin/websites/' }"
@@ -26,7 +26,7 @@
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li>
+        <li v-if="user?.permissions === 'admin'">
           <NuxtLink
             to="/admin/3dcgs/"
             :class="{ active: currentPath === '/admin/3dcgs/' }"
@@ -36,7 +36,7 @@
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li>
+        <li v-if="user?.permissions === 'admin'">
           <NuxtLink
             to="/admin/animations/"
             :class="{ active: currentPath === '/admin/animations/' }"
@@ -46,7 +46,7 @@
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li>
+        <li v-if="user?.permissions === 'admin'">
           <NuxtLink
             to="/admin/contact/"
             :class="{ active: currentPath === '/admin/contact/' }"
@@ -56,10 +56,10 @@
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li>
+        <li v-if="user?.permissions === 'admin'">
           <NuxtLink
-            to="/admin/member/"
-            :class="{ active: currentPath === '/admin/member/' }"
+            to="/admin/members/"
+            :class="{ active: currentPath === '/admin/members/' }"
           >
             <i class="bi bi-people-fill"></i>
             <span class="text">Member</span>
@@ -97,9 +97,12 @@
 </template>
 
 <script lang="ts" setup>
+import { useStore } from "~/store";
+const store = useStore();
 const route = useRoute();
 const currentPath = computed(() => route.path);
 const open = ref(false);
+const user = computed(() => store.user);
 
 watch(
   () => route.path,
@@ -154,6 +157,9 @@ onMounted(() => {
     overflow: visible;
     box-shadow: 0 0 10px darken($terColor, 15%);
     z-index: 99;
+    position: fixed;
+    top: 0;
+    left: 0;
   }
   .logo {
     display: flex;

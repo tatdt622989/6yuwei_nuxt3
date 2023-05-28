@@ -148,6 +148,11 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import { useStore } from "~/store";
 import { User } from "~/types";
 
+// 需要驗證身份
+definePageMeta({
+  middleware: ["auth"],
+});
+
 useHead({
   title: "Account",
   titleTemplate: "%s - 6yuwei admin",

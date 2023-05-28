@@ -114,7 +114,7 @@ const submit = async () => {
         message: 'Login successfully!',
         timeout: 3000,
       });
-      await navigateTo('/admin/');
+      await navigateTo('/admin/account/');
     }
   }
   store.setLoading(false);

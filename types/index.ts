@@ -18,18 +18,6 @@ export interface Photo {
   createdAt: string;
 }
 
-export interface Editor {
-  _id: string;
-  title: string;
-  externalLink: string;
-  youtubeLink: string;
-  category: string;
-  description: string;
-  textEditor: string;
-  photos: Photo[];
-  [key: string]: any;
-}
-
 export interface Website {
   _id?: string;
   title: string;
@@ -72,6 +60,8 @@ export interface Animation {
   visible: boolean;
   homepage: boolean;
 }
+
+export type Editor = Website & ThreeDCG & Animation;
 
 export interface BreadCrumb {
   name: string;

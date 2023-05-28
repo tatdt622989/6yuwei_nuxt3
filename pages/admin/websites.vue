@@ -203,14 +203,16 @@ const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
 const category = ref([]);
+const changeToEditor = useChangeToEditor();
 
 const openEditorModal = (
   action: "add" | "edit",
   data: Website | null = null
 ) => {
+  if (!data) return;
   editorModal.open = true;
   editorModal.action = action;
-  editorModal.data = data as Editor;
+  editorModal.data = changeToEditor(data);
 };
 
 const openConfirmModal = (targetFunc: Function, id: string = "") => {

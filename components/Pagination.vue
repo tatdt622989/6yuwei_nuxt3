@@ -24,17 +24,16 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  currentPage: {
-    type: Number,
-    required: true,
-  },
   url: {
     type: String,
     required: true,
   },
 });
-
-const { total, currentPage } = toRefs(props);
+const route = useRoute();
+const currentPage = computed(() => {
+  return route.query.page ? parseInt(route.query.page as string) : 1;
+});
+const { total } = toRefs(props);
 const maxNum = 5;
 const pages = computed(() => {
   const pages = [];
@@ -97,7 +96,7 @@ const goToPage = (num: number) => {
         display: none;
       }
       .page-link {
-        background-color: $mainColor;
+        background-color: $mainColor !important;
       }
     }
     .page-link {

@@ -10,7 +10,7 @@
       @mousedown.self="closeModal"
     >
       <div class="modal-dialog">
-        <div class="modal-content" @click="(e) => e.stopPropagation()">
+        <div class="modal-content" @click="(e: Event) => e.stopPropagation()">
           <div class="modal-header">
             <h1 class="modal-title fs-4">{{ props.unit }} Editor</h1>
             <button
@@ -278,7 +278,6 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { useAskGptModel } from "~~/composables/useAskGptModel";
 import { Photo, Editor } from "~~/types";
 import { Pagination, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
@@ -578,7 +577,9 @@ const handleDrop = (e: DragEvent) => {
     return fileInputRef.value && (fileInputRef.value.value = "");
   const files = e.dataTransfer.files;
   if (!props.data) return fileInputRef.value && (fileInputRef.value.value = "");
-  uploadImg(files, props.data._id);
+  if (props.data && props.data._id) {
+    uploadImg(files, props.data._id);
+  }
 };
 
 const fileChange = (e: Event) => {
@@ -594,8 +595,9 @@ const fileChange = (e: Event) => {
     return fileInputRef.value && (fileInputRef.value.value = "");
   }
   const files = (el as HTMLInputElement).files;
-  if (!props.data || !files) return;
-  uploadImg(files, props.data._id);
+  if (props.data && props.data._id && files) {
+    uploadImg(files, props.data._id);
+  }
 };
 
 const fileDelete = async () => {

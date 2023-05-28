@@ -19,6 +19,7 @@
 
 <script lang="ts" setup>
 const isMenuOpen = ref(false);
+const route = useRoute();
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
   if (isMenuOpen.value) {
@@ -34,6 +35,11 @@ const closeMenu = () => {
 };
 
 onMounted(() => {
+  document.body.style.overflow = "";
+})
+
+watch(route, () => {
+  isMenuOpen.value = false;
   document.body.style.overflow = "";
 })
 </script>
