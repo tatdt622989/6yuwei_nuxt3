@@ -71,7 +71,7 @@
             </div>
           </div>
         </div>
-        <Pagination :total="totalPage" :current-page="currentPage" />
+        <Pagination :total="totalPage" :current-page="currentPage" :url="'/3dcgs/'" />
       </div>
     </div>
     <FilterModal

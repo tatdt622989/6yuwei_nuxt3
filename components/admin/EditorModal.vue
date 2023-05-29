@@ -47,6 +47,7 @@
                       :key="file.data?._id"
                     >
                       <img
+                        v-if="file.progress === 100"
                         :src="`${store.api}/admin/uploads/${file.data?.url}`"
                         :alt="file.data?.url"
                       />
@@ -360,6 +361,7 @@ const validation = reactive<Validation>({
   category: false,
 });
 const swiperInstance = ref<any | null>(null);
+const action = ref(props.action);
 
 function onSwiper(swiper: any) {
   swiperInstance.value = swiper;
@@ -438,6 +440,7 @@ const save = async () => {
       });
       const error = res.error.value as Error | null;
       const resData = res.data.value as { data: Editor } | null;
+      action.value = "edit";
       return { error, resData };
     },
     edit: async () => {
@@ -457,7 +460,7 @@ const save = async () => {
       return { error, resData };
     },
   };
-  const res = await method[props.action]();
+  const res = await method[action.value]();
   if (res.error) {
     navigateTo("/admin/login");
     return store.pushNotification({
@@ -548,6 +551,7 @@ const uploadImg = async (files: FileList, id: string) => {
       message: "Upload successfully",
       timeout: 3000,
     });
+    swiperInstance.value?.slideTo(0);
   } catch (err: any) {
     const status = err.response?.status;
     status === 403 && navigateTo("/admin/login");

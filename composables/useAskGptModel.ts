@@ -1,21 +1,28 @@
 import { useStore } from "~~/store";
+import axios, { AxiosError } from "axios";
 
 const store = useStore();
 
 export const useAskGptModel = async (prompt: string) => {
-  const res = await useFetch(`${store.api}/chat/?prompt=${prompt}`,{
-    method: "GET",
-  });
-
-  const error = res.error.value;
-  const data = res.data.value;
-  if (error) {
-    store.pushNotification({
-      type: "error",
-      message: error?.data,
-      timeout: 5000,
+  try {
+    const res = await axios.get(`${store.api}/chat/?prompt=${prompt}`, {
+      method: "GET",
     });
-    return;
+    return res.data;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      store.pushNotification({
+        type: "error",
+        message: error.message,
+        timeout: 5000,
+      });
+    } else {
+      store.pushNotification({
+        type: "error",
+        message: "Unknown error",
+        timeout: 5000,
+      });
+    }
   }
-  return data;
+  return null;
 };

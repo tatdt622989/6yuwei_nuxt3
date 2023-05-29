@@ -127,7 +127,7 @@
             </tbody>
           </table>
         </div>
-        <Pagination :total="totalPage" :current-page="currentPage" />
+        <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/websites/'" />
       </div>
     </div>
     <AdminEditorModal
@@ -209,10 +209,13 @@ const openEditorModal = (
   action: "add" | "edit",
   data: Website | null = null
 ) => {
-  if (!data) return;
   editorModal.open = true;
   editorModal.action = action;
-  editorModal.data = changeToEditor(data);
+  if (data && action === "edit") {
+    editorModal.data = changeToEditor(data);
+  } else {
+    editorModal.data = null;
+  }
 };
 
 const openConfirmModal = (targetFunc: Function, id: string = "") => {

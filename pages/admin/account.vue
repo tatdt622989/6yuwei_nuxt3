@@ -21,8 +21,8 @@
                 <div class="preview">
                   <i class="bi bi-person-fill"></i>
                   <img
-                    v-if="user.photo || preview"
-                    :src="userPhotoPath || preview"
+                    v-if="preview || user.photo"
+                    :src="preview || userPhotoPath"
                     :alt="user.username"
                   />
                 </div>

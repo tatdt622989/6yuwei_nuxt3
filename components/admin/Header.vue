@@ -15,7 +15,7 @@
       </div>
       <div class="member">
         <div class="img-box">
-          <img v-if="user?.photo || preview" :src="userPhotoPath || preview" :alt="user?.username" />
+          <img v-if="user?.photo" :src="userPhotoPath" :alt="user?.username" />
         </div>
         <div class="txtBox">{{ user?.username }}</div>
       </div>

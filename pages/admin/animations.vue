@@ -129,7 +129,7 @@
             </tbody>
           </table>
         </div>
-        <Pagination :total="totalPage" :current-page="currentPage" />
+        <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/animations/'" />
       </div>
     </div>
     <AdminEditorModal
@@ -205,6 +205,7 @@ const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
 const category = ref([]);
+const changeToEditor = useChangeToEditor();
 
 const openEditorModal = (
   action: "add" | "edit",
@@ -212,7 +213,11 @@ const openEditorModal = (
 ) => {
   editorModal.open = true;
   editorModal.action = action;
-  editorModal.data = data as Editor;
+  if (data && action === "edit") {
+    editorModal.data = changeToEditor(data);
+  } else {
+    editorModal.data = null;
+  }
 };
 
 const openConfirmModal = (targetFunc: Function, id: string = "") => {
