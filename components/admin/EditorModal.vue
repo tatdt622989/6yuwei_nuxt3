@@ -361,7 +361,7 @@ const validation = reactive<Validation>({
   category: false,
 });
 const swiperInstance = ref<any | null>(null);
-const action = ref(props.action);
+const action = ref<'edit'|'add'>('edit');
 
 function onSwiper(swiper: any) {
   swiperInstance.value = swiper;
@@ -512,7 +512,6 @@ const uploadImg = async (files: FileList, id: string) => {
       progress: 0,
     };
     fileInfoList.value.unshift(tempFileInfo);
-    const index = 0;
     const res = new Promise((resolve, reject) => {
       axios
         .post(`${store.api}/${props.unit}/admin/photo/`, formData, {
@@ -521,6 +520,9 @@ const uploadImg = async (files: FileList, id: string) => {
           },
           withCredentials: true,
           onUploadProgress: (progressEvent) => {
+            const index = fileInfoList.value.findIndex(
+              (item) => item.data?.url === files[i].name
+            );
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
             );
@@ -528,10 +530,16 @@ const uploadImg = async (files: FileList, id: string) => {
           },
         })
         .then((res) => {
+          const index = fileInfoList.value.findIndex(
+              (item) => item.data?.url === files[i].name
+            );
           fileInfoList.value[index].data = res.data.data;
           resolve(res.data);
         })
         .catch((err) => {
+          const index = fileInfoList.value.findIndex(
+              (item) => item.data?.url === files[i].name
+            );
           fileInfoList.value[index].progress = 0;
           reject(err);
         });
@@ -545,7 +553,6 @@ const uploadImg = async (files: FileList, id: string) => {
       msg: string;
     }
     (await Promise.all(reqList)) as ResData[];
-    console.log("reqList", reqList);
     store.pushNotification({
       type: "success",
       message: "Upload successfully",
@@ -590,7 +597,6 @@ const fileChange = (e: Event) => {
   const el = e.target as HTMLInputElement;
   if (!el) return;
   if (!props.data) {
-    console.log(el);
     store.pushNotification({
       type: "error",
       message: "Please save the data first",
@@ -715,6 +721,7 @@ watch(
   () => props.isOpen,
   (val) => {
     isOpen.value = val;
+    action.value = props.action;
     emit("update-category");
   }
 );

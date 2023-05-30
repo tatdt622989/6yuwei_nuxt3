@@ -1,7 +1,7 @@
 <template>
   <nav aria-label="Page navigation" class="justify-content-center d-flex">
     <ul class="pagination">
-      <li class="page-item" v-if="currentPage > 1">
+      <li class="page-item first" v-if="currentPage > 1">
         <a class="page-link" href="javascript:;" aria-label="Previous" @click="goToPage(currentPage - 1)">
           <span class="material-symbols-outlined">chevron_left</span>
         </a>
@@ -9,7 +9,7 @@
       <li class="page-item" v-for="page in pages" :key="page" :class="{ active: page === currentPage }">
         <a class="page-link" href="javascript:;" @click="goToPage(page)">{{ page }}</a>
       </li>
-      <li class="page-item" v-if="currentPage < total">
+      <li class="page-item last" v-if="currentPage < total">
         <a class="page-link" href="javascript:;" aria-label="Next"  @click="goToPage(currentPage + 1)">
           <span class="material-symbols-outlined">chevron_right</span>
         </a>
@@ -78,12 +78,12 @@ const goToPage = (num: number) => {
       z-index: 1;
       @include center(transform, y);
     }
-    &:first-of-type {
+    &.first {
       .page-link {
         border-radius: 12px 0 0 12px;
       }
     }
-    &:last-of-type {
+    &.last {
       @include after {
         display: none;
       }

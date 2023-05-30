@@ -224,8 +224,12 @@ onMounted(async () => {
   justify-content: flex-end;
   margin-bottom: 60px;
   align-items: flex-start;
+  flex-wrap: wrap;
   @include media(1200) {
     margin-bottom: 40px;
+  }
+  @include media(768) {
+    justify-content: flex-start;
   }
   .item {
     display: flex;
@@ -286,6 +290,7 @@ onMounted(async () => {
       padding: 0 24px 0 16px;
       appearance: none;
       font-weight: bold;
+      color: $secColor;
       &:active,
       &:focus {
         outline: 0;
@@ -296,6 +301,12 @@ onMounted(async () => {
       display: flex;
       justify-content: flex-end;
       margin-left: 0;
+      @include media(768) {
+        width: 100%;
+        order: 10;
+        flex-shrink: 0;
+        padding-top: 10px;
+      }
     }
   }
   .category-wrap {
@@ -303,6 +314,9 @@ onMounted(async () => {
     align-items: center;
     flex-wrap: wrap;
     margin-left: -5px;
+    @include media(768) {
+      width: 100%;
+    }
     .category {
       display: flex;
       align-items: center;

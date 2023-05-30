@@ -25,7 +25,7 @@
             <div class="container">
               <button
                 class="category-btn btn"
-                v-for="(item, index) in category"
+                v-for="(item, index) in categoryFilter"
                 :key="Date.now() + index"
                 :class="{ active : filter.includes(item) }"
                 @click="updateFilter(item)"
@@ -70,6 +70,10 @@ const emit = defineEmits(["close-modal", "set-category-arr"]);
 const route = useRoute();
 const store = useStore();
 const category = ref<string[]>([]);
+const categoryFilter = computed(() => {
+  const flatCategory = category.value.map((item) => item.split(",")).flat();
+  return [...new Set(flatCategory)];
+});
 const filter = ref<string[]>([]);
 
 const updateFilter = (category: string) => {
