@@ -29,7 +29,7 @@
                 <div class="upload">
                   <label>
                     <span>Upload</span>
-                    <input type="file" @change="handlePhoto" />
+                    <input type="file" @change="handlePhoto" ref="userFileInput" />
                   </label>
                 </div>
               </div>
@@ -173,6 +173,7 @@ interface userRef {
 }
 const preview = ref<string>("");
 const userPhotoFile = ref<File | null>(null);
+const userFileInput = ref<HTMLInputElement | null>(null);
 const user = ref<User>({
   _id: "",
   username: "",
@@ -223,7 +224,9 @@ const saveUser = async () => {
   formData.append("phone", user.value.phone);
   formData.append("country", user.value.country);
   formData.append("birth", user.value.birth);
-  formData.append("photo", userPhotoFile.value as File);
+  if (userPhotoFile.value) {
+    formData.append("photo", userPhotoFile.value);
+  }
   const { data: userRef, error } = await useFetch(`${store.api}/user/`, {
     method: "PUT",
     credentials: "include",
@@ -239,6 +242,7 @@ const saveUser = async () => {
     });
   }
   const data = (userRef.value as userRef).user;
+  console.log(data);
   if (data) {
     user.value = data;
     store.pushNotification({
@@ -247,6 +251,7 @@ const saveUser = async () => {
       timeout: 5000,
     });
   }
+  userFileInput.value!.value = "";
   store.setLoading(false);
 };
 

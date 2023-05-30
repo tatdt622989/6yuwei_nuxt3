@@ -12,10 +12,8 @@
                         <div class="modal-body">
                             <div class="container">
                                 <iframe v-if="isOpen"
-                                    :src="`https://www.youtube.com/embed/${videoCode}?autoplay=1&mute=1&loop=1&playlist=${videoCode}&playsinline=1`"
-                                    title="YouTube video player" frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    allowfullscreen></iframe>
+                                    :src="ytURL"
+                                    title="YouTube video player" frameborder="0"></iframe>
                             </div>
                         </div>
                     </div>
@@ -31,12 +29,16 @@ const props = defineProps({
     videoURL: String
 });
 const emit = defineEmits(["close-modal"]);
-
-const videoCode = computed(() => {
+const origin = ref('');
+const ytURL = computed(() => {
     const url = props.videoURL;
     if (!url) return "";
     const code = url.split("v=")[1];
-    return code;
+    return `https://www.youtube.com/embed/${code}?autoplay=1&mute=1&loop=1&playlist=${code}&playsinline=1&origin=${origin}`;
+});
+
+onMounted(() => {
+    origin.value = window.location.origin;
 });
 </script>
 
