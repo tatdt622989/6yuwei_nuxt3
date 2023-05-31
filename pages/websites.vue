@@ -48,12 +48,14 @@
         <div class="content" :class="[layout]">
           <div class="item card" v-for="website in websites" :key="website._id">
             <div class="item-content">
-              <div class="img-wrap" @click="linkTo(website)">
-                <img
-                  v-if="website.photos[0]"
-                  :src="`${store.api}/admin/uploads/${website.photos[0]?.url}`"
-                  :alt="website.title"
-                />
+              <div class="img-wrap">
+                <NuxtLink :to="`/website/${website._id}`">
+                  <img
+                    v-if="website.photos[0]"
+                    :src="`${store.api}/admin/uploads/${website.photos[0]?.url}`"
+                    :alt="website.title"
+                  />
+                </NuxtLink>
               </div>
               <div class="info">
                 <p class="category">{{ website.category }}</p>
@@ -133,10 +135,6 @@ const layoutToggler = () => {
   } catch (error) {
     console.log(error);
   }
-};
-
-const linkTo = (website: Website) => {
-  navigateTo(`/website/${website._id}`);
 };
 
 const setCategoryArr = (arr: string[]) => {
@@ -365,6 +363,11 @@ onMounted(async () => {
       box-sizing: border-box;
       @extend %ts;
       pointer-events: none;
+    }
+    a {
+      display: flex;
+      width: 100%;
+      height: 100%;
     }
     &:hover {
       &::after {

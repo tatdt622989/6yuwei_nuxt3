@@ -41,9 +41,11 @@
         <div class="content" :class="[layout]">
           <div class="item card" v-for="threeDCG in threeDCGs" :key="threeDCG._id">
             <div class="item-content">
-              <div class="img-wrap" @click="linkTo(threeDCG)">
-                <img v-if="threeDCG.photos[0]" :src="`${store.api}/admin/uploads/${threeDCG.photos[0]?.url}`"
-                  :alt="threeDCG.title" />
+              <div class="img-wrap">
+                <NuxtLink :to="`/3dcg/${threeDCG._id}`">
+                  <img v-if="threeDCG.photos[0]" :src="`${store.api}/admin/uploads/${threeDCG.photos[0]?.url}`"
+                    :alt="threeDCG.title" />
+                </NuxtLink>
               </div>
               <div class="info">
                 <p class="category">{{ threeDCG.category }}</p>
@@ -118,10 +120,6 @@ const layoutToggler = () => {
   } catch (error) {
     console.log(error);
   }
-};
-
-const linkTo = (threeDCG: ThreeDCG) => {
-  navigateTo(`/3dcg/${threeDCG._id}`);
 };
 
 const setCategoryArr = (arr: string[]) => {
@@ -375,6 +373,12 @@ onMounted(async () => {
       box-sizing: border-box;
       @extend %ts;
       pointer-events: none;
+    }
+
+    a {
+      display: flex;
+      width: 100%;
+      height: 100%;
     }
 
     &:hover {

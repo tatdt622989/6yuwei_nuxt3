@@ -152,7 +152,7 @@
                   :text-editor="textEditorHTML"
                   :is-open="isOpen"
                   @set-text-editor-output="setTextEditorHTML"
-                  :action="props.action"
+                  :action="action"
                   ref="textEditorRef"
                 />
               </div>
@@ -286,6 +286,7 @@ import axios from "axios";
 
 import "swiper/css";
 import "swiper/css/pagination";
+import { Console } from "console";
 
 interface Validation {
   [K: string]: boolean;
@@ -368,7 +369,7 @@ function onSwiper(swiper: any) {
 }
 
 const updateData = (data: Editor) => {
-  if (props.action === "edit" && data) {
+  if (action.value === "edit" && data) {
     title.value = data.title;
     externalLink.value = data.externalLink;
     category.value = data.category;
@@ -674,9 +675,9 @@ const closeModal = () => {
 };
 
 const keyupHandler = (e: KeyboardEvent) => {
-  if (e.key === "Escape") {
-    closeModal();
-  }
+  // if (e.key === "Escape") {
+  //   closeModal();
+  // }
 };
 
 const textGenerator = async (inputType: "describe" | "content") => {
@@ -963,6 +964,7 @@ watch(
       top: 0;
       left: 0;
       width: 100%;
+      pointer-events: none;
       rect {
         width: calc(100% - 4px);
       }
@@ -970,12 +972,14 @@ watch(
     span {
       font-size: 100px;
       color: $mainColor;
+      pointer-events: none;
     }
     p {
       font-size: 20px;
       font-weight: bold;
       color: $secColor;
       letter-spacing: 0.8px;
+      pointer-events: none;
       &.note {
         margin-bottom: 10px;
         color: $secColor;

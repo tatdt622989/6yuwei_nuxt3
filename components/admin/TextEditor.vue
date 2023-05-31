@@ -1,83 +1,58 @@
 <template>
   <div id="text-editor">
     <div v-if="editor" class="toolbar">
-      <button
-        :disabled="!editor.can().chain().focus().toggleBold().run()"
-        :class="{ 'is-active': editor.isActive('bold') }"
-        @click="editor?.chain().focus().toggleBold().run()"
-      >
+      <button :disabled="!editor.can().chain().focus().toggleBold().run()"
+        :class="{ 'is-active': editor.isActive('bold') }" @click="editor?.chain().focus().toggleBold().run()">
         <span class="material-icons">format_bold</span>
       </button>
-      <button
-        @click="editor?.chain().focus().toggleItalic().run()"
+      <button @click="editor?.chain().focus().toggleItalic().run()"
         :disabled="!editor.can().chain().focus().toggleItalic().run()"
-        :class="{ 'is-active': editor.isActive('italic') }"
-      >
+        :class="{ 'is-active': editor.isActive('italic') }">
         <span class="material-icons">format_italic</span>
       </button>
-      <button
-        @click="editor?.chain().focus().toggleStrike().run()"
+      <button @click="editor?.chain().focus().toggleStrike().run()"
         :disabled="!editor.can().chain().focus().toggleStrike().run()"
-        :class="{ 'is-active': editor.isActive('strike') }"
-      >
+        :class="{ 'is-active': editor.isActive('strike') }">
         <span class="material-icons"> strikethrough_s </span>
       </button>
-      <button
-        @click="editor?.chain().focus().toggleCodeBlock().run()"
-        :class="{ 'is-active': editor.isActive('codeBlock') }"
-      >
+      <button @click="editor?.chain().focus().toggleCodeBlock().run()"
+        :class="{ 'is-active': editor.isActive('codeBlock') }">
         <span class="material-icons"> terminal </span>
       </button>
       <label id="color-selector">
-        <input
-          type="color"
-          @input="(e) => setColor(e)"
-          :value="editor.getAttributes('textStyle').color"
-        />
+        <input type="color" @input="(e) => setColor(e)" :value="editor.getAttributes('textStyle').color" />
         <span class="material-icons"> format_color_text </span>
       </label>
-      <button
-        @click="editor?.chain().focus().setTextAlign('left').run()"
-        :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }"
-      >
+      <button @click="editor?.chain().focus().setTextAlign('left').run()"
+        :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }">
         <span class="material-symbols-outlined"> format_align_left </span>
       </button>
-      <button
-        @click="editor?.chain().focus().setTextAlign('center').run()"
-        :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }"
-      >
+      <button @click="editor?.chain().focus().setTextAlign('center').run()"
+        :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }">
         <span class="material-symbols-outlined"> format_align_center </span>
       </button>
-      <button
-        @click="editor?.chain().focus().setTextAlign('right').run()"
-        :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }"
-      >
+      <button @click="editor?.chain().focus().setTextAlign('right').run()"
+        :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }">
         <span class="material-symbols-outlined"> format_align_right </span>
       </button>
-      <button
-        @click="editor?.chain().focus().setTextAlign('justify').run()"
-        :class="{ 'is-active': editor.isActive({ textAlign: 'justify' }) }"
-      >
+      <button @click="editor?.chain().focus().setTextAlign('justify').run()"
+        :class="{ 'is-active': editor.isActive({ textAlign: 'justify' }) }">
         <span class="material-symbols-outlined"> format_align_justify </span>
       </button>
-      <button
-        @click="editor?.chain().focus().toggleBulletList().run()"
-        :class="{ 'is-active': editor.isActive('bulletList') }"
-      >
+      <button @click="editor?.chain().focus().toggleBulletList().run()"
+        :class="{ 'is-active': editor.isActive('bulletList') }">
         <span class="material-symbols-outlined"> format_list_bulleted </span>
       </button>
-      <button
-        @click="editor?.chain().focus().toggleOrderedList().run()"
-        :class="{ 'is-active': editor.isActive('orderedList') }"
-      >
+      <button @click="editor?.chain().focus().toggleOrderedList().run()"
+        :class="{ 'is-active': editor.isActive('orderedList') }">
         <span class="material-symbols-outlined"> format_list_numbered </span>
       </button>
-      <select
-        class="form-select"
-        id="text-selector"
-        v-model="textSelector"
-        @change="changeTextSelector"
-      >
+      <button @click="openTextEditorToolModal('URL')" :class="{ 'is-active': editor.isActive('link') }">
+        <span class="material-symbols-outlined">
+          link
+        </span>
+      </button>
+      <select class="form-select" id="text-selector" v-model="textSelector" @change="changeTextSelector">
         <option value="Normal">Normal</option>
         <option value="1">H1</option>
         <option value="2">H2</option>
@@ -88,12 +63,15 @@
       </select>
     </div>
     <editor-content class="text-editor-content" :editor="editor" />
+    <TextEditorToolModal :is-open="textEditorToolModal.open" :tool-name="textEditorToolModal.toolName" :link="textEditorToolModal.link"
+      @on-confirm="setToolModal" @close-modal="closeTextEditorToolModal" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Document from "@tiptap/extension-document";
+import Link from '@tiptap/extension-link';
 import BulletList from "@tiptap/extension-bullet-list";
 import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
@@ -129,6 +107,12 @@ const props = defineProps({
   isOpen: Boolean,
 });
 
+const textEditorToolModal = ref({
+  open: false,
+  toolName: '',
+  link: '',
+})
+
 const emit = defineEmits(["set-text-editor-output"]);
 
 const textSelector = ref("");
@@ -147,6 +131,10 @@ const editor = useEditor({
     TextStyle,
     TextAlign.configure({
       types: ["heading", "paragraph"],
+    }),
+    Link.configure({
+      protocols: ['ftp', 'mailto'],
+      openOnClick: false,
     }),
     CodeBlockLowlight.configure({
       lowlight,
@@ -190,6 +178,57 @@ const setEditorContent = () => {
   if (editor.value && props.textEditor) {
     editor.value.commands.setContent(props.textEditor);
   }
+};
+
+const openTextEditorToolModal = (toolName: string) => {
+  textEditorToolModal.value.open = true;
+  textEditorToolModal.value.toolName = toolName;
+  if (!editor.value) return;
+  if (toolName === 'URL') {
+    const previousUrl = editor.value.getAttributes('link').href
+    textEditorToolModal.value.link = previousUrl || '';
+  }
+};
+
+const setToolModal = (toolName: string, url: string) => {
+  if (editor.value) {
+    if (toolName === 'URL') {
+      
+      if (textEditorToolModal.value.open === false) {
+        openTextEditorToolModal('URL');
+        return;
+      }
+
+      // cancelled
+      if (url === null) {
+        return
+      }
+      
+      // empty
+      if (url === '') {
+        editor.value
+          .chain()
+          .focus()
+          .extendMarkRange('link')
+          .unsetLink()
+          .run()
+      
+        return
+      }
+      
+      // update link
+      editor.value
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .setLink({ href: url })
+        .run()
+    }
+  }
+};
+
+const closeTextEditorToolModal = () => {
+  textEditorToolModal.value.open = false;
 };
 
 // check if it's a heading and set the textSelector
@@ -237,6 +276,7 @@ defineExpose({
   align-content: stretch;
   box-sizing: content-box;
 }
+
 :deep(.ProseMirror) {
   box-sizing: border-box;
   padding: 10px;
@@ -244,6 +284,7 @@ defineExpose({
   min-width: 0;
   height: 248px;
   width: 100%;
+
   &:focus-visible {
     outline: 0;
     box-shadow: none;
@@ -276,39 +317,49 @@ defineExpose({
       color: #abb2bf;
       background: #282c34;
     }
+
     .hljs-keyword,
     .hljs-operator,
     .hljs-pattern-match {
       color: #f92672;
     }
+
     .hljs-function,
     .hljs-pattern-match .hljs-constructor {
       color: #61aeee;
     }
+
     .hljs-function .hljs-params {
       color: #a6e22e;
     }
+
     .hljs-function .hljs-params .hljs-typing {
       color: #fd971f;
     }
+
     .hljs-module-access .hljs-module {
       color: #7e57c2;
     }
+
     .hljs-constructor {
       color: #e2b93d;
     }
+
     .hljs-constructor .hljs-string {
       color: #9ccc65;
     }
+
     .hljs-comment,
     .hljs-quote {
       color: #b18eb1;
       font-style: italic;
     }
+
     .hljs-doctag,
     .hljs-formula {
       color: #c678dd;
     }
+
     .hljs-deletion,
     .hljs-name,
     .hljs-section,
@@ -316,9 +367,11 @@ defineExpose({
     .hljs-subst {
       color: #e06c75;
     }
+
     .hljs-literal {
       color: #56b6c2;
     }
+
     .hljs-addition,
     .hljs-attribute,
     .hljs-meta .hljs-string,
@@ -326,11 +379,13 @@ defineExpose({
     .hljs-string {
       color: #98c379;
     }
+
     .hljs-built_in,
     .hljs-class .hljs-title,
     .hljs-title.class_ {
       color: #e6c07b;
     }
+
     .hljs-attr,
     .hljs-number,
     .hljs-selector-attr,
@@ -341,6 +396,7 @@ defineExpose({
     .hljs-variable {
       color: #d19a66;
     }
+
     .hljs-bullet,
     .hljs-link,
     .hljs-meta,
@@ -349,19 +405,23 @@ defineExpose({
     .hljs-title {
       color: #61aeee;
     }
+
     .hljs-emphasis {
       font-style: italic;
     }
+
     .hljs-strong {
       font-weight: 700;
     }
+
     .hljs-link {
       text-decoration: underline;
     }
   }
 }
-.text-editor-content {
-}
+
+.text-editor-content {}
+
 .toolbar {
   flex-shrink: 0;
   display: flex;
@@ -374,6 +434,7 @@ defineExpose({
   box-sizing: border-box;
   min-width: 0;
   flex-wrap: wrap;
+
   button {
     border: none;
     background: none;
@@ -388,32 +449,38 @@ defineExpose({
     border-radius: 12px;
     @extend %ts;
     flex-shrink: 0;
+
     &:hover {
       background-color: darken($terColor, 10%);
     }
+
     span {
       color: $secColor;
     }
+
     &.is-active {
       background-color: $mainColor;
     }
   }
 }
+
 #text-selector {
   height: 36px;
   border-radius: 12px;
   padding: 0 10px;
   padding-right: 40px;
   border: 0;
-  margin: 2.5px;
+  margin: 2.5px 5px;
   flex-grow: 0;
   width: auto;
   position: relative;
+
   &:focus-visible {
     outline: 0;
     box-shadow: none;
   }
 }
+
 #color-selector {
   display: flex;
   position: relative;
@@ -424,13 +491,16 @@ defineExpose({
   margin: 0 2.5px;
   cursor: pointer;
   z-index: 1;
+
   &:hover {
     background-color: darken($terColor, 10%);
   }
+
   span {
     color: $secColor;
     cursor: pointer;
   }
+
   input {
     cursor: pointer;
     top: 0;

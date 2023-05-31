@@ -7,6 +7,7 @@
 <script lang="ts" setup>
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Document from "@tiptap/extension-document";
+import Link from '@tiptap/extension-link';
 import BulletList from "@tiptap/extension-bullet-list";
 import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
@@ -64,6 +65,9 @@ onMounted(() => {
       CodeBlockLowlight.configure({
         lowlight,
       }),
+      Link.configure({
+        protocols: ['ftp', 'mailto'],
+      }),
       BulletList,
       ListItem,
       OrderedList,
@@ -97,6 +101,13 @@ onMounted(() => {
 
     ul {
       list-style: disc;
+    }
+
+    a {
+      color: darken($mainColor, 10%);
+      &:hover {
+        color: $mainColor;
+      }
     }
 
     pre {
@@ -219,4 +230,5 @@ onMounted(() => {
       }
     }
   }
-}</style>
+}
+</style>

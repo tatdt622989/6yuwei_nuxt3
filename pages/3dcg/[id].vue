@@ -37,7 +37,7 @@
             <div class="category">{{ threeDCG?.category }}</div>
             <h1 class="title">{{ threeDCG?.title }}</h1>
             <div class="desc">{{ threeDCG?.description }}</div>
-            <div class="btn-wrap">
+            <div class="btn-wrap" v-if="threeDCG?.externalLink">
               <a :href="threeDCG?.externalLink" class="btn">Visit</a>
             </div>
           </div>

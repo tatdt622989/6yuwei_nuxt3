@@ -48,12 +48,14 @@
         <div class="content" :class="[layout]">
           <div class="item card" v-for="animation in animations" :key="animation._id">
             <div class="item-content">
-              <div class="img-wrap" @click="linkTo(animation)">
-                <img
-                  v-if="animation.photos[0]"
-                  :src="`${store.api}/admin/uploads/${animation.photos[0]?.url}`"
-                  :alt="animation.title"
-                />
+              <div class="img-wrap">
+                <NuxtLink :to="`/animation/${animation._id}`">
+                  <img
+                    v-if="animation.photos[0]"
+                    :src="`${store.api}/admin/uploads/${animation.photos[0]?.url}`"
+                    :alt="animation.title"
+                  />
+                </NuxtLink>
               </div>
               <div class="info">
                 <p class="category">{{ animation.category }}</p>
@@ -133,10 +135,6 @@ const layoutToggler = () => {
   } catch (error) {
     console.log(error);
   }
-};
-
-const linkTo = (animation: Animation) => {
-  navigateTo(`/animation/${animation._id}`);
 };
 
 const setCategoryArr = (arr: string[]) => {
@@ -365,6 +363,11 @@ onMounted(async () => {
       box-sizing: border-box;
       @extend %ts;
       pointer-events: none;
+    }
+    a {
+      display: flex;
+      width: 100%;
+      height: 100%;
     }
     &:hover {
       &::after {

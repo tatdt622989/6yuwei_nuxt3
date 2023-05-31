@@ -42,13 +42,18 @@ const hasSearch = computed(() => {
 const setKeyword = () => {
   externalKeyword.value = keyword.value;
 };
+const keydownHandler = (e: KeyboardEvent) => {
+  if (e.key === "Enter") {
+    setKeyword();
+  }
+};
 onMounted(() => {
   keyword.value = externalKeyword.value;
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      setKeyword();
-    }
-  });
+  window.addEventListener("keydown", keydownHandler);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", keydownHandler);
 });
 
 watch(
