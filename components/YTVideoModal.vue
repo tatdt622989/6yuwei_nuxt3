@@ -34,7 +34,7 @@ const ytURL = computed(() => {
     const url = props.videoURL;
     if (!url) return "";
     const code = url.split("v=")[1];
-    return `https://www.youtube.com/embed/${code}?autoplay=1&mute=1&loop=1&playlist=${code}&playsinline=1&origin=${origin}`;
+    return `https://www.youtube.com/embed/${code}?autoplay=1&mute=1&loop=1&playlist=${code}&playsinline=1&origin=${origin.value}`;
 });
 
 onMounted(() => {

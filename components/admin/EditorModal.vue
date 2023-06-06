@@ -48,8 +48,10 @@
                     >
                       <img
                         v-if="file.progress === 100"
+                        v-show="file.isLoaded"
                         :src="`${store.api}/admin/uploads/${file.data?.url}`"
                         :alt="file.data?.url"
+                        @load="file.isLoaded = true"
                       />
                     </swiper-slide>
                   </swiper>
@@ -197,6 +199,7 @@
                     multiple
                     @change="fileChange"
                     ref="fileInputRef"
+                    accept="image/*"
                   />
                 </label>
                 <ul class="files-list">
@@ -286,7 +289,6 @@ import axios from "axios";
 
 import "swiper/css";
 import "swiper/css/pagination";
-import { Console } from "console";
 
 interface Validation {
   [K: string]: boolean;
@@ -299,6 +301,7 @@ interface TextEditorRef {
 interface FileInfo {
   data: Photo | null;
   progress: number;
+  isLoaded: boolean;
 }
 
 const modules = [Pagination, Autoplay];
@@ -379,6 +382,7 @@ const updateData = (data: Editor) => {
       return {
         data: item,
         progress: 100,
+        isLoaded: true,
       };
     });
   }
@@ -420,13 +424,7 @@ const save = async () => {
     category: category.value,
     description: description.value,
     textEditor: textEditorHTML.value,
-    photos: fileInfoList.value.map((item) => item.data),
   };
-  store.isLoading = true;
-  if (!verify()) {
-    store.isLoading = false;
-    return;
-  }
   const method = {
     add: async () => {
       const res = await useFetch(api, {
@@ -461,6 +459,12 @@ const save = async () => {
       return { error, resData };
     },
   };
+  if (store.isLoading) return;
+  store.isLoading = true;
+  if (!verify()) {
+    store.isLoading = false;
+    return;
+  }
   const res = await method[action.value]();
   if (res.error) {
     navigateTo("/admin/login");
@@ -477,9 +481,10 @@ const save = async () => {
       timeout: 3000,
     });
     emit("set-editor-data", res.resData.data);
+    store.isLoading = false;
+    emit("update-category");
     emit("reload-list");
   }
-  store.isLoading = false;
 };
 
 const uploadImg = async (files: FileList, id: string) => {
@@ -511,6 +516,7 @@ const uploadImg = async (files: FileList, id: string) => {
         createdAt: "",
       },
       progress: 0,
+      isLoaded: false,
     };
     fileInfoList.value.unshift(tempFileInfo);
     const res = new Promise((resolve, reject) => {
@@ -565,10 +571,10 @@ const uploadImg = async (files: FileList, id: string) => {
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
-      message: err as string,
+      message: err.response?.data,
       timeout: 5000,
     });
-    return fileInputRef.value && (fileInputRef.value.value = "");
+    fileInputRef.value && (fileInputRef.value.value = "");
   }
   fileInfoList.value = fileInfoList.value.filter(
     (fileInfo) => fileInfo.progress === 100
@@ -617,6 +623,8 @@ const fileDelete = async () => {
     photoId: props.confirmModal?.id,
     unitId: props.data?._id ?? "",
   };
+  if (store.isLoading) return;
+  store.isLoading = true;
   try {
     const res = await useFetch(api, {
       method: "DELETE",
@@ -648,9 +656,13 @@ const fileDelete = async () => {
         message: "Deleted successfully",
         timeout: 3000,
       });
-      emit("set-editor-data", resData.data);
+      fileInfoList.value = fileInfoList.value.filter(
+        (fileInfo) => fileInfo.data?._id !== props.confirmModal?.id
+      );
+      store.isLoading = false;
     }
   } catch (error) {
+    store.isLoading = false;
     return store.pushNotification({
       type: "error",
       message: error as string,
@@ -723,7 +735,6 @@ watch(
   (val) => {
     isOpen.value = val;
     action.value = props.action;
-    emit("update-category");
   }
 );
 

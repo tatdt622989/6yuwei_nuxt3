@@ -15,10 +15,10 @@
     </div>
     <div class="about">
       <div class="wrap">
-        <div class="photo">
+        <div class="photo" data-aos="fade-in">
           <img src="@/assets/images/my-photo.jpg" alt="my_photo" />
         </div>
-        <div class="text-box">
+        <div class="text-box" data-aos="fade-left">
           <h2>About us</h2>
           <p>
             I am <b>Yu Wei</b>,an <b>frontend engineer</b> .I graduated from a
@@ -39,7 +39,7 @@
     <div class="advantages" ref="advantagesEl">
       <div class="wrap">
         <ul class="list">
-          <div class="item">
+          <div class="item" data-aos="fade-in">
             <div class="icon">
               <img src="@/assets/images/advantages1.svg" alt="advantages" />
             </div>
@@ -49,7 +49,7 @@
             </div>
             <p class="text">years of experience</p>
           </div>
-          <div class="item">
+          <div class="item" data-aos="fade-in">
             <div class="icon">
               <img src="@/assets/images/advantages2.svg" alt="advantages" />
             </div>
@@ -58,7 +58,7 @@
             </div>
             <p class="text">Web projects handled</p>
           </div>
-          <div class="item">
+          <div class="item" data-aos="fade-in">
             <div class="icon">
               <img src="@/assets/images/advantages3.svg" alt="advantages" />
             </div>
@@ -73,13 +73,14 @@
     <div class="side-project">
       <div class="wrap">
         <div class="content">
-          <h2>Side project</h2>
+          <h2 data-aos="fade-in">Side project</h2>
           <div class="item-wrap">
             <div
               class="item"
               v-for="(item, i) in sideProjectData"
               :key="item._id"
               :id="item._id"
+              data-aos="fade-in"
             >
               <h3 class="title">{{ item.title }}</h3>
               <client-only>
@@ -146,9 +147,9 @@
     </div>
     <div class="blog">
       <div class="wrap">
-        <h2>Recent posts by Blogs</h2>
+        <h2 data-aos="fade-in">Recent posts by Blogs</h2>
         <div class="content">
-          <div v-for="(obj, i) in posts" :key="i" class="item">
+          <div v-for="(obj, i) in posts" :key="i" class="item" data-aos="fade-in">
             <div class="img-box">
               <a :href="obj.permalink" target="_blank">
                 <img v-if="obj.imgUrl" :src="obj.imgUrl" :alt="obj.title" />
@@ -172,7 +173,7 @@
     </div>
     <div class="threedcgs">
       <div class="wrap">
-        <h2>3DCGs</h2>
+        <h2 data-aos="fade-in">3DCGs</h2>
         <div class="btnBox">
           <button class="prev">
             <span class="material-icons">keyboard_arrow_left</span>
@@ -185,6 +186,7 @@
       <div class="content">
         <client-only>
           <swiper
+            data-aos="fade-in"
             class="swiper3DCGS"
             :modules="modules"
             :slides-per-view="1"
@@ -235,6 +237,8 @@ import { Pagination, Autoplay, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import { Website, ThreeDCG } from "~/types";
+import AOS from 'aos';
+import 'aos/dist/aos.css'; // You can also use <link> for styles
 
 interface Post {
   data: string;
@@ -397,6 +401,12 @@ onMounted(() => {
   });
   onScroll();
   window.addEventListener("scroll", onScroll);
+
+  AOS.init({
+    duration: 1000,
+    easing: "ease-in-out",
+    once: true,
+  });
 });
 
 onUnmounted(() => {

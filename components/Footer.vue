@@ -1,6 +1,6 @@
 <template>
   <footer>
-    <form @submit.prevent class="form">
+    <form @submit.prevent class="form" data-aos="fade-in">
       <div class="info">
         <p class="title">Let's make something amazing!</p>
         <p class="subtitle">Send me a message.</p>
@@ -39,11 +39,11 @@
       </div>
     </form>
     <div class="bottom">
-      <div class="logo">
+      <div class="logo" data-aos="fade-in" data-aos-offset="0">
         <img src="@/assets/images/logo_white.svg" alt="6yuwei" />
       </div>
-      <Navbar class="nav" :place="'footer'" />
-      <div class="copyright">
+      <Navbar class="nav" :place="'footer'" data-aos="fade-in" data-aos-delay="100" data-aos-offset="0" />
+      <div class="copyright" data-aos="fade-in" data-aos-delay="200" data-aos-offset="0">
         <p>
           Copyright © {{ new Date(Date.now()).getFullYear() }} 6yuwei.All rights
           reserved.
@@ -59,6 +59,9 @@
 <script lang="ts" setup>
 import { useStore } from "~/store";
 import { ReCaptchaInstance, load } from "recaptcha-v3";
+import AOS from 'aos';
+import 'aos/dist/aos.css'; // You can also use <link> for styles
+
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
     $recaptcha: (action: string) => Promise<string>;
@@ -151,6 +154,12 @@ onMounted(async () => {
     } else {
       isGoTopOpen.value = false;
     }
+  });
+
+  AOS.init({
+    duration: 1000,
+    easing: "ease-out",
+    once: true,
   });
 });
 </script>

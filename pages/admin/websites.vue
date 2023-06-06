@@ -209,13 +209,14 @@ const openEditorModal = (
   action: "add" | "edit",
   data: Website | null = null
 ) => {
-  editorModal.open = true;
+  
   editorModal.action = action;
-  if (data && action === "edit") {
+  editorModal.data = null;
+  if (action !== 'add' && action !== 'edit') throw new Error('action must be add or edit');
+  if (action === "edit" && data) {
     editorModal.data = changeToEditor(data);
-  } else {
-    editorModal.data = null;
   }
+  editorModal.open = true;
 };
 
 const openConfirmModal = (targetFunc: Function, id: string = "") => {
@@ -234,8 +235,8 @@ const closeEditorModal = async () => {
   editorModal.open = false;
 };
 
-const setEditorData = (data: Website) => {
-  editorModal.data = data as Editor;
+const setEditorData = (data: Editor) => {
+  editorModal.data = data;
 };
 
 const selectAllItem = () => {

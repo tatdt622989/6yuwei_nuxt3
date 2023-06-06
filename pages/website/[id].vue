@@ -37,8 +37,8 @@
             <div class="category">{{ website?.category }}</div>
             <h1 class="title">{{ website?.title }}</h1>
             <div class="desc">{{ website?.description }}</div>
-            <div class="btn-wrap">
-              <a :href="website?.externalLink" class="btn">Visit</a>
+            <div class="btn-wrap" v-if="website && website.externalLink">
+              <a :href="website?.externalLink" class="btn" target="_blank">Visit</a>
             </div>
           </div>
         </div>

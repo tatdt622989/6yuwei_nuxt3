@@ -49,7 +49,7 @@
           <div class="item card" v-for="website in websites" :key="website._id">
             <div class="item-content">
               <div class="img-wrap">
-                <NuxtLink :to="`/website/${website._id}`">
+                <NuxtLink :to="`/website/${website._id}`" target="_blank">
                   <img
                     v-if="website.photos[0]"
                     :src="`${store.api}/admin/uploads/${website.photos[0]?.url}`"
