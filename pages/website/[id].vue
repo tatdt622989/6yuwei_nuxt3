@@ -206,6 +206,7 @@ onMounted(() => {
       .preview-item {
         width: 20%;
         padding: 0 10px;
+        box-sizing: border-box;
         cursor: pointer;
         @include media(720) {
           padding: 0 5px;

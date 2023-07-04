@@ -413,7 +413,7 @@ onUnmounted(() => {
   window.removeEventListener("scroll", onScroll);
 });
 
-const onThreeDCGSwiper = (swiper: any) => {};
+// const onThreeDCGSwiper = (swiper: any) => {};
 
 const getImgLink = async () => {
   const resAry: Promise<Boolean>[] = [];

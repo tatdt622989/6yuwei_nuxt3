@@ -113,19 +113,25 @@ watch(
   }
 );
 
+const handleResize = () => {
+  if (window.innerWidth > 1200) {
+    open.value = true;
+  } else {
+    open.value = false;
+  }
+};
+
 onMounted(() => {
   if (window.innerWidth > 1200) {
     open.value = true;
   } else {
     open.value = false;
   }
-  window.addEventListener("resize", () => {
-    if (window.innerWidth > 1200) {
-      open.value = true;
-    } else {
-      open.value = false;
-    }
-  });
+  window.addEventListener("resize", handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", handleResize);
 });
 </script>
 

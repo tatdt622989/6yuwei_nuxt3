@@ -207,6 +207,7 @@ onMounted(() => {
         width: 20%;
         padding: 0 10px;
         cursor: pointer;
+        box-sizing: border-box;
         @include media(720) {
           padding: 0 5px;
         }

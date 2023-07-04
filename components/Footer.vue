@@ -145,22 +145,28 @@ const getRecaptchaToken = async () => {
   return token;
 };
 
+const handleScroll = () => {
+  const scrollTop =
+    document.documentElement.scrollTop || document.body.scrollTop;
+  if (scrollTop > 100) {
+    isGoTopOpen.value = true;
+  } else {
+    isGoTopOpen.value = false;
+  }
+};
+
 onMounted(async () => {
-  document.addEventListener("scroll", (e) => {
-    const scrollTop =
-      document.documentElement.scrollTop || document.body.scrollTop;
-    if (scrollTop > 100) {
-      isGoTopOpen.value = true;
-    } else {
-      isGoTopOpen.value = false;
-    }
-  });
+  document.addEventListener("scroll", handleScroll);
 
   AOS.init({
     duration: 1000,
     easing: "ease-out",
     once: true,
   });
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("scroll", handleScroll);
 });
 </script>
 
