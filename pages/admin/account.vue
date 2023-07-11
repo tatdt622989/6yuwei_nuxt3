@@ -256,22 +256,11 @@ const saveUser = async () => {
 };
 
 onMounted(async () => {
-  const { data: userRef, error } = await useFetch(`${store.api}/user/`, {
-    method: "GET",
-    credentials: "include",
-  });
-
-  if (error.value) {
-    const status = error.value.status;
-    status === 403 && navigateTo("/admin/login");
-    return store.pushNotification({
-      type: "error",
-      message: error.value.data as string,
-      timeout: 5000,
-    });
+  if (!store.user) {
+    navigateTo("/admin/login");
   }
 
-  const data = (userRef.value as userRef).user;
+  const data = store.user;
   if (data) {
     user.value = data;
   }

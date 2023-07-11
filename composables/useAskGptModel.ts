@@ -1,11 +1,11 @@
 import { useStore } from "~~/store";
 import axios, { AxiosError } from "axios";
 
-const store = useStore();
 
 export const useAskGptModel = async (prompt: string) => {
+  const store = useStore();
   try {
-    const res = await axios.get(`${store.api}/chat/?prompt=${prompt}`, {
+    const res = await axios.get(`${store.api}/chat/?prompt=${prompt}&systemPrompt=You are a professional writer.`, {
       method: "GET",
     });
     return res.data;
