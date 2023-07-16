@@ -237,8 +237,6 @@ import { Pagination, Autoplay, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import { Website, ThreeDCG } from "~/types";
-import AOS from 'aos';
-import 'aos/dist/aos.css'; // You can also use <link> for styles
 
 interface Post {
   data: string;
@@ -401,12 +399,6 @@ onMounted(() => {
   });
   onScroll();
   window.addEventListener("scroll", onScroll);
-
-  AOS.init({
-    duration: 1000,
-    easing: "ease-in-out",
-    once: true,
-  });
 });
 
 onUnmounted(() => {

@@ -59,8 +59,6 @@
 <script lang="ts" setup>
 import { useStore } from "~/store";
 import { ReCaptchaInstance, load } from "recaptcha-v3";
-import AOS from 'aos';
-import 'aos/dist/aos.css'; // You can also use <link> for styles
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
@@ -157,12 +155,6 @@ const handleScroll = () => {
 
 onMounted(async () => {
   document.addEventListener("scroll", handleScroll);
-
-  AOS.init({
-    duration: 1000,
-    easing: "ease-out",
-    once: true,
-  });
 });
 
 onBeforeUnmount(() => {

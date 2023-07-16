@@ -15,11 +15,7 @@ export const useStore = defineStore("main", {
     isLoading: false,
     api:  process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://api.6yuwei.com',
   }),
-  getters: {},
   actions: {
-    async login() {
-      // ...
-    },
     pushNotification(notification: Toast) {
       notification.id = Date.now();
       this.notifications.push(notification);

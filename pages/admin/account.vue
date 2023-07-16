@@ -220,10 +220,10 @@ const handlePhoto = (e: Event) => {
 const saveUser = async () => {
   store.setLoading(true);
   const formData = new FormData();
-  formData.append("username", user.value.username);
-  formData.append("phone", user.value.phone);
-  formData.append("country", user.value.country);
-  formData.append("birth", user.value.birth);
+  formData.append("username", user.value.username ?? '');
+  formData.append("phone", user.value.phone ?? '');
+  formData.append("country", user.value.country ?? '');
+  formData.append("birth", user.value.birth ?? '');
   if (userPhotoFile.value) {
     formData.append("photo", userPhotoFile.value);
   }
@@ -242,7 +242,6 @@ const saveUser = async () => {
     });
   }
   const data = (userRef.value as userRef).user;
-  console.log(data);
   if (data) {
     user.value = data;
     store.pushNotification({

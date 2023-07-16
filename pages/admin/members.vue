@@ -66,4 +66,26 @@ const openEditorModal = (
 
 <style lang="scss" scoped>
 @import "bootstrap/scss/bootstrap";
+
+.titleWrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: 30px;
+  .text {
+    padding-right: 10px;
+  }
+  .result {
+    padding-left: 8px;
+    font-size: 20px;
+    span {
+      font-weight: bold;
+    }
+  }
+  &:deep(.toolbar) {
+    min-width: 0;
+    flex-shrink: 0;
+  }
+}
 </style>
