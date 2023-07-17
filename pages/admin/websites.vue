@@ -14,10 +14,7 @@
             <p class="total">Total: {{ total }}</p>
             <div v-if="selector.length > 0" class="right">
               <p class="selected">{{ selector.length }} item selected</p>
-              <button
-                class="delete btn"
-                @click="openConfirmModal(deleteData, selector.join(','))"
-              >
+              <button class="delete btn" @click="openConfirmModal(deleteData, selector.join(','), 'delete')">
                 <span class="material-symbols-outlined"> delete </span>
                 Delete
               </button>
@@ -26,17 +23,14 @@
           <table class="table">
             <thead>
               <tr>
-                <th scope="col" width="90">
+                <th scope="col" width="65">
                   <label class="selector">
-                    <input
-                      type="checkbox"
-                      v-model="isAllSelected"
-                      @change="selectAllItem"
-                    />
+                    <input type="checkbox" v-model="isAllSelected" @change="selectAllItem" />
                     <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </th>
+                <th scope="col" width="90">Top</th>
                 <th scope="col">Preview</th>
                 <th scope="col">Title</th>
                 <th scope="col">Category</th>
@@ -49,25 +43,22 @@
               <tr v-for="website in websites" :key="website._id">
                 <td>
                   <label class="selector">
-                    <input
-                      type="checkbox"
-                      v-model="selector"
-                      :value="website._id"
-                    />
+                    <input type="checkbox" v-model="selector" :value="website._id" />
                     <span class="bg"></span>
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </td>
                 <td>
-                  <div
-                    class="preview-box"
-                    @click="openEditorModal('edit', website)"
-                  >
-                    <img
-                      v-if="website.photos[0]"
-                      :src="`${store.api}/admin/uploads/${website.photos[0].url}`"
-                      :alt="website.title"
-                    />
+                  <button :class="['pin', { active: website.top }]" @click="updateTop(website._id ?? '', website.top)">
+                    <span class="material-icons">
+                      bookmark
+                    </span>
+                  </button>
+                </td>
+                <td>
+                  <div class="preview-box" @click="openEditorModal('edit', website)">
+                    <img v-if="website.photos[0]" :src="`${store.api}/admin/uploads/${website.photos[0].url}`"
+                      :alt="website.title" />
                     <span class="material-symbols-outlined">nature_people</span>
                   </div>
                 </td>
@@ -75,13 +66,9 @@
                 <td>{{ website.category }}</td>
                 <td>
                   <label class="switch">
-                    <input
-                      type="checkbox"
-                      v-model="website.visible"
-                      @change="
-                        updateVisibility(website._id ?? '', website.visible)
-                      "
-                    />
+                    <input type="checkbox" v-model="website.visible" @change="
+                      updateVisibility(website._id ?? '', website.visible)
+                      " />
                     <span class="bg">
                       <span class="toggler" />
                     </span>
@@ -89,13 +76,9 @@
                 </td>
                 <td>
                   <label class="switch">
-                    <input
-                      type="checkbox"
-                      v-model="website.homepage"
-                      @change="
-                        updateHomepage(website._id ?? '', website.homepage)
-                      "
-                    />
+                    <input type="checkbox" v-model="website.homepage" @change="
+                      updateHomepage(website._id ?? '', website.homepage)
+                      " />
                     <span class="bg">
                       <span class="toggler" />
                     </span>
@@ -103,19 +86,13 @@
                 </td>
                 <td>
                   <div class="action-wrap">
-                    <button
-                      class="action copy"
-                      @click="openConfirmModal(copyWebsite, website._id)"
-                    >
+                    <button class="action copy" @click="openConfirmModal(copyWebsite, website._id, 'copy')">
                       <span class="material-symbols-outlined icon">
                         content_copy
                       </span>
                       <span class="text">Copy</span>
                     </button>
-                    <button
-                      class="action delete"
-                      @click="openConfirmModal(deleteData, website._id)"
-                    >
+                    <button class="action delete" @click="openConfirmModal(deleteData, website._id, 'delete')">
                       <span class="material-symbols-outlined icon">
                         delete
                       </span>
@@ -130,27 +107,12 @@
         <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/websites/'" />
       </div>
     </div>
-    <AdminEditorModal
-      :unit="'websites'"
-      :is-open="editorModal.open"
-      :action="editorModal.action"
-      :data="editorModal.data"
-      :confirm-modal="confirmModal"
-      :category="category"
-      @open-confirm-modal="openConfirmModal"
-      @close-modal="closeEditorModal"
-      @reload-list="getList"
-      @set-editor-data="setEditorData"
-      @update-category="getCategory"
-      :delete-data="deleteData"
-    />
-    <AdminConfirmModal
-      :is-open="confirmModal.open"
-      :is-confirm="confirmModal.isConfirm"
-      @close-modal="confirmModal.open = false"
-      @confirm="confirmModal.isConfirm = true"
-      @on-confirm="onConfirm"
-    />
+    <AdminEditorModal :unit="'websites'" :is-open="editorModal.open" :action="editorModal.action" :data="editorModal.data"
+      :confirm-modal="confirmModal" :category="category" @open-confirm-modal="openConfirmModal"
+      @close-modal="closeEditorModal" @reload-list="getList" @set-editor-data="setEditorData"
+      @update-category="getCategory" :delete-data="deleteData" />
+    <AdminConfirmModal :is-open="confirmModal.open" :is-confirm="confirmModal.isConfirm" :action="confirmModal.action"
+      @close-modal="confirmModal.open = false" @confirm="confirmModal.isConfirm = true" @on-confirm="onConfirm" />
   </div>
 </template>
 
@@ -195,6 +157,7 @@ const confirmModal = reactive({
   isConfirm: false,
   id: "",
   targetFunc: null as Function | null,
+  action: "",
 });
 const websites = ref<Array<Website>>([]);
 const selector = ref<Array<string>>([]);
@@ -209,7 +172,7 @@ const openEditorModal = (
   action: "add" | "edit",
   data: Website | null = null
 ) => {
-  
+
   editorModal.action = action;
   editorModal.data = null;
   if (action !== 'add' && action !== 'edit') throw new Error('action must be add or edit');
@@ -219,11 +182,12 @@ const openEditorModal = (
   editorModal.open = true;
 };
 
-const openConfirmModal = (targetFunc: Function, id: string = "") => {
+const openConfirmModal = (targetFunc: Function, id: string = "", action: string) => {
   confirmModal.isConfirm = false;
   confirmModal.open = true;
   confirmModal.targetFunc = targetFunc;
   confirmModal.id = id;
+  confirmModal.action = action;
 };
 
 const onConfirm = async () => {
@@ -299,29 +263,34 @@ const copyWebsite = async () => {
 const getList = async () => {
   store.setLoading(true);
   const api = `${store.api}/websites/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
-  const res = await useFetch(api, {
+  const res = await $fetch(api, {
     method: "GET",
     credentials: "include",
+  }).catch((err) => {
+    if (err) {
+      const status = err.status;
+      status === 403 && navigateTo("/admin/login");
+      store.pushNotification({
+        type: "error",
+        message: 'Can not get websites list',
+        timeout: 5000,
+      });
+      return 'error';
+    }
   });
-  const error = res.error.value;
 
-  if (error) {
-    const status = error.status;
-    status === 403 && navigateTo("/admin/login");
-    store.pushNotification({
-      type: "error",
-      message: 'Can not get websites list',
-      timeout: 5000,
-    });
-    return store.setLoading(false);
+  if (res === 'error') {
+    store.setLoading(false);
+    return;
   }
 
-  const data = res.data.value as {
+  const data = res as {
     msg: string;
     list: Array<Website>;
     total: number;
     totalPage: number;
   };
+
   if (data) {
     total.value = data.total;
     totalPage.value = data.totalPage;
@@ -445,11 +414,20 @@ const updateHomepage = async (id: string, homepage: boolean) => {
   });
 };
 
-onMounted(async () => {
-  store.setLoading(true);
-  await getList();
-  await getCategory();
-  store.setLoading(false);
+const updateTop = async (id: string, top: boolean) => {
+  updateData({
+    _id: id,
+    data: {
+      top,
+    },
+  });
+};
+
+
+onMounted(() => {
+  console.log('mounted');
+  getList();
+  getCategory();
 });
 
 watch(
@@ -480,18 +458,22 @@ watch(
   padding: 0;
   margin-bottom: 30px;
   overflow: auto;
+
   &::-webkit-scrollbar {
     height: 6px;
     width: auto;
   }
+
   @include media(1024) {
     position: relative;
   }
+
   table {
     margin-bottom: 20px;
     table-layout: fixed;
     min-width: 1024px;
   }
+
   th {
     vertical-align: middle;
     padding: 20px;
@@ -500,28 +482,38 @@ watch(
     background-color: lighten($terColor, 5%);
     letter-spacing: 0.8px;
     font-size: 18px;
+
     &:nth-of-type(1) {
       @include media(1200) {
         width: 64px;
         text-align: center;
       }
     }
+
     &:nth-of-type(2) {
+      text-align: center;
+    }
+
+    &:nth-of-type(3) {
       @include media(1200) {
         width: 120px;
         padding: 20px 0;
       }
     }
-    &:nth-of-type(3) {
-      width: 20%;
-    }
+
     &:nth-of-type(4) {
       width: 20%;
     }
+
+    &:nth-of-type(5) {
+      width: 20%;
+    }
+
     @include media(1200) {
       padding: 20px 10px;
     }
   }
+
   td {
     border-width: 0 0 1px 0;
     border-color: lighten($terColor, 5%);
@@ -529,22 +521,54 @@ watch(
     vertical-align: middle;
     letter-spacing: 0.8px;
     font-size: 16px;
+
     &:nth-of-type(1) {
       @include media(1200) {
         text-align: center;
       }
     }
+
     &:nth-of-type(2) {
+      text-align: center;
+    }
+
+    &:nth-of-type(3) {
       @include media(1200) {
         padding: 10px 0;
       }
     }
+
     @include media(1200) {
       padding: 10px;
     }
+
+    .pin {
+      cursor: pointer;
+      color: $terColor;
+      font-size: 20px;
+      background: none;
+      border: 0;
+      margin: 0 auto;
+      border-radius: 99px;
+      width: 44px;
+      height: 44px;
+      @include center;
+      @extend %ts;
+      
+      span {
+        font-size: 32px;
+        color: darken($terColor, 8%);
+      }
+      
+      &:hover {
+        background-color: lighten($terColor, 5%);
+        color: darken($terColor, 15%);
+      }
+    }
   }
-  tr {
-  }
+
+  tr {}
+
   .preview-box {
     cursor: pointer;
     width: 80px;
@@ -554,6 +578,7 @@ watch(
     display: flex;
     @include center;
     position: relative;
+
     img {
       width: 100%;
       height: 100%;
@@ -562,6 +587,7 @@ watch(
       position: relative;
       z-index: 1;
     }
+
     span {
       position: absolute;
       z-index: 0;
@@ -588,22 +614,28 @@ watch(
     // border: 1px solid $terColor;
     border-radius: 12px;
     @extend %ts;
+
     &:first-of-type {
       margin-bottom: 4px;
     }
+
     &:hover {
       background-color: lighten($terColor, 5%);
+
       .text,
       .icon {
         // color: $secColor;
       }
+
       &.delete {
+
         .text,
         .icon {
           color: #e75e5e;
         }
       }
     }
+
     .icon {
       @extend %ts;
       vertical-align: middle;
@@ -626,6 +658,7 @@ watch(
   position: relative;
   overflow: hidden;
   vertical-align: middle;
+
   .bg {
     border-radius: 6px;
     background-color: #fff;
@@ -635,6 +668,7 @@ watch(
     border: 1px solid darken($terColor, 10%);
     position: relative;
   }
+
   .mark {
     border-radius: 6px;
     background-color: transparent;
@@ -649,13 +683,15 @@ watch(
     width: 100%;
     height: 100%;
   }
+
   input {
     opacity: 0;
     width: 0;
     height: 0;
     position: absolute;
+
     &:checked {
-      & ~ .mark {
+      &~.mark {
         display: flex;
         width: 100%;
         height: 100%;
@@ -672,6 +708,7 @@ watch(
   // background-color: $terColor;
   width: 65px;
   height: 30px;
+
   .bg {
     border: 1px solid darken($terColor, 10%);
     border-radius: 99px;
@@ -683,6 +720,7 @@ watch(
     position: relative;
     cursor: pointer;
   }
+
   .toggler {
     background-color: darken($terColor, 10%);
     width: 22px;
@@ -694,16 +732,20 @@ watch(
     top: 3px;
     @extend %ts;
   }
+
   input {
     position: absolute;
     opacity: 0;
     width: 0;
     height: 0;
+
     &:checked {
       background-color: $mainColor;
-      & + .bg {
+
+      &+.bg {
         background-color: $mainColor;
         border-color: $mainColor;
+
         .toggler {
           background-color: #fff;
           transform: translateX(35px);
@@ -721,39 +763,47 @@ watch(
   border-bottom: 1px solid lighten($terColor, 5%);
   padding: 12px 20px;
   letter-spacing: 0.8px;
+
   @include media(1024) {
     position: sticky;
     top: 0px;
     width: 100%;
     left: 0;
   }
+
   @include media(768) {
     flex-direction: column;
     align-items: flex-start;
   }
+
   .total,
   .selected {
     margin: 0;
     font-size: 16px;
   }
+
   .total {
     font-weight: bold;
     font-size: 20px;
     letter-spacing: 0.8px;
     line-height: 50px;
+
     @include media(768) {
       line-height: 36px;
       margin-bottom: 6px;
     }
   }
+
   .right {
     align-items: center;
     display: flex;
     margin: 0 -20px;
+
     @include media(768) {
       margin: 0;
     }
   }
+
   .btn {
     border: 0;
     border-radius: 12px;
@@ -764,15 +814,18 @@ watch(
     width: auto;
     padding: 0;
     margin: 0 20px;
+
     span {
       margin-right: 6px;
     }
+
     &.delete {
       background-color: transparent;
       color: #e75e5e;
       height: 44px;
       display: flex;
       align-items: center;
+
       &:hover {
         color: darken(#e75e5e, 10%);
       }
@@ -786,19 +839,22 @@ watch(
   align-items: center;
   min-width: 0;
   margin-bottom: 30px;
+
   .text {
     padding-right: 10px;
   }
+
   .result {
     padding-left: 8px;
     font-size: 20px;
+
     span {
       font-weight: bold;
     }
   }
+
   &:deep(.toolbar) {
     min-width: 0;
     flex-shrink: 0;
   }
-}
-</style>
+}</style>

@@ -112,8 +112,7 @@ const filterModal = ref({
   data: {},
 });
 const { data: websiteReq, error } = await useFetch(
-  `${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`
-);
+  `${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`);
 
 interface ResRef {
   list: Website[];

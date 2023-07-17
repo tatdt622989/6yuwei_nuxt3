@@ -30,6 +30,7 @@ export interface Website {
   createdAt: string;
   visible: boolean;
   homepage: boolean;
+  top: boolean;
 }
 
 export interface ThreeDCG {

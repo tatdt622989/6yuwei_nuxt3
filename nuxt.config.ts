@@ -8,6 +8,10 @@ export default defineNuxtConfig({
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/icon?family=Material+Icons' }
       ]
+    },
+    pageTransition: {
+      name: 'fade',
+      mode: 'out-in'
     }
   },
   modules: [

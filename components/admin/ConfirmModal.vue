@@ -22,7 +22,7 @@
           </div>
           <div class="modal-body container">
             <i class="bi bi-exclamation-triangle-fill icon"></i>
-            <div class="title">Are you sure you want to delete it?</div>
+            <div class="title">Are you sure you want to {{ props.action }} it?</div>
           </div>
           <div class="modal-footer">
             <div class="btn-wrap">
@@ -51,6 +51,10 @@ const props = defineProps({
   isConfirm: {
     type: Boolean,
     default: false,
+  },
+  action: {
+    type: String,
+    default: "delete",
   },
 });
 const emit = defineEmits(["close-modal", "on-confirm"]);
