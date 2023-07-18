@@ -111,8 +111,7 @@ const filterModal = ref({
   open: false,
   data: {},
 });
-const { data: websiteReq, error } = await useFetch(
-  `${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`);
+const { data: websiteReq, error } = await useFetch(`${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`);
 
 interface ResRef {
   list: Website[];
@@ -188,7 +187,9 @@ watch(categoryArr, async (newVal) => {
 
 onMounted(async () => {
   const category = decodeURIComponent((route.query.category ?? '') as string);
-  setCategoryArr(category ? (category as string).split(",") : []);
+  if (category) {
+    setCategoryArr(category ? (category as string).split(",") : []);
+  }
   try {
     const layoutStorage = localStorage.getItem("layout");
     if (layoutStorage) {

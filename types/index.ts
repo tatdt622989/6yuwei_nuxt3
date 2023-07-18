@@ -45,6 +45,7 @@ export interface ThreeDCG {
   createdAt: string;
   visible: boolean;
   homepage: boolean;
+  top: boolean;
 }
 
 export interface Animation {
@@ -60,6 +61,7 @@ export interface Animation {
   createdAt: string;
   visible: boolean;
   homepage: boolean;
+  top: boolean;
 }
 
 export type Editor = Website & ThreeDCG & Animation;
