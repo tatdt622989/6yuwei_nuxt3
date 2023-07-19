@@ -9,101 +9,11 @@
     </div>
     <div class="container-fluid">
       <div class="row">
-        <div class="table-responsive">
-          <div class="table-tool">
-            <p class="total">Total: {{ total }}</p>
-            <div v-if="selector.length > 0" class="right">
-              <p class="selected">{{ selector.length }} item selected</p>
-              <button class="delete btn" @click="openConfirmModal(deleteData, selector.join(','), 'delete')">
-                <span class="material-symbols-outlined"> delete </span>
-                Delete
-              </button>
-            </div>
-          </div>
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col" width="65">
-                  <label class="selector">
-                    <input type="checkbox" v-model="isAllSelected" @change="selectAllItem" />
-                    <span class="bg"></span>
-                    <span class="material-symbols-outlined mark"> check </span>
-                  </label>
-                </th>
-                <th scope="col" width="90">Top</th>
-                <th scope="col">Preview</th>
-                <th scope="col">Title</th>
-                <th scope="col">Category</th>
-                <th scope="col">Off/On</th>
-                <th scope="col">Home</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="website in websites" :key="website._id">
-                <td>
-                  <label class="selector">
-                    <input type="checkbox" v-model="selector" :value="website._id" />
-                    <span class="bg"></span>
-                    <span class="material-symbols-outlined mark"> check </span>
-                  </label>
-                </td>
-                <td>
-                  <button :class="['pin', { active: website.top }]" @click="updateTop(website._id ?? '', !website.top)">
-                    <span class="material-icons">
-                      bookmark
-                    </span>
-                  </button>
-                </td>
-                <td>
-                  <div class="preview-box" @click="openEditorModal('edit', website)">
-                    <img v-if="website.photos[0]" :src="`${store.api}/admin/uploads/${website.photos[0].url}`"
-                      :alt="website.title" />
-                    <span class="material-symbols-outlined">nature_people</span>
-                  </div>
-                </td>
-                <td>{{ website.title }}</td>
-                <td>{{ website.category }}</td>
-                <td>
-                  <label class="switch">
-                    <input type="checkbox" v-model="website.visible" @change="
-                      updateVisibility(website._id ?? '', website.visible)
-                      " />
-                    <span class="bg">
-                      <span class="toggler" />
-                    </span>
-                  </label>
-                </td>
-                <td>
-                  <label class="switch">
-                    <input type="checkbox" v-model="website.homepage" @change="
-                      updateHomepage(website._id ?? '', website.homepage)
-                      " />
-                    <span class="bg">
-                      <span class="toggler" />
-                    </span>
-                  </label>
-                </td>
-                <td>
-                  <div class="action-wrap">
-                    <button class="action copy" @click="openConfirmModal(copyWebsite, website._id, 'copy')">
-                      <span class="material-symbols-outlined icon">
-                        content_copy
-                      </span>
-                      <span class="text">Copy</span>
-                    </button>
-                    <button class="action delete" @click="openConfirmModal(deleteData, website._id, 'delete')">
-                      <span class="material-symbols-outlined icon">
-                        delete
-                      </span>
-                      <span class="text">Delete</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <AdminDefaultTable @copy-item="copyData" @delete-item="deleteData" @open-editor-modal="openEditorModal"
+          @open-confirm-modal="openConfirmModal" @update-visibility="updateVisibility" @update-homepage="updateHomepage"
+          @update-top="updateTop" @select-all-item="selectAllItem" @set-websites="setWebsites"
+          @set-is-all-selected="setIsAllSelected" @set-selector="setSelector" :is-all-selected="isAllSelected"
+          :selector="selector" :unit-items="websites" :total="total" />
         <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/websites/'" />
       </div>
     </div>
@@ -213,7 +123,7 @@ const selectAllItem = () => {
   }
 };
 
-const copyWebsite = async () => {
+const copyData = async () => {
   const id = confirmModal.id;
   const website = websites.value.find((item) => item._id === id);
   if (!website)
@@ -423,6 +333,16 @@ const updateTop = async (id: string, top: boolean) => {
   });
 };
 
+const setWebsites = (data: Array<Website>) => {
+  websites.value = data;
+};
+const setIsAllSelected = (val: boolean) => {
+  isAllSelected.value = val;
+};
+const setSelector = (val: Array<string>) => {
+  selector.value = val;
+};
+
 onMounted(() => {
   getList();
   getCategory();
@@ -448,5 +368,30 @@ watch(
 
 <style lang="scss" scoped>
 @import "bootstrap/scss/bootstrap";
-@import "@/assets/scss/adminLayout.scss";
+
+.titleWrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 0;
+    margin-bottom: 30px;
+
+    .text {
+        padding-right: 10px;
+    }
+
+    .result {
+        padding-left: 8px;
+        font-size: 20px;
+
+        span {
+            font-weight: bold;
+        }
+    }
+
+    &:deep(.toolbar) {
+        min-width: 0;
+        flex-shrink: 0;
+    }
+}
 </style>

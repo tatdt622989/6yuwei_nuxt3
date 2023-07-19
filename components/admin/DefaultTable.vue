@@ -1,5 +1,153 @@
-@import "setting";
+<template>
+    <div class="table-responsive px-0">
+        <div class="table-tool">
+            <p class="total">Total: {{ total }}</p>
+            <div v-if="props.selector && props.selector.length > 0" class="right">
+                <p class="selected">{{ props.selector.length }} item selected</p>
+                <button class="delete btn"
+                    @click=" emit('openConfirmModal', emit('deleteItem'), props.selector.join(','), 'delete')">
+                    <span class="material-symbols-outlined"> delete </span>
+                    Delete
+                </button>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" width="65">
+                        <label class="selector">
+                            <input type="checkbox" v-model="isAllSelected" @change=" emit('selectAllItem')" />
+                            <span class="bg"></span>
+                            <span class="material-symbols-outlined mark"> check </span>
+                        </label>
+                    </th>
+                    <th scope="col" width="90">Top</th>
+                    <th scope="col">Preview</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Off/On</th>
+                    <th scope="col">Home</th>
+                    <th scope="col">Action</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="unitItem in unitItems" :key="unitItem._id">
+                    <td>
+                        <label class="selector">
+                            <input type="checkbox" v-model="selector" :value="unitItem._id" />
+                            <span class="bg"></span>
+                            <span class="material-symbols-outlined mark"> check </span>
+                        </label>
+                    </td>
+                    <td>
+                        <button :class="['pin', { active: unitItem.top }]"
+                            @click=" emit('updateTop', unitItem._id ?? '', !unitItem.top)">
+                            <span class="material-icons">
+                                bookmark
+                            </span>
+                        </button>
+                    </td>
+                    <td>
+                        <div class="preview-box" @click=" emit('openEditorModal', 'edit', unitItem)">
+                            <img v-if="unitItem.photos[0]" :src="`${store.api}/admin/uploads/${unitItem.photos[0].url}`"
+                                :alt="unitItem.title" />
+                            <span class="material-symbols-outlined">nature_people</span>
+                        </div>
+                    </td>
+                    <td>{{ unitItem.title }}</td>
+                    <td>{{ unitItem.category }}</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" v-model="unitItem.visible" @change="
+                                emit('updateVisibility', unitItem._id ?? '', unitItem.visible)
+                                " />
+                            <span class="bg">
+                                <span class="toggler" />
+                            </span>
+                        </label>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" v-model="unitItem.homepage" @change="
+                                emit('updateHomepage', unitItem._id ?? '', unitItem.homepage)
+                                " />
+                            <span class="bg">
+                                <span class="toggler" />
+                            </span>
+                        </label>
+                    </td>
+                    <td>
+                        <div class="action-wrap">
+                            <button class="action copy"
+                                @click="emit('openConfirmModal', emit('copyItem'), unitItem._id, 'copy')">
+                                <span class="material-symbols-outlined icon">
+                                    content_copy
+                                </span>
+                                <span class="text">Copy</span>
+                            </button>
+                            <button class="action delete"
+                                @click="emit('openConfirmModal', emit('deleteItem'), unitItem._id, 'delete')">
+                                <span class="material-symbols-outlined icon">
+                                    delete
+                                </span>
+                                <span class="text">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="material-symbols-outlined">
+                            drag_indicator
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</template>
 
+<script lang="ts" setup>
+import { Website, Animation } from "~/types";
+import { useStore } from "~/store";
+
+const emit = defineEmits(['openEditorModal', 'openConfirmModal', 'selectAllItem', 'updateTop', 
+'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setWebsites', 'setIsAllSelected', 'setSelector']);
+const props = defineProps({
+    unitItems: Array as PropType<Website[] | Animation[]>,
+    total: Number,
+    selector: Array as PropType<string[]>,
+    isAllSelected: Boolean,
+});
+const store = useStore();
+const unitItem = ref<Website[] | Animation[]>([]);
+const isAllSelected = ref(false);
+const selector = ref<string[]>([]);
+
+// 回寫資料
+watch(unitItem, (val) => {
+    emit('setWebsites', val);
+});
+watch(isAllSelected, (val) => {
+    emit('setIsAllSelected', val);
+});
+watch(selector, (val) => {
+    emit('setSelector', val);
+});
+
+// 覆寫資料
+watch(() => props.unitItems, (val) => {
+    if (val) unitItem.value = val;
+}, { immediate: true });
+watch(() => props.isAllSelected, (val) => {
+    if (val) isAllSelected.value = val;
+}, { immediate: true });
+watch(() => props.selector, (val) => {
+    if (val) selector.value = val;
+}, { immediate: true });
+</script>
+
+<style lang="scss" scoped>
+@import "bootstrap/scss/bootstrap";
 
 .table-responsive {
     background-color: #fff;
@@ -394,3 +542,30 @@
         }
     }
 }
+
+.titleWrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 0;
+    margin-bottom: 30px;
+
+    .text {
+        padding-right: 10px;
+    }
+
+    .result {
+        padding-left: 8px;
+        font-size: 20px;
+
+        span {
+            font-weight: bold;
+        }
+    }
+
+    &:deep(.toolbar) {
+        min-width: 0;
+        flex-shrink: 0;
+    }
+}
+</style>
