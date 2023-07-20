@@ -1,15 +1,17 @@
 <template>
-  <ClientOnly>
-  <div class="main">
-    <AdminSideMenu />
-    <div class="layout">
-      <AdminHeader />
-      <div class="content">
-        <slot></slot>
+  <div>
+    <ClientOnly>
+      <div class="main">
+        <AdminSideMenu />
+        <div class="layout">
+          <AdminHeader />
+          <div class="content">
+            <slot></slot>
+          </div>
+        </div>
       </div>
-    </div>
+    </ClientOnly>
   </div>
-</ClientOnly>
 </template>
 
 <script lang="ts" setup>
@@ -22,18 +24,22 @@ provide('keyword', keyword);
   display: flex;
   min-height: 100vh;
   background-color: lighten($terColor, 5%);
+
   @include media(1200) {
     flex-direction: column;
   }
 }
+
 .layout {
   flex-grow: 1;
   flex-direction: column;
   align-items: stretch;
   display: flex;
-  @include media(1200 ){
+
+  @include media(1200) {
     padding-top: 65px;
   }
+
   .content {
     display: flex;
     box-sizing: border-box;
@@ -43,10 +49,12 @@ provide('keyword', keyword);
     padding: 0 36px 0;
     flex-direction: column;
     padding-bottom: 36px;
+
     @include media(1400) {
       padding: 0 20px;
       padding-bottom: 20px;
     }
+
     h2.title {
       font-weight: 800;
       font-size: 32px;
@@ -55,6 +63,7 @@ provide('keyword', keyword);
       padding-left: 6px;
       letter-spacing: 0.8px;
       color: $secColor;
+
       @include media(768) {
         font-size: 28px;
       }

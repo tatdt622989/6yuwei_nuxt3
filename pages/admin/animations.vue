@@ -11,102 +11,11 @@
     </div>
     <div class="container-fluid">
       <div class="row">
-        <div class="table-responsive">
-          <div class="table-tool">
-            <p class="total">Total: {{ total }}</p>
-            <div v-if="selector.length > 0" class="right">
-              <p class="selected">{{ selector.length }} item selected</p>
-              <button class="delete btn" @click="openConfirmModal(deleteData, selector.join(','), 'delete')">
-                <span class="material-symbols-outlined"> delete </span>
-                Delete
-              </button>
-            </div>
-          </div>
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col" width="65">
-                  <label class="selector">
-                    <input type="checkbox" v-model="isAllSelected" @change="selectAllItem" />
-                    <span class="bg"></span>
-                    <span class="material-symbols-outlined mark"> check </span>
-                  </label>
-                </th>
-                <th scope="col" width="90">Top</th>
-                <th scope="col">Preview</th>
-                <th scope="col">Title</th>
-                <th scope="col">Category</th>
-                <th scope="col">Off/On</th>
-                <th scope="col">Home</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="animation in animations" :key="animation._id">
-                <td>
-                  <label class="selector">
-                    <input type="checkbox" v-model="selector" :value="animation._id" />
-                    <span class="bg"></span>
-                    <span class="material-symbols-outlined mark"> check </span>
-                  </label>
-                </td>
-                <td>
-                  <button :class="['pin', { active: animation.top }]"
-                    @click="updateTop(animation._id ?? '', !animation.top)">
-                    <span class="material-icons">
-                      bookmark
-                    </span>
-                  </button>
-                </td>
-                <td>
-                  <div class="preview-box" @click="openEditorModal('edit', animation)">
-                    <img v-if="animation.photos[0]" :src="`${store.api}/admin/uploads/${animation.photos[0].url}`"
-                      :alt="animation.title" />
-                    <span class="material-symbols-outlined">nature_people</span>
-                  </div>
-                </td>
-                <td>{{ animation.title }}</td>
-                <td>{{ animation.category }}</td>
-                <td>
-                  <label class="switch">
-                    <input type="checkbox" v-model="animation.visible" @change="
-                      updateVisibility(animation._id ?? '', animation.visible)
-                      " />
-                    <span class="bg">
-                      <span class="toggler" />
-                    </span>
-                  </label>
-                </td>
-                <td>
-                  <label class="switch">
-                    <input type="checkbox" v-model="animation.homepage" @change="
-                      updateHomepage(animation._id ?? '', animation.homepage)
-                      " />
-                    <span class="bg">
-                      <span class="toggler" />
-                    </span>
-                  </label>
-                </td>
-                <td>
-                  <div class="action-wrap">
-                    <button class="action copy" @click="openConfirmModal(copyWebsite, animation._id, 'copy')">
-                      <span class="material-symbols-outlined icon">
-                        content_copy
-                      </span>
-                      <span class="text">Copy</span>
-                    </button>
-                    <button class="action delete" @click="openConfirmModal(deleteData, animation._id, 'delete')">
-                      <span class="material-symbols-outlined icon">
-                        delete
-                      </span>
-                      <span class="text">Delete</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <AdminDefaultTable @copy-item="copyData" @delete-item="deleteData" @open-editor-modal="openEditorModal"
+          @open-confirm-modal="openConfirmModal" @update-visibility="updateVisibility" @update-homepage="updateHomepage"
+          @update-top="updateTop" @select-all-item="selectAllItem" @set-unit-items="setAnimations"
+          @set-is-all-selected="setIsAllSelected" @set-selector="setSelector" :is-all-selected="isAllSelected"
+          :selector="selector" :unit-items="animations" :total="total" />
         <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/animations/'" />
       </div>
     </div>
@@ -145,6 +54,7 @@ useHead({
 // 需要驗證身份
 definePageMeta({
   middleware: ["auth"],
+  layout: 'admin-default'
 });
 
 const store = useStore();
@@ -216,7 +126,7 @@ const selectAllItem = () => {
   }
 };
 
-const copyWebsite = async () => {
+const copyData = async () => {
   const id = confirmModal.id;
   const animation = animations.value.find((item) => item._id === id);
   if (!animation)
@@ -426,6 +336,16 @@ const updateTop = async (id: string, top: boolean) => {
   });
 };
 
+const setAnimations = (data: Array<Animation>) => {
+  animations.value = data;
+};
+const setIsAllSelected = (val: boolean) => {
+  isAllSelected.value = val;
+};
+const setSelector = (val: Array<string>) => {
+  selector.value = val;
+};
+
 onMounted(() => {
   getList();
   getCategory();
@@ -451,5 +371,30 @@ watch(
 
 <style lang="scss" scoped>
 @import "bootstrap/scss/bootstrap";
-@import "@/assets/scss/adminLayout.scss";
+
+.titleWrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: 30px;
+
+  .text {
+    padding-right: 10px;
+  }
+
+  .result {
+    padding-left: 8px;
+    font-size: 20px;
+
+    span {
+      font-weight: bold;
+    }
+  }
+
+  &:deep(.toolbar) {
+    min-width: 0;
+    flex-shrink: 0;
+  }
+}
 </style>

@@ -19,6 +19,7 @@
           name="email"
           class="form-control account"
           aria-describedby="emailHelp"
+          autocomplete="off"
         >
       </div>
       <div class="inputBox mb-5">
@@ -29,6 +30,7 @@
           type="password"
           name="password"
           class="form-control password"
+          autocomplete="current-password"
         >
       </div>
       <div class="error_message" />
@@ -47,6 +49,10 @@
 <script lang="ts" setup>
 import { User } from '~/types';
 import { useStore } from '~/store';
+
+definePageMeta({
+  layout: 'no-layout'
+})
 
 useHead({
   title: "Login",

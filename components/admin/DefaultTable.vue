@@ -111,7 +111,7 @@ import { Website, Animation } from "~/types";
 import { useStore } from "~/store";
 
 const emit = defineEmits(['openEditorModal', 'openConfirmModal', 'selectAllItem', 'updateTop', 
-'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setWebsites', 'setIsAllSelected', 'setSelector']);
+'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setUnitItems', 'setIsAllSelected', 'setSelector']);
 const props = defineProps({
     unitItems: Array as PropType<Website[] | Animation[]>,
     total: Number,
@@ -119,13 +119,13 @@ const props = defineProps({
     isAllSelected: Boolean,
 });
 const store = useStore();
-const unitItem = ref<Website[] | Animation[]>([]);
+const unitItems = ref<Website[] | Animation[]>([]);
 const isAllSelected = ref(false);
 const selector = ref<string[]>([]);
 
 // 回寫資料
-watch(unitItem, (val) => {
-    emit('setWebsites', val);
+watch(unitItems, (val) => {
+    emit('setUnitItems', val);
 });
 watch(isAllSelected, (val) => {
     emit('setIsAllSelected', val);
@@ -136,7 +136,7 @@ watch(selector, (val) => {
 
 // 覆寫資料
 watch(() => props.unitItems, (val) => {
-    if (val) unitItem.value = val;
+    if (val) unitItems.value = val;
 }, { immediate: true });
 watch(() => props.isAllSelected, (val) => {
     if (val) isAllSelected.value = val;

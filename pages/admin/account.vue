@@ -151,6 +151,7 @@ import { User } from "~/types";
 // 需要驗證身份
 definePageMeta({
   middleware: ["auth"],
+  layout: 'admin-default'
 });
 
 useHead({

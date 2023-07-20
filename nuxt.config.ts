@@ -10,8 +10,12 @@ export default defineNuxtConfig({
       ]
     },
     pageTransition: {
-      name: 'fade',
-      mode: 'out-in'
+      name: 'page',
+      mode: 'out-in' // default
+    },
+    layoutTransition: {
+      name: 'layout',
+      mode: 'out-in' // default
     }
   },
   modules: [

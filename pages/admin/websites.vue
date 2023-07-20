@@ -11,7 +11,7 @@
       <div class="row">
         <AdminDefaultTable @copy-item="copyData" @delete-item="deleteData" @open-editor-modal="openEditorModal"
           @open-confirm-modal="openConfirmModal" @update-visibility="updateVisibility" @update-homepage="updateHomepage"
-          @update-top="updateTop" @select-all-item="selectAllItem" @set-websites="setWebsites"
+          @update-top="updateTop" @select-all-item="selectAllItem" @set-unit-items="setWebsites"
           @set-is-all-selected="setIsAllSelected" @set-selector="setSelector" :is-all-selected="isAllSelected"
           :selector="selector" :unit-items="websites" :total="total" />
         <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/websites/'" />
@@ -52,6 +52,7 @@ useHead({
 // 需要驗證身份
 definePageMeta({
   middleware: ["auth"],
+  layout: 'admin-default'
 });
 
 const store = useStore();
@@ -370,28 +371,28 @@ watch(
 @import "bootstrap/scss/bootstrap";
 
 .titleWrap {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: 30px;
+
+  .text {
+    padding-right: 10px;
+  }
+
+  .result {
+    padding-left: 8px;
+    font-size: 20px;
+
+    span {
+      font-weight: bold;
+    }
+  }
+
+  &:deep(.toolbar) {
     min-width: 0;
-    margin-bottom: 30px;
-
-    .text {
-        padding-right: 10px;
-    }
-
-    .result {
-        padding-left: 8px;
-        font-size: 20px;
-
-        span {
-            font-weight: bold;
-        }
-    }
-
-    &:deep(.toolbar) {
-        min-width: 0;
-        flex-shrink: 0;
-    }
+    flex-shrink: 0;
+  }
 }
 </style>
