@@ -35,4 +35,18 @@ export default defineNuxtConfig({
   // typescript: {
   //   typeCheck: true
   // },
+  nitro: {
+    devProxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        prependPath: true,
+      },
+    },
+    routeRules: {
+      "/api/**": {
+        proxy: 'http://localhost:3001/**'
+      }
+    }
+  },
 })

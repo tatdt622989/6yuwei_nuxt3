@@ -13,7 +13,8 @@ export const useStore = defineStore("main", {
     user: null as User | null,
     notifications: [] as Toast[],
     isLoading: false,
-    api:  process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://api.6yuwei.com',
+    // api:  process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://api.6yuwei.com',
+    api:  '/api',
   }),
   actions: {
     pushNotification(notification: Toast) {

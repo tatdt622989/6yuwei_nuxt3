@@ -10,7 +10,7 @@
   "devDependencies": {
     "@types/aos": "^3.0.4",
     "@types/node": "^18.15.3",
-    "nuxt": "^3.6.1",
+    "nuxt": "^3.6.5",
     "sass": "^1.59.3",
     "vue-tsc": "^1.0.13"
   },

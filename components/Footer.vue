@@ -1,6 +1,6 @@
 <template>
   <footer>
-    <form @submit.prevent class="form" data-aos="fade-in">
+    <form @submit.prevent class="form" data-aos="fade-in" data-aos-offset="0">
       <div class="info">
         <p class="title">Let's make something amazing!</p>
         <p class="subtitle">Send me a message.</p>
