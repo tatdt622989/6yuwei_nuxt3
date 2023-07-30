@@ -28,10 +28,8 @@
           </p>
           <p>
             Technologies used in the works:<br />
-            <b style="color: white"
-              >Vue.js, Nuxt.js, React, TypeScript, JavaScript, Three.js, jQuery,
-              SCSS, PHP, Git, Gulp, Webpack</b
-            >
+            <b style="color: white">Vue.js, Nuxt.js, React, TypeScript, JavaScript, Three.js, jQuery,
+              SCSS, PHP, Git, Gulp, Webpack</b>
           </p>
         </div>
       </div>
@@ -44,8 +42,7 @@
               <img src="@/assets/images/advantages1.svg" alt="advantages" />
             </div>
             <div class="num" :data-num="nowYear">
-              <span class="main-text">{{ nowYear }}</span
-              ><span class="unit">+</span>
+              <span class="main-text">{{ nowYear }}</span><span class="unit">+</span>
             </div>
             <p class="text">years of experience</p>
           </div>
@@ -75,33 +72,16 @@
         <div class="content">
           <h2 data-aos="fade-in">Side project</h2>
           <div class="item-wrap">
-            <div
-              class="item"
-              v-for="(item, i) in sideProjectData"
-              :key="item._id"
-              :id="item._id"
-              data-aos="fade-in"
-            >
+            <div class="item" v-for="(item, i) in sideProjectData" :key="item._id" :id="item._id" data-aos="fade-in">
               <h3 class="title">{{ item.title }}</h3>
               <client-only>
-                <swiper
-                  class="slider"
-                  :modules="modules"
-                  :slides-per-view="1"
-                  :autoplay="{ delay: 3000 }"
-                  :pagination="{
-                    clickable: true,
-                    el: paginationElList[i],
-                  }"
-                  :loop="true"
-                  :id="'swiper-'+i"
-                >
+                <swiper class="slider" :modules="modules" :slides-per-view="1" :autoplay="{ delay: 3000 }" :pagination="{
+                  clickable: true,
+                  el: paginationElList[i],
+                }" :loop="true" :id="'swiper-' + i">
                   <swiper-slide v-for="photo in item.photos" :key="photo._id">
                     <NuxtLink :to="`/website/${item._id}`" class="visit">
-                      <img
-                        :src="`${store.api}/admin/uploads/${photo.url}`"
-                        alt="my-topic"
-                      />
+                      <img :src="`${store.api}/admin/uploads/${photo.url}`" alt="my-topic" />
                     </NuxtLink>
                   </swiper-slide>
                 </swiper>
@@ -113,7 +93,7 @@
               <NuxtLink :to="`/website/${item._id}`" class="visit">
                 Visit
               </NuxtLink>
-              <div class="swiper-pagination"/>
+              <div class="swiper-pagination" :ref="(el) => { el ? paginationElList[i] = el as HTMLElement : '' }" />
             </div>
           </div>
         </div>
@@ -166,9 +146,7 @@
             </div>
           </div>
         </div>
-        <a href="https://blog.6yuwei.com/" class="seeMore" target="_blank"
-          >see more</a
-        >
+        <a href="https://blog.6yuwei.com/" class="seeMore" target="_blank">see more</a>
       </div>
     </div>
     <div class="threedcgs">
@@ -185,27 +163,18 @@
       </div>
       <div class="content">
         <client-only>
-          <swiper
-            data-aos="fade-in"
-            class="swiper3DCGS"
-            :modules="modules"
-            :slides-per-view="1"
-            :pagination="{ clickable: true, el: threeDCGsPage }"
-            :space-between="40"
-            :freeMode="true"
-            :loop="true"
+          <swiper data-aos="fade-in" class="swiper3DCGS" :modules="modules" :slides-per-view="1"
+            :pagination="{ clickable: true, el: threeDCGsPage }" :space-between="40" :freeMode="true" :loop="true"
             :navigation="{
               nextEl: '.threedcgs .next',
               prevEl: '.threedcgs .prev',
-            }"
-            :breakpoints="{
-              541: {
-                slidesPerView: 'auto',
-                spaceBetween: 30,
-                loop: false,
-              },
-            }"
-          >
+            }" :breakpoints="{
+  541: {
+    slidesPerView: 'auto',
+    spaceBetween: 30,
+    loop: false,
+  },
+}">
             <swiper-slide v-for="item in threeDCGsData" :key="item._id">
               <div class="item">
                 <div class="img-box">
@@ -264,18 +233,12 @@ const advantagesEl = ref<HTMLDivElement | null>(null);
 const banner = ref<HTMLDivElement | null>(null);
 const nowYear = new Date().getFullYear() - 2021;
 const modules = [Pagination, Autoplay, Navigation];
-const { data: sideProjectReq } = await useFetch(
-  `${store.api}/websites/list/?homepage=1`,
-  {
-    method: "GET",
-  }
-);
-const { data:threeDCGsReq } = await useFetch(
-  `${store.api}/3dcgs/list/?homepage=1`,
-  {
-    method: "GET",
-  }
-);
+const sideProjectPromise = useFetch(`${store.api}/websites/list/?homepage=1`, { method: "GET" });
+const threeDCGsPromise = useFetch(`${store.api}/3dcgs/list/?homepage=1`, { method: "GET" });
+const blogsJsonPromise = useFetch("https://blog.6yuwei.com/api.php");
+store.isLoading = true;
+const [{ data: sideProjectReq }, { data: threeDCGsReq }, { data: blogsJson }] = await Promise.all([sideProjectPromise, threeDCGsPromise, blogsJsonPromise]);
+store.isLoading = false;
 const sideProjectData = ref<Website[]>([]);
 const threeDCGsData = ref<ThreeDCG[]>([]);
 const threeDCGsPage = ref<HTMLDivElement | null>(null);
@@ -322,9 +285,8 @@ const other = [
     url: "https://www.auto-bruce.com/",
   },
 ];
-const { data: blogsJson } = await useFetch("https://blog.6yuwei.com/api.php");
 const posts = ref<Post[] | null>(null);
-const paginationElList = ref<HTMLDivElement[] | []>([]);
+const paginationElList = ref<HTMLElement[] | []>([]);
 
 interface SideProjectReq {
   list: Website[];
@@ -383,9 +345,6 @@ const onScroll = () => {
 };
 
 onMounted(() => {
-  paginationElList.value = Array.from(
-    document.querySelectorAll(".swiper-pagination")
-  );
   if (blogsJson.value) {
     posts.value = JSON.parse(blogsJson.value as string).posts as Post[];
     if (posts.value.length > 3) {
@@ -403,9 +362,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener("scroll", onScroll);
+  paginationElList.value = [];
 });
-
-// const onThreeDCGSwiper = (swiper: any) => {};
 
 const getImgLink = async () => {
   const resAry: Promise<Boolean>[] = [];
@@ -449,9 +407,11 @@ const scrollDown = () => {
   display: flex;
   align-items: stretch;
   position: relative;
+
   @include media(1200) {
     height: auto;
   }
+
   .text-box {
     flex-shrink: 0;
     max-width: 695px;
@@ -461,31 +421,38 @@ const scrollDown = () => {
     justify-content: center;
     flex-direction: column;
     padding-top: 110px;
+
     @include media(1600) {
       max-width: 660px;
       padding-left: 30px;
     }
+
     @include media(1500) {
       max-width: 620px;
     }
+
     @include media(1400) {
       max-width: 40%;
     }
+
     @include media(1300) {
       max-width: 45%;
     }
+
     @include media(1200) {
       padding: 0 20px;
     }
+
     @include media(1024) {
       order: 2;
       max-width: none;
       padding: 0;
       padding-bottom: 30px;
     }
-    @include media(720) {
-    }
+
+    @include media(720) {}
   }
+
   h1 {
     font-size: 52px;
     margin: 0;
@@ -493,25 +460,31 @@ const scrollDown = () => {
     color: $secColor;
     margin-bottom: 10px;
     line-height: 1.4;
+
     @include media(1600) {
       font-size: 48px;
       line-height: 1.3;
     }
+
     @include media(1400) {
       font-size: 40px;
     }
+
     @include media(1200) {
       font-size: 36px;
     }
+
     @include media(720) {
       font-size: 32px;
     }
+
     span {
       background: -webkit-linear-gradient(180deg, $mainColor, $secColor);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
   }
+
   p {
     margin-top: 0;
     color: #8e8e8e;
@@ -521,9 +494,11 @@ const scrollDown = () => {
     line-height: 36px;
     letter-spacing: 0.015em;
     margin-bottom: 24px;
+
     @include media(1600) {
       font-size: 20px;
     }
+
     @include media(1200) {
       font-size: 18px;
       word-break: break-all;
@@ -531,6 +506,7 @@ const scrollDown = () => {
       width: 100%;
     }
   }
+
   .visualWrap {
     flex-grow: 1;
     padding-top: 145px;
@@ -538,34 +514,41 @@ const scrollDown = () => {
     border-radius: 20px;
     overflow: hidden;
     display: flex;
+
     @include media(1200) {
       height: 550px;
       padding-top: 105px;
       padding-bottom: 30px;
     }
+
     @include media(1024) {
       order: 1;
       height: 450px;
     }
+
     @include media(540) {
       order: 1;
       height: 400px;
     }
+
     @include media(420) {
       order: 1;
       height: 340px;
     }
+
     @include media(375) {
       order: 1;
       height: 310px;
     }
   }
+
   .wrap {
     @include media(1024) {
       flex-direction: column;
     }
   }
-  > .socialList {
+
+  >.socialList {
     @include media(1200) {
       display: none;
     }
@@ -577,15 +560,18 @@ h2 {
   color: $secColor;
   line-height: 78px;
   letter-spacing: 0.015em;
+
   // box-shadow: inset 0 -10px $mainColor;
   @include media(1400) {
     font-size: 48px;
     line-height: 1.5;
   }
+
   @include media(1200) {
     font-size: 45px;
     line-height: 1.5;
   }
+
   @include media(840) {
     font-size: 36px;
   }
@@ -605,36 +591,45 @@ h2 {
   background: $secColor;
   padding: 100px 0;
   box-sizing: border-box;
+
   @include media(1600) {
     padding: 90px 0 80px;
   }
+
   @include media(1200) {
     padding: 70px 0 60px;
   }
+
   @include media(840) {
     padding: 50px 0 40px;
   }
+
   .wrap {
     display: flex;
     align-items: stretch;
+
     @include media(840) {
       flex-direction: column;
       padding: 0 20px;
     }
+
     @include media(540) {
       padding: 0 20px;
     }
   }
+
   .photo {
     border-radius: 20px;
     overflow: hidden;
     flex-shrink: 0;
     display: flex;
+
     @include media(1024) {
       // margin-bottom: 30px;
       width: 300px;
       margin-right: 20px;
     }
+
     @include media(840) {
       // max-width: 540px;
       width: 100%;
@@ -642,51 +637,65 @@ h2 {
       margin-right: 20px;
       margin-bottom: 30px;
     }
+
     @include media(540) {
       height: 200px;
     }
+
     img {
       opacity: 0.8;
       object-fit: cover;
+
       @include media(1600) {
         width: 500px;
       }
+
       @include media(1200) {
         width: 400px;
       }
+
       @include media(1024) {
         width: 100%;
         height: 100%;
       }
     }
   }
+
   .text-box {
     padding-left: 100px;
+
     @include media(1600) {
       padding-left: 60px;
     }
+
     @include media(1400) {
       padding-left: 40px;
     }
+
     @include media(1200) {
       padding-left: 20px;
     }
+
     @include media(1024) {
       padding-left: 0;
     }
+
     h2 {
       font-weight: bold;
       letter-spacing: 0.015em;
       color: $mainColor;
       margin-bottom: 10px;
+
       @include media(1600) {
         font-size: 48px;
         line-height: 52px;
       }
+
       @include media(1400) {
         font-size: 36px;
       }
     }
+
     p {
       font-size: 24px;
       color: #d3d3d3;
@@ -694,19 +703,24 @@ h2 {
       line-height: 1.5;
       letter-spacing: 1px;
       padding-right: 8px;
+
       @include media(1600) {
         font-size: 22px;
       }
+
       @include media(1400) {
         font-size: 20px;
       }
+
       &:nth-of-type(2) {
         margin-top: 20px;
+
         @include media(1600) {
           margin-top: 10px;
         }
       }
     }
+
     b {
       color: $mainColor;
     }
@@ -716,19 +730,24 @@ h2 {
 .advantages {
   background-color: #edf7f4;
   padding: 80px 0;
+
   @include media(1200) {
     padding: 65px 0 85px;
   }
+
   @include media(720) {
     padding: 22px 0 70px;
   }
+
   .list {
     display: flex;
     justify-content: space-between;
     width: 100%;
+
     @include media(720) {
       flex-direction: column;
     }
+
     .item {
       text-align: center;
       display: flex;
@@ -738,49 +757,61 @@ h2 {
       padding: 20px;
       border-right: 2px solid rgba($secColor, 0.1);
       width: calc(100% / 3);
+
       &:first-of-type {
         border-left: 2px solid rgba($secColor, 0.1);
       }
+
       @include media(1200) {
         margin: 28px 0;
       }
+
       @include media(720) {
         width: 100%;
         border: 0;
         border-bottom: 1px solid rgba($secColor, 0.1);
         margin: 0;
         padding: 30px 0;
+
         &:first-of-type {
           border-left: 0;
         }
+
         &:last-of-type {
           border: 0;
         }
       }
+
       .icon {
         margin-bottom: 10px;
+
         img {
           width: 130px;
           height: 130px;
+
           @include media(1200) {
             width: 90px;
             height: 90px;
           }
         }
       }
+
       .num {
         font-size: 62px;
         color: $mainColor;
         font-weight: bold;
         margin-bottom: 10px;
+
         @include media(1200) {
           font-size: 48px;
         }
       }
+
       .text {
         font-size: 30px;
         font-weight: bold;
         color: $secColor;
+
         @include media(1200) {
           font-size: 24px;
         }
@@ -791,23 +822,29 @@ h2 {
 
 .side-project {
   padding: 130px 0 70px 0;
+
   @include media(1400) {
     padding: 90px 0 90px 0;
   }
+
   @include media(1200) {
     padding: 60px 0 80px 0;
   }
+
   h2 {
     color: $secColor;
     letter-spacing: 0.015em;
     margin-bottom: 93px;
+
     @include media(1400) {
       margin-bottom: 60px;
     }
+
     @include media(840) {
       margin-bottom: 40px;
     }
   }
+
   .item-wrap {
     width: calc(100% + 60px);
     display: flex;
@@ -817,15 +854,18 @@ h2 {
     margin: 0 -30px;
     flex-wrap: wrap;
     flex-grow: 1;
+
     @include media(1400) {
       margin: 0 -20px;
       width: calc(100% + 40px);
     }
+
     @include media(840) {
       margin-bottom: 40px;
       margin: 0 -10px;
       width: calc(100% + 20px);
     }
+
     @include media(768) {
       flex-direction: column;
       align-items: center;
@@ -834,6 +874,7 @@ h2 {
       padding: 0;
     }
   }
+
   .item {
     padding: 45px 45px 70px 45px;
     // min-height: 800px;
@@ -848,32 +889,38 @@ h2 {
     width: calc(50% - 60px);
     flex-grow: 0;
     margin-bottom: 60px;
+
     @include media(1400) {
       padding: 30px 20px 30px 20px;
       margin: 0 20px;
       margin-bottom: 40px;
       width: calc(50% - 40px);
     }
+
     @include media(840) {
       margin: 0 10px;
       margin-bottom: 40px;
       width: calc(50% - 20px);
     }
+
     @include media(768) {
       width: 100%;
       margin: 0;
       margin-bottom: 40px;
     }
-    > p.title {
+
+    >p.title {
       font-size: 45px;
       font-weight: bold;
       line-height: 1.5;
       margin-bottom: 28px;
+
       @include media(1400) {
         font-size: 36px;
       }
     }
-    > p.text {
+
+    >p.text {
       font-size: 20px;
       color: #fff;
       min-height: 60px;
@@ -884,6 +931,7 @@ h2 {
       margin-bottom: 24px;
       @include clamp(3);
     }
+
     :deep(.swiper-pagination) {
       transform: translateX(-50%);
       width: auto;
@@ -891,51 +939,62 @@ h2 {
       max-width: calc(100% - 120px);
       bottom: 88px;
       left: 32px;
+
       @include media(1400) {
         left: 10px;
         bottom: 45px;
       }
+
       @include media(840) {
         left: 10px;
         bottom: 48px;
       }
     }
+
     .slider {
       width: 100%;
       height: 305px;
       background-color: #e1e1e1;
       border-radius: 10px;
+
       @include media(1200) {
         height: 280px;
       }
+
       @include media(840) {
         height: 240px;
       }
+
       @include media(768) {
         height: 200px;
       }
     }
+
     .swiper-slide {
       a {
         display: flex;
         width: 100%;
         height: 100%;
       }
+
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
     }
+
     h3 {
       font-size: 36px;
       color: #fff;
       margin-top: 24px;
       margin-bottom: 16px;
+
       @include media(1200) {
         font-size: 28px;
       }
     }
+
     .visit {
       width: 180px;
       height: 52px;
@@ -947,69 +1006,86 @@ h2 {
       align-self: flex-end;
       justify-content: center;
       @extend %ts;
+
       @include media(1400) {
         height: 44px;
         font-size: 20px;
         width: 120px;
       }
     }
+
     &.item:nth-of-type(2n) {
       display: flex;
       background-color: #1f2229;
       margin-top: -160px;
+
       @include media(1400) {
         margin-top: -120px;
       }
+
       @include media(860) {
         margin-top: -80px;
       }
+
       @include media(768) {
         margin-top: 0;
       }
+
       :deep(.swiper-pagination-bullet-active) {
         background-color: #60dbfa;
       }
+
       .title {
         color: #60dbfa;
       }
+
       .visit {
         background-color: #60dbfa;
         color: #1f2229;
+
         &:hover {
           background-color: darken(#60dbfa, 15%);
         }
       }
     }
+
     &.item:nth-of-type(2n + 1) {
       display: flex;
       background: #34495e;
+
       :deep(.swiper-pagination-bullet-active) {
         background-color: #41b883;
       }
+
       .title {
         color: #41b883;
       }
+
       .visit {
         background-color: #41b883;
         color: #34495e;
+
         &:hover {
           background-color: saturate(#41b883, 15%);
         }
       }
     }
   }
+
   .content {
     display: flex;
     // margin: 0 -30px;
     align-items: flex-start;
     flex-direction: column;
     width: 100%;
-    @include media(1400) {
-    }
+
+    @include media(1400) {}
+
     @include media(840) {
       flex-direction: column;
     }
   }
+
   .wrap {
     display: block;
     min-width: 0;
@@ -1020,16 +1096,20 @@ h2 {
 
 .other {
   padding-bottom: 90px;
+
   @include media(1400) {
     padding-bottom: 60px;
   }
+
   @include media(840) {
     padding-bottom: 40px;
   }
+
   .head {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+
     .num {
       font-weight: bold;
       font-size: 80px;
@@ -1037,42 +1117,52 @@ h2 {
       color: $mainColor;
     }
   }
+
   h2 {
     font-weight: bold;
     color: $secColor;
     text-align: right;
     margin-bottom: 60px;
+
     @include media(840) {
       margin-bottom: 40px;
     }
   }
+
   .wrap {
     display: block;
     max-width: 1360px;
   }
+
   .content {
     margin: 0 -2px;
     display: flex;
     flex-wrap: wrap;
+
     .item {
       width: calc(25% - 4px);
       margin: 0 2px 4px 2px;
       position: relative;
       box-sizing: border-box;
+
       @include media(1400) {
         width: calc(33.33% - 4px);
       }
+
       @include media(1024) {
         width: calc(50% - 4px);
       }
+
       @include media(640) {
         width: calc(100% - 4px);
       }
-      > a {
+
+      >a {
         display: block;
         width: 100%;
         height: 340px;
         overflow: hidden;
+
         img {
           height: 100%;
           object-fit: cover;
@@ -1080,15 +1170,18 @@ h2 {
           width: 100%;
           @extend %ts;
         }
+
         &:hover {
-          & + .text-box {
+          &+.text-box {
             opacity: 1;
           }
+
           img {
             transform: scale(1.1);
           }
         }
       }
+
       .text-box {
         position: absolute;
         top: 0;
@@ -1110,16 +1203,19 @@ h2 {
         align-items: flex-start;
         padding: 32px 20px;
         @extend %ts;
+
         .en-title {
           font-size: 30px;
           margin-bottom: 20px;
           font-weight: bold;
           line-height: 1.2;
         }
+
         .title {
           font-size: 18px;
           flex-grow: 1;
         }
+
         .linkBtn {
           padding: 8px 16px;
           background-color: $terColor;
@@ -1141,43 +1237,54 @@ h2 {
   padding: 70px 0 130px 0;
   padding-bottom: 60px;
   background: linear-gradient($terColor, lighten($terColor, 10%));
+
   @include media(1400) {
     padding-top: 90px;
   }
+
   @include media(1200) {
     padding-bottom: 50px;
     padding-top: 60px;
   }
+
   @include media(840) {
     padding-top: 40px;
   }
+
   h2 {
     text-align: center;
     width: 100%;
     margin-bottom: 75px;
+
     @include media(1200) {
       margin-bottom: 40px;
     }
   }
+
   .wrap {
     display: flex;
     flex-direction: column;
     max-width: 1600px;
   }
+
   .content {
     display: flex;
     margin: 0 -20px;
     margin-bottom: 60px;
+
     @include media(720) {
       flex-wrap: wrap;
     }
+
     @include media(1200) {
       margin: 0 -10px;
       margin-bottom: 45px;
     }
+
     @include media(840) {
       margin-bottom: 0px;
     }
+
     .item {
       width: 33.33%;
       margin: 0 20px;
@@ -1186,50 +1293,62 @@ h2 {
       overflow: hidden;
       box-shadow: 0px 0px 16px rgba(40, 203, 146, 0.3);
       @extend %ts;
+
       @include media(1200) {
         margin: 0 10px;
       }
+
       @include media(720) {
         width: 100%;
         margin-bottom: 40px;
       }
+
       &:hover {
         box-shadow: 0px 18px 36px rgba(40, 203, 146, 0.3);
       }
+
       .img-box {
         overflow: hidden;
         background: no-repeat url(@/assets/images/default.svg) center $mainColor;
         display: flex;
         height: 340px;
+
         @include media(1200) {
           height: 240px;
         }
+
         @include media(840) {
           height: 200px;
         }
+
         @include media(720) {
           height: 260px;
         }
+
         a {
           width: 100%;
           height: 100%;
           display: flex;
+
           &:hover {
             img {
               transform: scale(1.1);
             }
           }
         }
+
         img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           @extend %ts;
+
           @include media(1200) {
             height: auto;
           }
         }
       }
+
       .text-box {
         padding: 32px;
         display: flex;
@@ -1237,9 +1356,11 @@ h2 {
         box-sizing: border-box;
         color: $secColor;
         flex-direction: column;
+
         @include media(1200) {
           padding: 20px;
         }
+
         h3 {
           font-weight: bold;
           font-size: 28px;
@@ -1251,22 +1372,27 @@ h2 {
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
+
           @include media(1200) {
             font-size: 24px;
             margin-bottom: 8px;
           }
+
           @include media(840) {
             font-size: 20px;
             margin-bottom: 0px;
           }
+
           a {
             color: $secColor;
             @extend %ts;
+
             &:hover {
               color: $mainColor;
             }
           }
         }
+
         p {
           display: -webkit-box;
           font-style: normal;
@@ -1279,14 +1405,17 @@ h2 {
           -webkit-box-orient: vertical;
           overflow: hidden;
           margin-bottom: 32px;
+
           @include media(1200) {
             margin-bottom: 20px;
           }
+
           @include media(840) {
             font-size: 16px;
           }
         }
       }
+
       // .more {
       //   width: 180px;
       //   height: 52px;
@@ -1313,6 +1442,7 @@ h2 {
       // }
     }
   }
+
   .seeMore {
     font-style: normal;
     font-weight: bold;
@@ -1323,11 +1453,13 @@ h2 {
     margin: 0 auto;
     position: relative;
     display: flex;
+
     &:hover {
       &::after {
         width: 100%;
       }
     }
+
     &::after {
       content: "";
       width: 0;
@@ -1346,17 +1478,21 @@ h2 {
   padding-bottom: 154px;
   padding-top: 90px;
   overflow: hidden;
+
   @include media(1600) {
     padding: 60px 0 100px;
   }
+
   @include media(1200) {
     padding-top: 40px;
     padding-bottom: 90px;
   }
+
   @include media(840) {
     padding-top: 20px;
     padding-bottom: 80px;
   }
+
   .wrap {
     display: flex;
     flex-direction: row;
@@ -1364,22 +1500,28 @@ h2 {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 59px;
+
     @include media(1200) {
       margin-bottom: 40px;
     }
+
     .btnBox {
       display: flex;
       margin: 0 -6px;
+
       :deep(.swiper-button-disabled) {
         opacity: 0.5;
         cursor: default;
+
         &:hover {
           background-color: $mainColor;
+
           span {
             color: $secColor;
           }
         }
       }
+
       button {
         width: 52px;
         height: 52px;
@@ -1390,12 +1532,15 @@ h2 {
         cursor: pointer;
         @include center;
         @extend %ts;
+
         span {
           font-size: 36px;
           color: $secColor;
         }
+
         &:hover {
           background-color: $secColor;
+
           span {
             color: $mainColor;
           }
@@ -1403,37 +1548,45 @@ h2 {
       }
     }
   }
-  h2 {
-  }
+
+  h2 {}
+
   .content {
     position: relative;
     // margin: 0 -45px;
     // height: 415px;
     // margin-right: -90px;
     padding-left: calc((100% - 1600px) / 2);
+
     @include media(1600) {
       height: auto;
       padding-left: 20px;
     }
+
     @include media(1200) {
       margin: 0;
     }
+
     @include media(540) {
       padding: 0 20px;
     }
   }
+
   .swiper-wrapper {
     padding: 20px 0;
   }
+
   :deep(.swiper-slide) {
     display: flex;
     box-sizing: border-box;
     width: 672px;
     position: relative;
     padding: 16px 0;
+
     @include media(1600) {
       width: auto;
     }
+
     .img-box {
       border-radius: 16px;
       overflow: hidden;
@@ -1442,34 +1595,41 @@ h2 {
       box-shadow: 0px 0px 16px rgba($mainColor, 0.2);
       display: flex;
       align-items: stretch;
+
       a {
         display: flex;
         cursor: pointer;
         width: 100%;
       }
     }
+
     img {
       object-fit: cover;
       width: 100%;
       height: 360px;
       @extend %ts;
+
       @include media(1600) {
         height: 300px;
       }
+
       &:hover {
         transform: scale(1.1);
       }
     }
+
     .item {
       position: relative;
       display: flex;
       width: 100%;
+
       &:hover {
         .text-box {
           opacity: 1;
         }
       }
     }
+
     .text-box {
       position: absolute;
       width: 100%;
@@ -1484,12 +1644,14 @@ h2 {
       opacity: 0;
       pointer-events: none;
       @extend %ts;
+
       .title {
         font-size: 30px;
         margin-bottom: 20px;
         font-weight: bold;
         line-height: 1.2;
       }
+
       .description {
         font-size: 18px;
         flex-grow: 1;
@@ -1507,6 +1669,7 @@ h2 {
   height: 128px;
   border: 0;
   cursor: pointer;
+
   @include media(1200) {
     display: none;
   }
@@ -1517,9 +1680,11 @@ h2 {
   bottom: -50px;
   justify-content: center;
   display: flex;
+
   @include media(540) {
     bottom: -20px;
   }
+
   span {
     display: flex;
     width: 16px;
@@ -1528,22 +1693,25 @@ h2 {
     border-radius: 99px;
     margin: 0 10px;
     @extend %ts;
+
     @include media(480) {
       margin: 0 5px;
       width: 10px;
       height: 10px;
     }
+
     &.swiper-pagination-bullet {
       background-color: $secColor;
       opacity: 1;
+
       &-active {
         background-color: $mainColor;
         width: 40px;
+
         @include media(480) {
           width: 20px;
         }
       }
     }
   }
-}
-</style>
+}</style>

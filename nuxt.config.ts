@@ -21,7 +21,7 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
   ],
-  css: ['bootstrap-icons/font/bootstrap-icons.css'],
+  css: ['bootstrap-icons/font/bootstrap-icons.css', 'aos/dist/aos.css'],
   vite: {
     css: {
       preprocessorOptions: {
@@ -43,10 +43,10 @@ export default defineNuxtConfig({
         prependPath: true,
       },
     },
-    routeRules: {
-      "/api/**": {
-        proxy: 'http://localhost:3001/**'
-      }
-    }
+    // routeRules: {
+    //   "/api/**": {
+    //     proxy: 'http://localhost:3001/**'
+    //   }
+    // }
   },
 })

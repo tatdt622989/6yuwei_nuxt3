@@ -55,10 +55,12 @@ import VueEasyLightbox from "vue-easy-lightbox";
 
 const store = useStore();
 const route = useRoute();
+store.isLoading = true;
 const id = ref(route.params.id);
 const { data: websiteReq, error } = await useFetch(
   `${store.api}/websites/${id.value}/`
 ); // get website by id
+store.isLoading = false;
 const website = ref<Website | null>(null);
 const breadcrumb = ref<BreadCrumb[]>([]);
 const showcaseURL = ref("");

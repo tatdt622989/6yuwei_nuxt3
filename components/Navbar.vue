@@ -4,6 +4,9 @@
       <NuxtLink to="/websites" @click="emit('close-menu')">Websites</NuxtLink>
     </li>
     <li>
+      <NuxtLink to="/component" @click="emit('close-menu')">Component</NuxtLink>
+    </li>
+    <li>
       <a href="https://blog.6yuwei.com">Blog</a>
     </li>
     <li>

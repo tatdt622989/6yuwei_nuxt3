@@ -96,9 +96,11 @@ const filterModal = ref({
   open: false,
   data: {},
 });
+store.isLoading = true;
 const { data: threeDCGReq, error } = await useFetch(
   `${store.api}/3dcgs/list/?page=${currentPage.value}&sort=${sort.value}`
 );
+store.isLoading = false;
 
 interface ResRef {
   list: ThreeDCG[];

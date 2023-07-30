@@ -111,9 +111,11 @@ const filterModal = ref({
   open: false,
   data: {},
 });
+store.isLoading = true;
 const { data: animationReq, error } = await useFetch(
   `${store.api}/animations/list/?page=${currentPage.value}&sort=${sort.value}`
 );
+store.isLoading = false;
 
 interface ResRef {
   list: Animation[];

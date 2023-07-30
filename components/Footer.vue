@@ -1,6 +1,6 @@
 <template>
   <footer>
-    <form @submit.prevent class="form" data-aos="fade-in" data-aos-offset="0">
+    <form @submit.prevent class="form" :class="{'aos-animate': forceOpenFooter}" data-aos="fade-in" data-aos-offset="50">
       <div class="info">
         <p class="title">Let's make something amazing!</p>
         <p class="subtitle">Send me a message.</p>
@@ -39,11 +39,11 @@
       </div>
     </form>
     <div class="bottom">
-      <div class="logo" data-aos="fade-in" data-aos-offset="0">
+      <div class="logo" data-aos="fade-in" data-aos-offset="0" :class="{'aos-animate': forceOpenFooter}">
         <img src="@/assets/images/logo_white.svg" alt="6yuwei" />
       </div>
-      <Navbar class="nav" :place="'footer'" data-aos="fade-in" data-aos-delay="100" data-aos-offset="0" />
-      <div class="copyright" data-aos="fade-in" data-aos-delay="200" data-aos-offset="0">
+      <Navbar class="nav" :place="'footer'" data-aos="fade-in" data-aos-delay="100" data-aos-offset="50" :class="{'aos-animate': forceOpenFooter}" />
+      <div class="copyright" data-aos="fade-in" data-aos-delay="200" data-aos-offset="50">
         <p>
           Copyright © {{ new Date(Date.now()).getFullYear() }} 6yuwei.All rights
           reserved.
@@ -68,11 +68,13 @@ declare module "@vue/runtime-core" {
   }
 }
 const store = useStore();
+const route = useRoute();
 const isGoTopOpen = ref(false);
 const response = ref("");
 const email = ref("");
 const message = ref("");
 let recaptcha: any = null;
+const forceOpenFooter = ref(false);
 
 const goTop = () => {
   window.scrollTo({
@@ -152,6 +154,15 @@ const handleScroll = () => {
     isGoTopOpen.value = false;
   }
 };
+
+watch(() => route.path, () => {
+  console.log(route.path);
+  if (route.path === "/") {
+    forceOpenFooter.value = false;
+  } else {
+    forceOpenFooter.value = true;
+  }
+});
 
 onMounted(async () => {
   document.addEventListener("scroll", handleScroll);

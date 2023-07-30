@@ -56,9 +56,11 @@ import VueEasyLightbox from "vue-easy-lightbox";
 const store = useStore();
 const route = useRoute();
 const id = ref(route.params.id);
+store.isLoading = true;
 const { data: threeDCGReq, error } = await useFetch(
   `${store.api}/3dcgs/${id.value}/`
 ); // get 3dcg by id
+store.isLoading = false;
 const threeDCG = ref<ThreeDCG | null>(null);
 const breadcrumb = ref<BreadCrumb[]>([]);
 const showcaseURL = ref("");

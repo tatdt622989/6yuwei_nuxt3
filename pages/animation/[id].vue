@@ -43,9 +43,11 @@ import VueEasyLightbox from "vue-easy-lightbox";
 const store = useStore();
 const route = useRoute();
 const id = ref(route.params.id);
+store.isLoading = true;
 const { data: animationReq, error } = await useFetch(
   `${store.api}/animations/${id.value}/`
 ); // get animation by id
+store.isLoading = false;
 const animation = ref<Animation | null>(null);
 const breadcrumb = ref<BreadCrumb[]>([]);
 const showcaseURL = ref("");

@@ -30,15 +30,15 @@ const toggleMenu = () => {
 };
 
 const closeMenu = () => {
-  isMenuOpen.value = false;
-  document.body.style.overflow = "";
+  // isMenuOpen.value = false;
+  // document.body.style.overflow = "";
 };
 
 onMounted(() => {
   document.body.style.overflow = "";
 })
 
-watch(route, () => {
+watch(() => route.path, () => {
   isMenuOpen.value = false;
   document.body.style.overflow = "";
 })
