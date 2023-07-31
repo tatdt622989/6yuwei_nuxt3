@@ -217,7 +217,7 @@ footer {
     li {
       a {
         color: #fff;
-        &:hover {
+        &:hover,&.current {
           color: $mainColor;
         }
       }

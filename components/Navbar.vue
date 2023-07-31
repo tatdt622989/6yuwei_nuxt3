@@ -1,19 +1,19 @@
 <template>
   <ul>
     <li>
-      <NuxtLink to="/websites" @click="emit('close-menu')">Websites</NuxtLink>
+      <NuxtLink to="/websites" @click="emit('close-menu')" :class="{current: unitName === 'websites'}">Websites</NuxtLink>
     </li>
     <li>
-      <NuxtLink to="/component" @click="emit('close-menu')">Component</NuxtLink>
+      <NuxtLink to="/components" @click="emit('close-menu')" :class="{current: unitName === 'components'}">Component</NuxtLink>
     </li>
     <li>
       <a href="https://blog.6yuwei.com">Blog</a>
     </li>
     <li>
-      <NuxtLink to="/3dcgs"  @click="emit('close-menu')">3DCGs</NuxtLink>
+      <NuxtLink to="/3dcgs"  @click="emit('close-menu')" :class="{current: unitName === '3dcgs'}">3DCGs</NuxtLink>
     </li>
     <li>
-      <NuxtLink to="/animations"  @click="emit('close-menu')">Animations</NuxtLink>
+      <NuxtLink to="/animations"  @click="emit('close-menu')" :class="{current: unitName === 'animations'}">Animations</NuxtLink>
     </li>
     <li v-if="place === 'header'">
       <NuxtLink to="/admin/login/" class="signIn">Sign in</NuxtLink>
@@ -30,6 +30,8 @@ const props = defineProps({
 });
 const emit = defineEmits(["close-menu"]);
 const current = ref(0);
+const route = useRoute();
+const unitName = computed(() => route.path.split("/")[1]);
 
 onMounted(() => {
 });
@@ -60,7 +62,7 @@ ul {
         bottom: -9px;
         @extend %ts;
       }
-      &:hover, &.active {
+      &:hover, &.current {
         color: $mainColor;
         &::after {
           width: 100%;

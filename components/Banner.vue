@@ -65,6 +65,7 @@ const breadcrumb = ref([
     width: 100%;
     .wrap {
       padding: 0 40px;
+      max-width: none;
       @include media(1200) {
         padding: 0 20px;
       }

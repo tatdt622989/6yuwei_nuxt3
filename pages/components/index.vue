@@ -4,12 +4,16 @@
       <div class="intro">
         <h1>Library of AI components <br>
           built with <span>GPT-4</span> !<i class="bi bi-stars"></i></h1>
-        <nuxt-link to="" class="try">Try it!</nuxt-link>
+        <nuxt-link to="/components/generator" class="try">Try it!</nuxt-link>
       </div>
       <div class="wrap">
         <div class="searchBox">
           <input type="text" placeholder="Search for components created by everyone" />
           <i class="bi bi-search"></i>
+        </div>
+        <div class="tagBox"></div>
+        <div class="content">
+          <ComponentsCard />
         </div>
       </div>
     </div>

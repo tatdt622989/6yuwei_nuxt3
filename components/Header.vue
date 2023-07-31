@@ -38,6 +38,10 @@ onMounted(() => {
   document.body.style.overflow = "";
 })
 
+onUnmounted(() => {
+  document.body.style.overflow = "";
+})
+
 watch(() => route.path, () => {
   isMenuOpen.value = false;
   document.body.style.overflow = "";

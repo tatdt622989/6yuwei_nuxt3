@@ -17,70 +17,49 @@
           </NuxtLink>
         </li> -->
         <li v-if="user?.permissions === 'admin'">
-          <NuxtLink
-            to="/admin/websites/"
-            :class="{ active: currentPath === '/admin/websites/' }"
-          >
+          <NuxtLink to="/admin/websites/" :class="{ active: currentPath === '/admin/websites/' }">
             <i class="bi bi-window-sidebar"></i>
             <span class="text">Websites</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
         <li v-if="user?.permissions === 'admin'">
-          <NuxtLink
-            to="/admin/3dcgs/"
-            :class="{ active: currentPath === '/admin/3dcgs/' }"
-          >
+          <NuxtLink to="/admin/3dcgs/" :class="{ active: currentPath === '/admin/3dcgs/' }">
             <i class="bi bi-box"></i>
             <span class="text">3DCG</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
         <li v-if="user?.permissions === 'admin'">
-          <NuxtLink
-            to="/admin/animations/"
-            :class="{ active: currentPath === '/admin/animations/' }"
-          >
+          <NuxtLink to="/admin/animations/" :class="{ active: currentPath === '/admin/animations/' }">
             <i class="bi bi-film"></i>
             <span class="text">Animation</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
         <li v-if="user?.permissions === 'admin'">
-          <NuxtLink
-            to="/admin/contact/"
-            :class="{ active: currentPath === '/admin/contact/' }"
-          >
+          <NuxtLink to="/admin/contact/" :class="{ active: currentPath === '/admin/contact/' }">
             <i class="bi bi-person-lines-fill"></i>
             <span class="text">Contact</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
         <li v-if="user?.permissions === 'admin'">
-          <NuxtLink
-            to="/admin/members/"
-            :class="{ active: currentPath === '/admin/members/' }"
-          >
+          <NuxtLink to="/admin/members/" :class="{ active: currentPath === '/admin/members/' }">
             <i class="bi bi-people-fill"></i>
             <span class="text">Member</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink
-            to="/admin/account/"
-            :class="{ active: currentPath === '/admin/account/' }"
-          >
+          <NuxtLink to="/admin/account/" :class="{ active: currentPath === '/admin/account/' }">
             <i class="bi bi-person-circle"></i>
             <span class="text">Account</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink
-            to="/admin/application/"
-            :class="{ active: currentPath === '/admin/application/' }"
-          >
+          <NuxtLink to="/admin/application/" :class="{ active: currentPath === '/admin/application/' }">
             <i class="bi bi-app-indicator"></i>
             <span class="text">Application</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
@@ -151,9 +130,11 @@ onUnmounted(() => {
   border-radius: 0 40px 40px 0;
   justify-content: space-between;
   align-items: center;
+
   @include media(1600) {
     width: 200px;
   }
+
   @include media(1200) {
     width: 100%;
     display: flex;
@@ -167,6 +148,7 @@ onUnmounted(() => {
     top: 0;
     left: 0;
   }
+
   .logo {
     display: flex;
     padding: 20px;
@@ -174,21 +156,26 @@ onUnmounted(() => {
     width: 100%;
     box-sizing: border-box;
     margin-bottom: 10px;
+
     @include media(1200) {
       width: auto;
       padding: 10px 0px;
       margin-bottom: 0;
     }
+
     img {
       width: auto;
+
       @include media(1600) {
         width: 120px;
       }
+
       @include media(1200) {
         height: 45px;
         width: auto;
       }
     }
+
     h1 {
       font-size: 18px;
       margin-bottom: 0;
@@ -197,11 +184,13 @@ onUnmounted(() => {
       line-height: 1;
       padding-left: 10px;
       padding-top: 8px;
+
       span {
         font-size: 28px;
       }
     }
   }
+
   ul {
     list-style: none;
     margin-bottom: 0;
@@ -210,6 +199,7 @@ onUnmounted(() => {
     align-items: flex-start;
     flex-direction: column;
     width: 100%;
+
     @include media(1200) {
       display: flex;
       flex-direction: row;
@@ -227,14 +217,17 @@ onUnmounted(() => {
       box-sizing: border-box;
       z-index: -1;
     }
+
     li {
       box-sizing: border-box;
       display: flex;
       width: 100%;
       padding: 10px 20px;
+
       @include media(1600) {
         padding: 10px;
       }
+
       a {
         width: 100%;
         font-size: 16px;
@@ -249,26 +242,33 @@ onUnmounted(() => {
         border-radius: 8px;
         padding: 0 4px 0 14px;
         @extend %ts;
+
         @include media(1200) {
           background-color: transparent;
         }
+
         &:hover,
         &.active {
           color: $fourColor;
           background-color: lighten($terColor, 5%);
+
           @include media(1200) {
             background-color: $terColor;
           }
         }
+
         .text {
           flex-grow: 1;
         }
+
         span {
           margin-right: 10px;
         }
+
         .arrow {
           font-size: 13px;
         }
+
         i {
           font-size: 22px;
           margin-right: 10px;
@@ -276,62 +276,81 @@ onUnmounted(() => {
       }
     }
   }
+
   .toggler {
     @include media(-1201) {
       display: none;
     }
+
     button {
-      width: 52px;
-      height: 52px;
-      display: flex;
-      background: transparent;
-      border: 0;
-      @include center;
-      border-radius: 999px;
-      cursor: pointer;
-      @extend %ts;
-      &:hover {
-        // background-color: lighten($terColor, 5%);
+      @include media(-1200) {
+        display: none;
       }
-      .line {
+
+      @include center;
+      border: 0;
+      background-color: transparent;
+      display: flex;
+      width: 60px;
+      height: 60px;
+
+      span {
+        display: block;
+        height: 4px;
         width: 28px;
-        height: 2px;
-        background-color: $secColor;
-        position: relative;
-        margin: 10px 0;
+        background-color: $mainColor;
+        transform-origin: center;
         @extend %ts;
-        @include before {
-          @extend %ts;
-          width: 100%;
-          height: 2px;
-          background-color: $secColor;
-          top: -10px;
+        position: relative;
+
+        &::before {
           left: 0;
+          right: 0;
+          margin: 0 auto;
+          content: "";
+          background-color: $mainColor;
+          width: 100%;
+          height: 4px;
+          position: absolute;
+          top: -8px;
+          transform-origin: center;
+          @extend %ts;
         }
-        @include after {
-          @extend %ts;
-          width: 100%;
-          height: 2px;
-          background-color: $secColor;
-          top: 10px;
+
+        &::after {
+          transform-origin: center;
           left: 0;
+          right: 0;
+          margin: 0 auto;
+          content: "";
+          background-color: $mainColor;
+          width: 100%;
+          height: 4px;
+          position: absolute;
+          bottom: -8px;
+          @extend %ts;
         }
       }
     }
   }
+
   &.open {
     @include media(1200) {
       width: 100%;
+
       ul {
         pointer-events: auto;
       }
+
       .toggler {
         .line {
           background: transparent;
+
           &::before {
             @include center(transform, y);
             transform: rotate(45deg);
           }
+
           &::after {
             @include center(transform, y);
             transform: rotate(-45deg);
@@ -351,5 +370,4 @@ onUnmounted(() => {
     // display: none;
     opacity: 0 !important;
   }
-}
-</style>
+}</style>
