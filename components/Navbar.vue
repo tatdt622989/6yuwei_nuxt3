@@ -16,12 +16,18 @@
       <NuxtLink to="/animations"  @click="emit('close-menu')" :class="{current: unitName === 'animations'}">Animations</NuxtLink>
     </li>
     <li v-if="place === 'header'">
-      <NuxtLink to="/admin/login/" class="signIn">Sign in</NuxtLink>
+      <NuxtLink to="/admin/login/" class="signIn" v-if="!store.user">Sign in</NuxtLink>
+      <NuxtLink to="/admin/account/" class="avatar" v-if="store.user">
+        <!-- <img :src="avatArURL" alt="avatar"> -->
+        <i class="bi bi-person-fill"></i>
+      </NuxtLink>
     </li>
   </ul>
 </template>
 
 <script lang="ts" setup>
+import { useStore } from "~/store";
+
 const props = defineProps({
   place: {
     type: String,
@@ -32,8 +38,12 @@ const emit = defineEmits(["close-menu"]);
 const current = ref(0);
 const route = useRoute();
 const unitName = computed(() => route.path.split("/")[1]);
+const store = useStore();
+const avatArURL = ref("");
 
 onMounted(() => {
+  if (store.user)
+  avatArURL.value = `${store.api}/admin/uploads/${store.user._id}/${store.user.photo}`;
 });
 </script>
 
@@ -41,6 +51,7 @@ onMounted(() => {
 @import '@/assets/scss/_setting.scss';
 ul {
   display: flex;
+  align-items: center;
   li {
     margin: 0 30px;
     &:last-child {
@@ -81,6 +92,26 @@ ul {
       }
       &:hover {
         background-color: $secColor;
+      }
+    }
+
+    .avatar {
+      display: flex;
+      overflow: hidden;
+      border-radius: 999px;
+      width: 56px;
+      height: 56px;
+      border: 2px solid $mainColor;
+      @include center;
+      background-color: lighten($secColor, 5%);
+      i {
+        font-size: 36px;
+        color: $terColor;
+      }
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
     }
   }

@@ -30,14 +30,44 @@
             </div>
             <div class="content">
                 <div class="editor">
-                    <div class="preview"></div>
-                    <div class="style"></div>
+                    <div class="preview">
+                        <span class="title">Preview</span>
+                    </div>
+                    <div class="style">
+                        <span class="title">CSS</span>
+                        <textarea readonly></textarea>
+                        <button class="copy">
+                            <span class="material-symbols-outlined">
+                                file_copy
+                            </span>
+                        </button>
+                    </div>
                     <div class="bottom">
-                        <div class="script"></div>
-                        <div class="html"></div>
+                        <div class="script">
+                            <span class="title">JavaScript</span>
+                            <textarea readonly></textarea>
+                            <button class="copy">
+                                <span class="material-symbols-outlined">
+                                    file_copy
+                                </span>
+                            </button>
+                        </div>
+                        <div class="html">
+                            <span class="title">HTML</span>
+                            <textarea readonly></textarea>
+                            <button class="copy">
+                                <span class="material-symbols-outlined">
+                                    file_copy
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="storage"></div>
+                <div class="storage">
+                    <div class="storageItem">
+                        <div class="item"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -49,12 +79,20 @@
 <style lang="scss" scoped>
 @import '@/assets/scss/_setting.scss';
 
+* {
+    box-sizing: border-box;
+}
+
 .inner-page {
     .wrap {
         max-width: 1480px;
         display: flex;
         align-items: center;
-        box-sizing: border-box;
+    }
+
+    >.wrap {
+        display: flex;
+        flex-direction: column;
     }
 
     .head {
@@ -101,7 +139,6 @@
                 display: flex;
                 padding: 10px 16px;
                 min-width: 140px;
-                box-sizing: border-box;
                 justify-content: space-between;
                 margin-left: 20px;
 
@@ -129,6 +166,7 @@
         box-shadow: 0px 0px 30px 0px rgba(40, 203, 146, 0.20);
         width: 100%;
         margin-bottom: 40px;
+        position: relative;
 
         input {
             width: 100%;
@@ -167,10 +205,135 @@
             min-width: 140px;
             @extend %ts;
             cursor: pointer;
+
             &:hover {
                 background-size: 120% auto;
             }
         }
     }
-}
-</style>
+
+    .content {
+        width: 100%;
+        flex-grow: 1;
+        display: flex;
+        margin-bottom: 72px;
+
+        .editor {
+            border-radius: 10px;
+            background-color: $secColor;
+            padding: 20px;
+            flex-grow: 1;
+
+            .preview,
+            .style,
+            .script,
+            .html {
+                border: 2px solid #696060;
+                height: 545px;
+                position: relative;
+                border-radius: 10px;
+                overflow: hidden;
+
+                .title {
+                    color: #B5B5B5;
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 700;
+                    line-height: normal;
+                    left: 14px;
+                    top: 7px;
+                    position: absolute;
+                }
+
+                textarea {
+                    border: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    background: none;
+                    padding: 0;
+                    resize: vertical;
+                    min-height: 260px;
+                }
+
+                .copy {
+                    position: absolute;
+                    background: linear-gradient(-45deg, $fiveColor 0%, $sixColor 100%);
+                    right: 14px;
+                    bottom: 14px;
+                    border-radius: 10px;
+                    border: 0;
+                    padding: 0;
+                    @include center;
+                    width: 48px;
+                    height: 48px;
+                    cursor: pointer;
+                    background-size: 100%;
+                    @extend %ts;
+
+                    span {
+                        color: #fff;
+                        font-size: 28px;
+                    }
+
+                    &:hover {
+                        background-size: 130%;
+                    }
+                }
+            }
+
+            .preview {
+                margin-bottom: 20px;
+            }
+
+            .style {
+                height: auto;
+                margin-bottom: 20px;
+            }
+
+            .bottom {
+                display: flex;
+                margin: 0 -10px;
+
+                .script,
+                .html {
+                    height: auto;
+
+                    textarea {}
+
+                    width: calc(50% - 20px);
+                    margin: 0 10px;
+                }
+            }
+        }
+
+        .storage {
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-shrink: 0;
+            border-radius: 10px;
+            margin: 0 -10px;
+            margin-left: 40px;
+            background-color: $mainColor;
+            flex-wrap: wrap;
+            padding: 20px 10px;
+            align-content: flex-start;
+
+            .storageItem {
+                width: 50%;
+                padding: 0 10px;
+                height: 170px;
+                display: flex;
+
+                .item {
+                    width: 100%;
+                    height: 100%;
+                    background-color: $terColor;
+                    border-radius: 10px;
+                }
+            }
+        }
+    }
+
+}</style>
