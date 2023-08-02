@@ -28,6 +28,13 @@
                 <input type="text" placeholder="Search for components created by everyone" />
                 <button class="generatorBtn">Generate</button>
             </div>
+            <client-only>
+                <swiper :freeMode="true" class="storageList" :slides-per-view="'auto'" :space-between="10">
+                    <swiper-slide v-for="item in storageList" :key="item.id">
+                        <div class="item"></div>
+                    </swiper-slide>
+                </swiper>
+            </client-only>
             <div class="content">
                 <div class="editor">
                     <div class="preview">
@@ -74,6 +81,28 @@
 </template>
 
 <script lang="ts" setup>
+import { Pagination, Autoplay, Navigation } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import "swiper/css";
+
+interface Storage {
+    id: string;
+    name: string;
+    data: string;
+}
+
+const storageList = ref<Storage[]>([]);
+
+onMounted(() => {
+    for (let i = 0; i < 10; i++) {
+        storageList.value.push({
+            id: i.toString(),
+            name: "Button",
+            data: "data"
+        });
+    }
+});
+
 </script>
 
 <style lang="scss" scoped>
@@ -168,6 +197,10 @@
         margin-bottom: 40px;
         position: relative;
 
+        @include media(1024) {
+            margin-bottom: 20px;
+        }
+
         input {
             width: 100%;
             height: 52px;
@@ -218,11 +251,19 @@
         display: flex;
         margin-bottom: 72px;
 
+        @include media(1200) {
+            flex-direction: column;
+        }
+
         .editor {
             border-radius: 10px;
             background-color: $secColor;
             padding: 20px;
             flex-grow: 1;
+
+            @include media(1200) {
+                order: 2;
+            }
 
             .preview,
             .style,
@@ -313,18 +354,32 @@
             display: flex;
             flex-shrink: 0;
             border-radius: 10px;
-            margin: 0 -10px;
             margin-left: 40px;
             background-color: $mainColor;
             flex-wrap: wrap;
             padding: 20px 10px;
             align-content: flex-start;
 
+            @include media(1400) {
+                margin-left: 20px;
+            }
+
+            @include media(1200) {
+                margin-left: 0;
+                max-width: none;
+                margin-bottom: 20px;
+                display: none;
+            }
+
             .storageItem {
                 width: 50%;
                 padding: 0 10px;
                 height: 170px;
                 display: flex;
+                @include media(1200) {
+                    width: 140px;
+                    height: 120px;
+                }
 
                 .item {
                     width: 100%;
@@ -336,4 +391,34 @@
         }
     }
 
-}</style>
+    .storageList {
+        background-color: $mainColor;
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        position: relative;
+        @include media(-1201) {
+            display: none;
+        }
+        @include after {
+            width: 60px;
+            height: 100%;
+            background: linear-gradient(90deg, rgba($mainColor, 0) 0%, $mainColor 100%);
+            right: 0;
+            top: 0;
+            z-index: 2;
+        }
+        .swiper-slide {
+            width: 100px;
+        }
+        .item {
+            width: 100px;
+            background-color: $terColor;
+            height: 100px;
+            border-radius: 10px;
+        }
+    }
+
+}
+</style>

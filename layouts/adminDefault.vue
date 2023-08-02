@@ -19,7 +19,7 @@ const keyword = ref('');
 provide('keyword', keyword);
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .main {
   display: flex;
   min-height: 100vh;
@@ -55,7 +55,7 @@ provide('keyword', keyword);
       padding-bottom: 20px;
     }
 
-    h2.title {
+    :deep(h2.title) {
       font-weight: 800;
       font-size: 32px;
       margin: 0;

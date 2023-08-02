@@ -18,8 +18,8 @@
     <li v-if="place === 'header'">
       <NuxtLink to="/admin/login/" class="signIn" v-if="!store.user">Sign in</NuxtLink>
       <NuxtLink to="/admin/account/" class="avatar" v-if="store.user">
-        <!-- <img :src="avatArURL" alt="avatar"> -->
-        <i class="bi bi-person-fill"></i>
+        <img :src="avatArURL" alt="avatar" v-if="avatArURL">
+        <i class="bi bi-person-fill" v-else></i>
       </NuxtLink>
     </li>
   </ul>
