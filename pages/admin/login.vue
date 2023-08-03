@@ -85,7 +85,7 @@ const submit = async () => {
     });
     return;
   }
-  store.setLoading(true);
+  store.isLoading = true;
   const json = {
     email: email.value,
     password: password.value,
@@ -123,7 +123,7 @@ const submit = async () => {
       await navigateTo('/admin/account/');
     }
   }
-  store.setLoading(false);
+  store.isLoading = false;
 };
 </script>
 

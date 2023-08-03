@@ -172,7 +172,7 @@ const copyData = async () => {
 };
 
 const getList = async () => {
-  store.setLoading(true);
+  store.isLoading = true;
   const api = `${store.api}/websites/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
   const res = await $fetch(api, {
     method: "GET",
@@ -191,7 +191,7 @@ const getList = async () => {
   });
 
   if (res === 'error') {
-    store.setLoading(false);
+    store.isLoading = false;
     return;
   }
 
@@ -207,11 +207,11 @@ const getList = async () => {
     totalPage.value = data.totalPage;
     websites.value = data.list;
   }
-  store.setLoading(false);
+  store.isLoading = false;
 };
 
 const getCategory = async () => {
-  store.setLoading(true);
+  store.isLoading = true;
   const api = `${store.api}/websites/admin/category/`;
   try {
     const res = await useFetch(api, {
@@ -228,7 +228,7 @@ const getCategory = async () => {
         message: error.data,
         timeout: 5000,
       });
-      return store.setLoading(false);
+      return store.isLoading = false;
     }
 
     const data = res.data.value as {
@@ -246,11 +246,11 @@ const getCategory = async () => {
       timeout: 5000,
     });
   }
-  store.setLoading(false);
+  store.isLoading = false;
 };
 
 const deleteData = async () => {
-  store.setLoading(true);
+  store.isLoading = true;
   const api = `${store.api}/websites/admin/list/delete/`;
   const ids = confirmModal.id.split(",");
   const res = await useFetch(api, {
@@ -267,16 +267,16 @@ const deleteData = async () => {
       message: error.data,
       timeout: 5000,
     });
-    return store.setLoading(false);
+    return store.isLoading = false;
   }
-  store.setLoading(false);
+  store.isLoading = false;
   await getList();
   editorModal.open = false;
   selector.value = [];
 };
 
 const updateData = async (data: UpdateData) => {
-  store.setLoading(true);
+  store.isLoading = true;
   const api = `${store.api}/websites/admin/list`;
   const res = await useFetch(api, {
     method: "PUT",
@@ -293,7 +293,7 @@ const updateData = async (data: UpdateData) => {
       message: error.data,
       timeout: 5000,
     });
-    return store.setLoading(false);
+    return store.isLoading = false;
   }
   if (resData) {
     store.pushNotification({
@@ -302,7 +302,7 @@ const updateData = async (data: UpdateData) => {
       timeout: 3000,
     });
   }
-  store.setLoading(false);
+  store.isLoading = false;
   await getList();
   editorModal.open = false;
 };

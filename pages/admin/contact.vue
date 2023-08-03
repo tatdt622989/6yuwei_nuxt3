@@ -178,7 +178,7 @@ const selectAllItem = () => {
 };
 
 const getList = async () => {
-  store.setLoading(true);
+  store.isLoading = true;
   const api = `${store.api}/contact/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
   const res = await useFetch(api, {
     method: "GET",
@@ -194,7 +194,7 @@ const getList = async () => {
       message: error.data,
       timeout: 5000,
     });
-    return store.setLoading(false);
+    return store.isLoading = false;
   }
 
   const data = res.data.value as {
@@ -208,11 +208,11 @@ const getList = async () => {
     totalPage.value = data.totalPage;
     contact.value = data.list;
   }
-  store.setLoading(false);
+  store.isLoading = false;
 };
 
 const deleteData = async () => {
-  store.setLoading(true);
+  store.isLoading = true;
   const api = `${store.api}/contact/admin/list/delete/`;
   const ids = confirmModal.id.split(",");
   const res = await useFetch(api, {
@@ -229,9 +229,9 @@ const deleteData = async () => {
       message: error.data,
       timeout: 5000,
     });
-    return store.setLoading(false);
+    return store.isLoading = false;
   }
-  store.setLoading(false);
+  store.isLoading = false;
   await getList();
   selector.value = [];
 };
@@ -241,9 +241,9 @@ const reply = (email: string) => {
 };
 
 onMounted(async () => {
-  store.setLoading(true);
+  store.isLoading = true;
   await getList();
-  store.setLoading(false);
+  store.isLoading = false;
 });
 
 watch(

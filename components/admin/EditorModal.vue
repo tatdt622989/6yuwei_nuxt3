@@ -682,7 +682,6 @@ const reset = () => {
 };
 
 const closeModal = () => {
-  // store.setLoading(true);
   emit("close-modal");
 };
 
@@ -702,7 +701,7 @@ const textGenerator = async (inputType: "describe" | "content") => {
       timeout: 5000,
     });
   }
-  store.setLoading(true);
+  store.isLoading = true;
   const prompt = {
     describe: `使用這個「${topic}」作為主題，撰寫一則簡短的描述。並且與${
       category.value ?? "網頁"
@@ -719,7 +718,7 @@ const textGenerator = async (inputType: "describe" | "content") => {
       textEditorHTML.value = text;
     }
   }
-  store.setLoading(false);
+  store.isLoading = false;
 };
 
 onMounted(() => {

@@ -96,9 +96,11 @@
                         </div>
                     </td>
                     <td>
-                        <span class="material-symbols-outlined">
-                            drag_indicator
-                        </span>
+                        <button class="dragger">
+                            <span class="material-symbols-outlined">
+                                drag_indicator
+                            </span>
+                        </button>
                     </td>
                 </tr>
             </tbody>
@@ -110,8 +112,8 @@
 import { Website, Animation } from "~/types";
 import { useStore } from "~/store";
 
-const emit = defineEmits(['openEditorModal', 'openConfirmModal', 'selectAllItem', 'updateTop', 
-'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setUnitItems', 'setIsAllSelected', 'setSelector']);
+const emit = defineEmits(['openEditorModal', 'openConfirmModal', 'selectAllItem', 'updateTop',
+    'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setUnitItems', 'setIsAllSelected', 'setSelector']);
 const props = defineProps({
     unitItems: Array as PropType<Website[] | Animation[]>,
     total: Number,
@@ -273,6 +275,18 @@ watch(() => props.selector, (val) => {
             &:hover {
                 background-color: lighten($terColor, 5%);
                 color: darken($terColor, 15%);
+            }
+        }
+
+        .dragger {
+            border: 0;
+            background: none;
+            cursor: pointer;
+            @include center;
+
+            span {
+                font-size: 28px;
+                color: $secColor;
             }
         }
     }

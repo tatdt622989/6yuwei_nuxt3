@@ -58,13 +58,13 @@
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li>
+        <!-- <li>
           <NuxtLink to="/admin/application/" :class="{ active: currentPath === '/admin/application/' }">
             <i class="bi bi-app-indicator"></i>
             <span class="text">Application</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
-        </li>
+        </li> -->
       </ul>
     </transition>
     <div class="toggler">

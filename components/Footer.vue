@@ -86,14 +86,14 @@ const goTop = () => {
 
 const send = async () => {
   if (store.isLoading) return;
-  store.setLoading(true);
+  store.isLoading = true;
   if (!email.value || !message.value) {
     store.pushNotification({
       type: "error",
       message: "Please fill in all fields.",
       timeout: 5000,
     });
-    return store.setLoading(false);
+    return store.isLoading = false;
   }
   if (!recaptcha) {
     await loadRecaptcha();
@@ -114,7 +114,8 @@ const send = async () => {
       message: error.data,
       timeout: 5000,
     });
-    return store.setLoading(false);
+    return store.isLoading = false;
+  
   }
   const data = res.data.value as {
     msg: string;
@@ -126,7 +127,7 @@ const send = async () => {
     message: data.msg,
     timeout: 5000,
   });
-  store.setLoading(false);
+  store.isLoading = false;
 };
 
 const loadRecaptcha = async () => {

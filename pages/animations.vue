@@ -166,7 +166,7 @@ watch(sort, async (newVal) => {
 });
 
 watch(categoryArr, async (newVal) => {
-  store.setLoading(true);
+  store.isLoading = true;
   const res = await useFetch(
     `${store.api}/animations/list/?page=${currentPage.value}&sort=${sort.value}&category=${newVal.join(
       ","
@@ -183,7 +183,7 @@ watch(categoryArr, async (newVal) => {
   }
   const data = res.data.value as ResRef;
   animations.value = data.list;
-  store.setLoading(false);
+  store.isLoading = false;
   navigateTo(`/animations/?page=${currentPage.value}&sort=${sort.value}&category=${newVal.join(
     ","
   )}`);

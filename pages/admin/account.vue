@@ -219,7 +219,7 @@ const handlePhoto = (e: Event) => {
 };
 
 const saveUser = async () => {
-  store.setLoading(true);
+  store.isLoading = true;
   const formData = new FormData();
   formData.append("username", user.value.username ?? '');
   formData.append("phone", user.value.phone ?? '');
@@ -252,7 +252,7 @@ const saveUser = async () => {
     });
   }
   userFileInput.value!.value = "";
-  store.setLoading(false);
+  store.isLoading = false;
 };
 
 onMounted(async () => {
@@ -650,7 +650,7 @@ onMounted(async () => {
   }
   .content {
     background: transparent;
-    display: flex;
+    display: block;
     flex-wrap: wrap;
     padding: 42px 53px 57px;
     @include media(1600) {

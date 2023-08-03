@@ -6,6 +6,12 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const getUserData = useGetUserData();
+
+onMounted(async () => {
+  getUserData();
+});
+</script>
 
 <style lang="scss" scoped></style>

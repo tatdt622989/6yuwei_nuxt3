@@ -29,9 +29,6 @@ export const useStore = defineStore("main", {
     removeNotification(id: number) {
       this.notifications = this.notifications.filter((n) => n.id !== id);
     },
-    setLoading(isLoading: boolean) {
-      this.isLoading = isLoading;
-    },
     setUser(user: User) {
       this.user = user;
     },

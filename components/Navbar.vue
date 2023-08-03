@@ -39,11 +39,13 @@ const current = ref(0);
 const route = useRoute();
 const unitName = computed(() => route.path.split("/")[1]);
 const store = useStore();
-const avatArURL = ref("");
+const avatArURL = computed(() => {
+  if (store.user) {
+    return `${store.api}/admin/uploads/${store.user._id}/${store.user.photo}`;
+  }
+});
 
 onMounted(() => {
-  if (store.user)
-  avatArURL.value = `${store.api}/admin/uploads/${store.user._id}/${store.user.photo}`;
 });
 </script>
 

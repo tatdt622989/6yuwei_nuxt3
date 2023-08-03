@@ -80,7 +80,7 @@ interface SignupRes {
 }
 
 const submit = async () => {
-  store.setLoading(true);
+  store.isLoading = true;
   const json = {
     username: username.value,
     email: email.value,
@@ -102,7 +102,7 @@ const submit = async () => {
       message: error.message,
       timeout: 5000,
     });
-    store.setLoading(false);
+    store.isLoading = false;
     return;
   }
 
@@ -119,7 +119,7 @@ const submit = async () => {
       await navigateTo('/admin/');
     }
   }
-  store.setLoading(false);
+  store.isLoading = false;
 }
 </script>
 
