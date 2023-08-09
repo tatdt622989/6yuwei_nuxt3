@@ -7,13 +7,15 @@
         <nuxt-link to="/components/generator" class="try">Try it!</nuxt-link>
       </div>
       <div class="wrap">
-        <div class="searchBox">
+        <div class="search-box">
           <input type="text" placeholder="Search for components created by everyone" />
-          <i class="bi bi-search"></i>
+          <button class="search-btn">
+            <i class="bi bi-search"></i>
+          </button>
         </div>
-        <div class="tagBox"></div>
+        <div class="tag-box"></div>
         <div class="content">
-          <ComponentsCard />
+          <ComponentsCard v-for="item in 5" />
         </div>
       </div>
     </div>
@@ -98,12 +100,14 @@ const store = useStore();
     }
   }
 
-  .searchBox {
+  .search-box {
     display: flex;
     overflow: hidden;
     border-radius: 10px;
     background: #FFF;
     box-shadow: 0px 0px 30px 0px rgba(40, 203, 146, 0.20);
+    align-items: center;
+    padding-right: 16px;
     input {
       width: 100%;
       height: 52px;
@@ -123,6 +127,36 @@ const store = useStore();
       &::placeholder {
         color: #A6E1CB;
       }
+    }
+    .search-btn {
+      background: none;
+      border: 0;
+      @include center;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+      i {
+        font-size: 22px;
+        color: $mainColor;
+      }
+    }
+  }
+
+  .tag-box {
+    margin-bottom: 60px;
+  }
+
+  .content {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 44px;
+    margin: 0 -15px;
+    :deep(.card-wrap) {
+      width: calc(33.33%);
+      margin-bottom: 60px;
+      padding: 0 15px;
+      box-sizing: border-box;
+      display: flex;
     }
   }
 }

@@ -1655,6 +1655,8 @@ h2 {
       .description {
         font-size: 18px;
         flex-grow: 1;
+        line-height: 1.5;
+        letter-spacing: 0.8px;
       }
     }
   }

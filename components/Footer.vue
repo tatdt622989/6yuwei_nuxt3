@@ -1,28 +1,18 @@
 <template>
   <footer>
-    <form @submit.prevent class="form" :class="{'aos-animate': forceOpenFooter}" data-aos="fade-in" data-aos-offset="50">
+    <form @submit.prevent class="form" :class="{ 'aos-animate': forceOpenFooter }" data-aos="fade-in" data-aos-offset="50">
       <div class="info">
         <p class="title">Let's make something amazing!</p>
         <p class="subtitle">Send me a message.</p>
       </div>
       <div class="content">
         <div class="mb-3">
-          <input
-            type="email"
-            class="form-control"
-            id="exampleFormControlInput1"
-            placeholder="Enter your email"
-            v-model="email"
-          />
+          <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="Enter your email"
+            v-model="email" />
         </div>
         <div class="mb-3">
-          <textarea
-            class="form-control"
-            id="exampleFormControlTextarea1"
-            rows="3"
-            placeholder="Enter your message"
-            v-model="message"
-          ></textarea>
+          <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Enter your message"
+            v-model="message"></textarea>
         </div>
         <div class="recaptcha-text">
           This site is protected by reCAPTCHA and the Google
@@ -39,14 +29,17 @@
       </div>
     </form>
     <div class="bottom">
-      <div class="logo" data-aos="fade-in" data-aos-offset="0" :class="{'aos-animate': forceOpenFooter}">
+      <div class="logo" data-aos="fade-in" data-aos-offset="0" :class="{ 'aos-animate': forceOpenFooter }">
         <img src="@/assets/images/logo_white.svg" alt="6yuwei" />
       </div>
-      <Navbar class="nav" :place="'footer'" data-aos="fade-in" data-aos-delay="100" data-aos-offset="50" :class="{'aos-animate': forceOpenFooter}" />
-      <div class="copyright" data-aos="fade-in" data-aos-delay="200" data-aos-offset="50">
+      <!-- <Navbar class="nav" :place="'footer'" data-aos="fade-in" data-aos-delay="100" data-aos-offset="50"
+        :class="{ 'aos-animate': forceOpenFooter }" /> -->
+      <div class="copyright" :class="{ 'aos-animate': forceOpenFooter }" data-aos="fade-in" data-aos-delay="200"
+        data-aos-offset="50">
         <p>
-          Copyright © {{ new Date(Date.now()).getFullYear() }} 6yuwei.All rights
-          reserved.
+          <span>Copyright © {{ new Date(Date.now()).getFullYear() }} 6yuwei.All rights
+            reserved.</span> &nbsp;&nbsp;| &nbsp;
+          <NuxtLink to="/privacy" class="privacy">Privacy</NuxtLink>
         </p>
       </div>
     </div>
@@ -115,7 +108,7 @@ const send = async () => {
       timeout: 5000,
     });
     return store.isLoading = false;
-  
+
   }
   const data = res.data.value as {
     msg: string;
@@ -183,15 +176,19 @@ footer {
   flex-direction: column;
   @include center;
   padding-top: 45px;
+
   .logo {
     width: 360px;
+
     @include media(1024) {
       width: auto;
     }
+
     @include media(768) {
       display: none;
     }
   }
+
   .socialList.footer {
     position: static;
     display: flex;
@@ -199,35 +196,45 @@ footer {
     background: transparent;
     box-shadow: none;
     margin-bottom: 0px;
+
     li {
       img {
         filter: brightness(0) invert(1);
       }
     }
   }
+
   :deep(.nav.nav) {
     flex-grow: 1;
     display: flex;
     justify-content: center;
+
     @include media(1500) {
       display: none;
     }
+
     @include media(540) {
       flex-wrap: wrap;
     }
+
     li {
       a {
         color: #fff;
-        &:hover,&.current {
+
+        &:hover,
+        &.current {
           color: $mainColor;
         }
       }
+
       @include media(720) {
         margin: 0 14px;
+
         a {
           font-size: 18px;
         }
       }
+
       @include media(540) {
         display: flex;
         justify-content: center;
@@ -236,17 +243,46 @@ footer {
       }
     }
   }
+
   .copyright {
     border: 0;
-    width: 360px;
+    max-width: 460px;
+    width: 100%;
+    text-align: right;
+
+    @include media(480) {
+      text-align: center;
+    }
+
     p {
+      display: inline;
       color: #fff;
       font-weight: 500;
       font-size: 16px;
-      line-height: 30px;
+      line-height: 1.4;
       margin-bottom: 0;
+
+      span,
+      a {
+        color: #fff;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 1.4;
+        margin-bottom: 0;
+      }
+    }
+
+    .privacy {
+      display: inline;
+      color: #fff;
+      text-decoration: none;
+
+      &:hover {
+        color: $mainColor;
+      }
     }
   }
+
   .bottom {
     background-color: $secColor;
     align-items: center;
@@ -258,9 +294,11 @@ footer {
     box-sizing: border-box;
     justify-content: space-between;
     padding: 20px 90px;
+
     @include media(1600) {
       padding: 20px;
     }
+
     @include media(768) {
       justify-content: center;
     }
@@ -272,19 +310,23 @@ footer {
   width: 100%;
   margin-bottom: 50px;
   padding: 0 20px;
+
   @include media(480) {
     margin-bottom: 45px;
   }
+
   .title {
     font-size: 36px;
     color: #fff;
     font-weight: bold;
     letter-spacing: 1px;
     text-align: center;
+
     @include media(480) {
       font-size: 28px;
     }
   }
+
   .subtitle {
     font-size: 20px;
     color: $mainColor;
@@ -292,20 +334,24 @@ footer {
     font-weight: 400;
     letter-spacing: 1px;
     margin-bottom: 30px;
+
     @include media(480) {
       font-size: 18px;
     }
   }
+
   input {
     height: 60px;
     padding: 10px 20px;
   }
+
   textarea {
     resize: none;
     height: 120px;
     padding: 12px 20px;
     box-sizing: border-box;
   }
+
   input,
   textarea {
     border: 0;
@@ -313,6 +359,7 @@ footer {
     border-radius: 12px;
     border: 2px solid transparent;
     font-size: 20px;
+
     &:focus {
       background-color: $terColor;
       box-shadow: none;
@@ -320,9 +367,11 @@ footer {
       box-shadow: 0 0 20px rgba($mainColor, 0.4);
     }
   }
+
   .btn-box {
     display: flex;
     justify-content: center;
+
     button {
       background-color: $mainColor;
       border-radius: 12px;
@@ -334,28 +383,34 @@ footer {
       font-weight: bold;
       height: 60px;
       box-shadow: 0 0 20px rgba($mainColor, 0.4);
+
       &:focus {
         background-color: $mainColor;
         box-shadow: none;
         color: $secColor;
       }
+
       &:hover {
         box-shadow: 0 0 30px rgba($mainColor, 0.5);
       }
     }
   }
+
   .recaptcha-text {
     color: #fff;
     text-align: center;
     padding-bottom: 30px;
     opacity: 0.8;
     font-size: 14px;
+
     @include media(480) {
       text-align: left;
     }
+
     a {
       color: $mainColor;
       text-decoration: underline;
+
       &:hover {
         color: lighten($mainColor, 10%);
       }
@@ -370,7 +425,7 @@ footer {
   @include center;
   position: fixed;
   right: 72px;
-  bottom: 60px;
+  bottom: 90px;
   background-color: #fff;
   box-shadow: 0px 0px 32px rgba(40, 203, 146, 0.3);
   z-index: 99;
@@ -378,30 +433,36 @@ footer {
   transition: all 0.3s ease-out;
   opacity: 0;
   pointer-events: none;
+
   @include media(1200) {
     right: 40px;
   }
+
   @include media(540) {
     right: 20px;
   }
+
   cursor: pointer;
+
   &.show {
     opacity: 1;
     pointer-events: auto;
   }
+
   img {
     width: 36px;
     height: 36px;
     transform: scale(1);
     @extend %ts;
   }
+
   &:hover {
     transform: rotate(45deg);
+
     img {
       @extend %ts;
       transform: rotate(-45deg);
       // @include beats(1s, rotate(-45deg));
     }
   }
-}
-</style>
+}</style>

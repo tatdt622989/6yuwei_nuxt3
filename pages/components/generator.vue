@@ -135,6 +135,7 @@ onMounted(() => {
 
             >.btn {
                 margin-right: 30px;
+                flex-shrink: 0;
             }
         }
 
@@ -336,9 +337,18 @@ onMounted(() => {
                 display: flex;
                 margin: 0 -10px;
 
+                @include media(768) {
+                    flex-direction: column;
+                }
+
                 .script,
                 .html {
                     height: auto;
+
+                    @include media(768) {
+                        width: calc(100% - 20px);
+                        margin-bottom: 20px;
+                    }
 
                     textarea {}
 
