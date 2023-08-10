@@ -30,8 +30,8 @@ const toggleMenu = () => {
 };
 
 const closeMenu = () => {
-  // isMenuOpen.value = false;
-  // document.body.style.overflow = "";
+  isMenuOpen.value = false;
+  document.body.style.overflow = "";
 };
 
 onMounted(() => {
