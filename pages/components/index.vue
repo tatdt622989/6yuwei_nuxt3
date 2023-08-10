@@ -17,6 +17,7 @@
         <div class="content">
           <ComponentsCard v-for="item in 5" />
         </div>
+        <Pagination :total="totalPage" :url="'/components/'" />
       </div>
     </div>
   </div>
@@ -24,6 +25,9 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
+const currentPage = ref(1);
+const total = ref(0);
+const totalPage = ref(1);
 
 useHead({
   title: "Components",
@@ -45,6 +49,7 @@ const store = useStore();
 
 .main {
   padding-top: 56px;
+  padding-bottom: 45px;
 
   .wrap {
     max-width: 1480px;
@@ -157,6 +162,9 @@ const store = useStore();
       padding: 0 15px;
       box-sizing: border-box;
       display: flex;
+      @include media(1200) {
+        width: 50%;
+      }
     }
   }
 }

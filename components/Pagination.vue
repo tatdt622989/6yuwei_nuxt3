@@ -54,8 +54,7 @@ const goToPage = (num: number) => {
     urlParams.append("page", num.toString());
   }
   navigateTo(`${props.url}?${urlParams.toString()}`);
-}
-
+};
 </script>
 
 <style lang="scss" scoped>
@@ -84,11 +83,13 @@ const goToPage = (num: number) => {
       }
     }
     &.last {
-      @include after {
-        display: none;
-      }
       .page-link {
         border-radius: 0 12px 12px 0;
+      }
+    }
+    &:last-of-type {
+      @include after {
+        display: none;
       }
     }
     &.active {
@@ -106,8 +107,8 @@ const goToPage = (num: number) => {
       padding: 10px;
       min-width: 44px;
       text-align: center;
-      height: 100%;
       @include center;
+      height: 44px;
       &:hover {
         background-color: $terColor;
       }

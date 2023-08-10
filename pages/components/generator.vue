@@ -300,7 +300,7 @@ onMounted(() => {
 
                 .copy {
                     position: absolute;
-                    background: linear-gradient(-45deg, $fiveColor 0%, $sixColor 100%);
+                    background: linear-gradient(-45deg, $sixColor 0%, $fiveColor 100%);
                     right: 14px;
                     bottom: 14px;
                     border-radius: 10px;
@@ -319,7 +319,7 @@ onMounted(() => {
                     }
 
                     &:hover {
-                        background-size: 130%;
+                        background-size: 135%;
                     }
                 }
             }

@@ -16,7 +16,7 @@
           @update-top="updateTop" @select-all-item="selectAllItem" @set-unit-items="setAnimations"
           @set-is-all-selected="setIsAllSelected" @set-selector="setSelector" :is-all-selected="isAllSelected"
           :selector="selector" :unit-items="animations" :total="total" />
-        <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/animations/'" />
+        <Pagination :total="totalPage" :url="'/admin/animations/'" />
       </div>
     </div>
     <AdminEditorModal :unit="'animations'" :is-open="editorModal.open" :action="editorModal.action"
@@ -58,6 +58,10 @@ definePageMeta({
 });
 
 const store = useStore();
+const route = useRoute();
+const currentPage = computed(() => {
+  return route.query.page ? parseInt(route.query.page as string) : 1;
+});
 const keyword = inject("keyword") as Ref<string>;
 
 const editorModal = reactive({
@@ -75,7 +79,6 @@ const confirmModal = reactive({
 const animations = ref<Array<Animation>>([]);
 const selector = ref<Array<string>>([]);
 const isAllSelected = ref(false);
-const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
 const category = ref([]);
@@ -363,7 +366,14 @@ watch(
 watch(
   () => keyword.value,
   () => {
-    currentPage.value = 1;
+    navigateTo(`/admin/animation/?keyword=${keyword.value}`);
+    getList();
+  }
+);
+
+watch(
+  () => currentPage.value,
+  () => {
     getList();
   }
 );

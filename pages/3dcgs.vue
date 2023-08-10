@@ -59,7 +59,7 @@
             </div>
           </div>
         </div>
-        <Pagination :total="totalPage" :current-page="currentPage" :url="'/3dcgs/'" />
+        <Pagination :total="totalPage" :url="'/3dcgs/'" />
       </div>
     </div>
     <FilterModal :is-open="filterModal.open" :active-category-arr="categoryArr" :unit-name="'3dcgs'"
@@ -87,7 +87,9 @@ const store = useStore();
 const route = useRoute();
 const layout = ref("card");
 const sort = ref(route.query.sort || "desc");
-const currentPage = ref(1);
+const currentPage = computed(() => {
+  return route.query.page ? parseInt(route.query.page as string, 10) : 1;
+});
 const total = ref(0);
 const totalPage = ref(1);
 const threeDCGs = ref<ThreeDCG[]>([]);
@@ -132,51 +134,62 @@ const removeCategory = (category: string) => {
   categoryArr.value = categoryArr.value.filter((item) => item !== category);
 };
 
-watch(sort, async (newVal) => {
-  const res = await useFetch(
-    `${store.api}/3dcgs/list/?page=${currentPage.value}&sort=${newVal}`
-  );
-  const error = res.error.value;
-  if (error) {
-    store.pushNotification({
-      type: "error",
-      message: error.message,
-      timeout: 5000,
-    });
+const getList = async (page: number = 1) => {
+  store.isLoading = true;
+  let api = `${store.api}/3dcgs/list/?page=${page}&sort=${sort.value}&category=${categoryArr.value.join(
+    ","
+  )}`;
+  const res = await $fetch(api, {
+    method: "GET",
+    credentials: "include",
+  }).catch((err) => {
+    if (err) {
+      store.pushNotification({
+        type: "error",
+        message: 'Can not get 3dcgs list',
+        timeout: 5000,
+      });
+      return 'error';
+    }
+  });
+
+  if (res === 'error') {
+    store.isLoading = false;
     return;
   }
-  const data = res.data.value as ResRef;
-  threeDCGs.value = data.list;
-  navigateTo(`/3dcgs/?sort=${newVal}`);
+
+  const data = res as {
+    msg: string;
+    list: Array<ThreeDCG>;
+    total: number;
+    totalPage: number;
+  };
+
+  if (data) {
+    total.value = data.total;
+    totalPage.value = data.totalPage;
+    threeDCGs.value = data.list;
+  }
+  store.isLoading = false;
+};
+
+watch(sort, async () => {
+  await getList();
 });
 
-watch(categoryArr, async (newVal) => {
-  store.isLoading = true;
-  const res = await useFetch(
-    `${store.api}/3dcgs/list/?page=${currentPage.value}&sort=${sort.value
-    }&category=${newVal.join(",")}`
-  );
-  const error = res.error.value;
-  if (error) {
-    store.pushNotification({
-      type: "error",
-      message: error.message,
-      timeout: 5000,
-    });
-    return;
-  }
-  const data = res.data.value as ResRef;
-  threeDCGs.value = data.list;
-  store.isLoading = false;
-  navigateTo(
-    `/3dcgs/?page=${currentPage.value}&sort=${sort.value
-    }&category=${newVal.join(",")}`
-  );
+watch(categoryArr, async () => {
+  await getList();
+});
+
+watch(currentPage, async () => {
+  await getList(currentPage.value);
 });
 
 onMounted(async () => {
-  const category = decodeURIComponent((route.query.category ?? "") as string);
-  setCategoryArr(category ? (category as string).split(",") : []);
+  const category = decodeURIComponent((route.query.category ?? '') as string);
+  if (category) {
+    setCategoryArr(category ? (category as string).split(",") : []);
+  }
   try {
     const layoutStorage = localStorage.getItem("layout");
     if (layoutStorage) {
@@ -539,4 +552,5 @@ onMounted(async () => {
       }
     }
   }
-}</style>
+}
+</style>

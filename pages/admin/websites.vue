@@ -14,7 +14,7 @@
           @update-top="updateTop" @select-all-item="selectAllItem" @set-unit-items="setWebsites"
           @set-is-all-selected="setIsAllSelected" @set-selector="setSelector" :is-all-selected="isAllSelected"
           :selector="selector" :unit-items="websites" :total="total" />
-        <Pagination :total="totalPage" :current-page="currentPage" :url="'/admin/websites/'" />
+        <Pagination :total="totalPage" :url="'/admin/websites/'" />
       </div>
     </div>
     <AdminEditorModal :unit="'websites'" :is-open="editorModal.open" :action="editorModal.action" :data="editorModal.data"
@@ -56,6 +56,10 @@ definePageMeta({
 });
 
 const store = useStore();
+const route = useRoute();
+const currentPage = computed(() => {
+  return route.query.page ? parseInt(route.query.page as string) : 1;
+});
 const keyword = inject("keyword") as Ref<string>;
 
 const editorModal = reactive({
@@ -73,7 +77,6 @@ const confirmModal = reactive({
 const websites = ref<Array<Website>>([]);
 const selector = ref<Array<string>>([]);
 const isAllSelected = ref(false);
-const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
 const category = ref([]);
@@ -361,7 +364,14 @@ watch(
 watch(
   () => keyword.value,
   () => {
-    currentPage.value = 1;
+    navigateTo(`/admin/websites/?keyword=${keyword.value}&page=1`);
+    getList();
+  }
+);
+
+watch(
+  () => currentPage.value,
+  () => {
     getList();
   }
 );

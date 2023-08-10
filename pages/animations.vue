@@ -1,19 +1,12 @@
 <template>
   <div class="inner-page">
-    <Banner
-      :unit-name="'Animations'"
-      :describe="'Animations created using various technologies'"
-    />
+    <Banner :unit-name="'Animations'" :describe="'Animations created using various technologies'" />
     <div class="main">
       <div class="wrap">
         <div class="tools">
           <div class="item active-category-box">
             <div class="category-wrap">
-              <div
-                class="category"
-                v-for="(item, index) in categoryArr"
-                :key="Date.now() + index"
-              >
+              <div class="category" v-for="(item, index) in categoryArr" :key="Date.now() + index">
                 <span class="text">{{ item }}</span>
                 <span class="remove">
                   <span class="material-icons" @click="removeCategory(item)">
@@ -50,11 +43,8 @@
             <div class="item-content">
               <div class="img-wrap">
                 <NuxtLink :to="`/animation/${animation._id}`">
-                  <img
-                    v-if="animation.photos[0]"
-                    :src="`${store.api}/admin/uploads/${animation.photos[0]?.url}`"
-                    :alt="animation.title"
-                  />
+                  <img v-if="animation.photos[0]" :src="`${store.api}/admin/uploads/${animation.photos[0]?.url}`"
+                    :alt="animation.title" />
                 </NuxtLink>
               </div>
               <div class="info">
@@ -69,16 +59,11 @@
             </div>
           </div>
         </div>
-        <Pagination :total="totalPage" :current-page="currentPage" :url="'/animations/'" />
+        <Pagination :total="totalPage" :url="'/animations/'" />
       </div>
     </div>
-    <FilterModal
-      :is-open="filterModal.open"
-      :active-category-arr="categoryArr"
-      :unit-name="'animations'"
-      @close-modal="filterModal.open = false"
-      @set-category-arr="setCategoryArr"
-    />
+    <FilterModal :is-open="filterModal.open" :active-category-arr="categoryArr" :unit-name="'animations'"
+      @close-modal="filterModal.open = false" @set-category-arr="setCategoryArr" />
   </div>
 </template>
 
@@ -102,7 +87,9 @@ const store = useStore();
 const route = useRoute();
 const layout = ref("card");
 const sort = ref(route.query.sort || "desc");
-const currentPage = ref(1);
+const currentPage = computed(() => {
+  return route.query.page ? parseInt(route.query.page as string, 10) : 1;
+});
 const total = ref(0);
 const totalPage = ref(1);
 const animations = ref<Animation[]>([]);
@@ -111,6 +98,7 @@ const filterModal = ref({
   open: false,
   data: {},
 });
+
 store.isLoading = true;
 const { data: animationReq, error } = await useFetch(
   `${store.api}/animations/list/?page=${currentPage.value}&sort=${sort.value}`
@@ -147,51 +135,62 @@ const removeCategory = (category: string) => {
   categoryArr.value = categoryArr.value.filter((item) => item !== category);
 };
 
-watch(sort, async (newVal) => {
-  const res = await useFetch(
-    `${store.api}/animations/list/?page=${currentPage.value}&sort=${newVal}`
-  );
-  const error = res.error.value;
-  if (error) {
-    store.pushNotification({
-      type: "error",
-      message: error.message,
-      timeout: 5000,
-    });
+const getList = async (page: number = 1) => {
+  store.isLoading = true;
+  let api = `${store.api}/animations/list/?page=${page}&sort=${sort.value}&category=${categoryArr.value.join(
+    ","
+  )}`;
+  const res = await $fetch(api, {
+    method: "GET",
+    credentials: "include",
+  }).catch((err) => {
+    if (err) {
+      store.pushNotification({
+        type: "error",
+        message: 'Can not get animations list',
+        timeout: 5000,
+      });
+      return 'error';
+    }
+  });
+
+  if (res === 'error') {
+    store.isLoading = false;
     return;
   }
-  const data = res.data.value as ResRef;
-  animations.value = data.list;
-  navigateTo(`/animations/?sort=${newVal}`);
+
+  const data = res as {
+    msg: string;
+    list: Array<Animation>;
+    total: number;
+    totalPage: number;
+  };
+
+  if (data) {
+    total.value = data.total;
+    totalPage.value = data.totalPage;
+    animations.value = data.list;
+  }
+  store.isLoading = false;
+};
+
+watch(sort, async () => {
+  await getList();
 });
 
-watch(categoryArr, async (newVal) => {
-  store.isLoading = true;
-  const res = await useFetch(
-    `${store.api}/animations/list/?page=${currentPage.value}&sort=${sort.value}&category=${newVal.join(
-      ","
-    )}`
-  );
-  const error = res.error.value;
-  if (error) {
-    store.pushNotification({
-      type: "error",
-      message: error.message,
-      timeout: 5000,
-    });
-    return;
-  }
-  const data = res.data.value as ResRef;
-  animations.value = data.list;
-  store.isLoading = false;
-  navigateTo(`/animations/?page=${currentPage.value}&sort=${sort.value}&category=${newVal.join(
-    ","
-  )}`);
+watch(categoryArr, async () => {
+  await getList();
+});
+
+watch(currentPage, async () => {
+  await getList(currentPage.value);
 });
 
 onMounted(async () => {
   const category = decodeURIComponent((route.query.category ?? '') as string);
-  setCategoryArr(category ? (category as string).split(",") : []);
+  if (category) {
+    setCategoryArr(category ? (category as string).split(",") : []);
+  }
   try {
     const layoutStorage = localStorage.getItem("layout");
     if (layoutStorage) {
@@ -208,9 +207,11 @@ onMounted(async () => {
   background-color: $terColor;
   padding: 60px 0;
   min-height: 0;
+
   @include media(1200) {
     padding-top: 40px;
   }
+
   .wrap {
     max-width: 1600px;
     margin: 0 auto;
@@ -218,6 +219,7 @@ onMounted(async () => {
     width: 100%;
   }
 }
+
 .tools {
   display: flex;
   width: 100%;
@@ -225,27 +227,34 @@ onMounted(async () => {
   margin-bottom: 60px;
   align-items: flex-start;
   flex-wrap: wrap;
+
   @include media(1200) {
     margin-bottom: 40px;
   }
+
   @include media(768) {
     justify-content: flex-start;
   }
+
   .item {
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 6px;
+
     &.layout {
       flex-grow: 0;
+
       @include media(768) {
         display: none;
       }
     }
+
     &.sort {
       margin-left: 20px;
       margin-right: 0;
     }
+
     .btn {
       display: flex;
       justify-content: center;
@@ -259,26 +268,30 @@ onMounted(async () => {
       height: 44px;
       border-radius: 99px;
       background-color: $terColor;
+
       &:hover {
         background-color: $mainColor;
       }
     }
+
     span {
       font-size: 30px;
       color: $secColor;
     }
+
     .selectWrap {
       position: relative;
       margin-bottom: 10px;
+
       @include after {
-        background: no-repeat url(@/assets/images/select_arrow.svg)
-          center/contain;
+        background: no-repeat url(@/assets/images/select_arrow.svg) center/contain;
         width: 10px;
         height: 10px;
         right: 8px;
         @include center(transform, y);
       }
     }
+
     .select {
       border: 0;
       background-color: lighten($terColor, 10%);
@@ -291,16 +304,19 @@ onMounted(async () => {
       appearance: none;
       font-weight: bold;
       color: $secColor;
+
       &:active,
       &:focus {
         outline: 0;
       }
     }
+
     &.active-category-box {
       flex-grow: 1;
       display: flex;
       justify-content: flex-end;
       margin-left: 0;
+
       @include media(768) {
         width: 100%;
         order: 10;
@@ -309,14 +325,17 @@ onMounted(async () => {
       }
     }
   }
+
   .category-wrap {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     margin-left: -5px;
+
     @include media(768) {
       width: 100%;
     }
+
     .category {
       display: flex;
       align-items: center;
@@ -327,6 +346,7 @@ onMounted(async () => {
       border-radius: 12px;
       margin: 0 5px;
       margin-bottom: 10px;
+
       .text {
         font-weight: bold;
         font-size: 18px;
@@ -334,6 +354,7 @@ onMounted(async () => {
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       .remove {
         cursor: pointer;
         @include center;
@@ -341,10 +362,12 @@ onMounted(async () => {
     }
   }
 }
+
 .content {
   display: flex;
   flex-wrap: wrap;
   margin: 0 -20px;
+
   .img-wrap {
     width: 100%;
     height: 340px;
@@ -355,6 +378,7 @@ onMounted(async () => {
     position: relative;
     cursor: pointer;
     background: no-repeat url(@/assets/images/default.png) center/cover;
+
     @include after {
       border-radius: 20px;
       border: 3px solid transparent;
@@ -366,26 +390,31 @@ onMounted(async () => {
       @extend %ts;
       pointer-events: none;
     }
+
     a {
       display: flex;
       width: 100%;
       height: 100%;
     }
+
     &:hover {
       &::after {
         border-color: $mainColor;
       }
     }
+
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
   }
+
   .info {
     padding: 20px 0;
     background: transparent;
     letter-spacing: 1px;
+
     .category {
       color: $mainColor;
       font-weight: bold;
@@ -393,6 +422,7 @@ onMounted(async () => {
       letter-spacing: 1.1px;
       margin-bottom: 10px;
     }
+
     .title {
       @extend %ts;
       font-size: 24px;
@@ -401,10 +431,12 @@ onMounted(async () => {
       margin-top: 0;
       color: $secColor;
       cursor: pointer;
+
       &:hover {
         color: $mainColor;
       }
     }
+
     .desc {
       display: -webkit-box;
       overflow: hidden;
@@ -417,12 +449,14 @@ onMounted(async () => {
       line-height: 1.5;
     }
   }
+
   .item {
     overflow: hidden;
     padding: 0 20px;
     width: calc(100% / 3);
     box-sizing: border-box;
     margin-bottom: 30px;
+
     // .item-content {
     //   border: 1px solid $mainColor;
     //   padding: 16px;
@@ -438,14 +472,18 @@ onMounted(async () => {
 
   &.card {
     margin: 0 -10px;
+
     @include media(1200) {
       margin: 0 -10px;
     }
+
     .item {
       padding: 0 10px;
+
       @include media(1200) {
         width: calc(100% / 2);
       }
+
       @include media(768) {
         width: 100%;
       }
@@ -456,29 +494,35 @@ onMounted(async () => {
     .item {
       width: 100%;
     }
+
     .item-content {
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
       width: 100%;
+
       @include media(768) {
         display: block;
       }
+
       .img-wrap {
         max-width: 420px;
         flex-shrink: 0;
         height: 280px;
         display: flex;
         align-items: stretch;
+
         @include media(1024) {
           max-width: 300px;
           height: 200px;
         }
+
         @include media(768) {
           max-width: 100%;
           height: auto;
           min-height: 300px;
         }
+
         img {
           display: flex;
           min-height: 300px;
@@ -487,17 +531,22 @@ onMounted(async () => {
           object-fit: cover;
         }
       }
+
       .info {
         padding-left: 20px;
+
         .category {
           font-size: 18px;
         }
+
         .desc {
           line-height: 1.4;
         }
+
         .title {
           font-size: 28px;
         }
+
         @include media(768) {
           padding-left: 0;
         }

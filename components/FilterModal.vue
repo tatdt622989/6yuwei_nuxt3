@@ -1,53 +1,28 @@
 <template>
   <transition name="modal-fade">
-    <div
-      v-if="props.isOpen"
-      id="filterModal"
-      :class="['modal', { open: props.isOpen }]"
-      tabindex="-1"
-      aria-labelledby="filterModalLabel"
-      aria-hidden="true"
-      @click="emit('close-modal')"
-    >
+    <div v-if="props.isOpen" id="filterModal" :class="['modal', { open: props.isOpen }]" tabindex="-1"
+      aria-labelledby="filterModalLabel" aria-hidden="true" @click="emit('close-modal')">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" @click="(e) => e.stopPropagation()">
           <div class="modal-header">
             <h1 class="modal-title fs-5">Filter</h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-              @click="emit('close-modal')"
-            />
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+              @click="emit('close-modal')" />
           </div>
           <div class="modal-body">
             <div class="container">
-              <button
-                class="category-btn btn"
-                v-for="(item, index) in categoryFilter"
-                :key="Date.now() + index"
-                :class="{ active : filter.includes(item) }"
-                @click="updateFilter(item)"
-              >
+              <button class="category-btn btn" v-for="(item, index) in categoryFilter" :key="Date.now() + index"
+                :class="{ active: filter.includes(item) }" @click="updateFilter(item)">
                 {{ item }}
               </button>
             </div>
           </div>
           <div class="modal-footer">
             <div class="content-wrap">
-              <button
-                type="button"
-                class="btn cancel"
-                @click="emit('close-modal')"
-              >
+              <button type="button" class="btn cancel" @click="emit('close-modal')">
                 Cancel
               </button>
-              <button
-                type="button"
-                class="btn btn-primary"
-                @click="apply"
-              >
+              <button type="button" class="btn btn-primary" @click="apply">
                 Apply
               </button>
             </div>
@@ -92,9 +67,9 @@ const apply = () => {
     const categoryStr = encodeURIComponent(filter.value.join(","));
     query = { category: categoryStr, page: 1 }
   }
-  navigateTo({ 
+  navigateTo({
     path: route.path,
-    query 
+    query
   });
   emit("set-category-arr", filter.value);
   emit("close-modal");
@@ -141,16 +116,22 @@ onMounted(async () => {
   display: block;
   backdrop-filter: blur(5px);
   background-color: rgba($mainColor, 0.1);
+
   .modal-dialog {
-    width: 768px;
-    max-width: 100%;
+    max-width: 768px;
+    @include media(788) {
+      margin: 10px;
+    }
   }
+
   &.open {
     opacity: 1;
+
     .modal-dialog {
       opacity: 1;
     }
   }
+
   &.modal-fade-enter-active,
   &.modal-fade-leave-active {
     transition: all 0.5s ease-out !important;
@@ -163,10 +144,12 @@ onMounted(async () => {
 
   .modal-header {
     border: 0;
+
     .modal-title {
       font-weight: bold;
       color: $secColor;
     }
+
     .btn-close {
       &:focus {
         box-shadow: none;
@@ -187,8 +170,14 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+
     .container {
       padding: 0;
+      margin: 0 -5px;
+      display: flex;
+      align-items: stretch;
+      flex-wrap: wrap;
+      max-width: none;
     }
   }
 
@@ -198,10 +187,12 @@ onMounted(async () => {
     display: flex;
     justify-content: space-between;
     width: 100%;
+
     .content-wrap {
       flex-grow: 1;
       margin: 0 -10px;
     }
+
     .btn {
       padding: 10px 20px;
       border-radius: 12px;
@@ -211,12 +202,15 @@ onMounted(async () => {
       font-weight: bold;
       width: calc(50% - 20px);
       margin: 0 10px;
+
       &.cancel {
         background-color: $terColor;
       }
+
       &.delete {
         background-color: $dangerColor;
       }
+
       &:hover {
         color: $mainColor;
         background-color: $secColor;
@@ -236,9 +230,24 @@ onMounted(async () => {
     min-height: 52px;
     font-weight: bold;
     border: 0;
+    margin-bottom: 10px;
+
+    @include media(768) {
+      width: calc(100% / 3 - 10px);
+    }
+
+    @include media(576) {
+      width: calc(50% - 10px);
+    }
+
+    @include media(374) {
+      width: calc(100% - 10px);
+    }
+
     &:hover {
       background-color: darken($terColor, 10%);
     }
+
     &.active {
       background-color: $secColor;
       color: $mainColor;

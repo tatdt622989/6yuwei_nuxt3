@@ -84,7 +84,7 @@
                 letter-spacing: 0.91px;
                 @include clamp;
             }
-            
+
             .by {
                 color: #FFF;
                 font-size: 16px;
@@ -96,19 +96,27 @@
             }
 
         }
+
         .copy {
             width: 52px;
             height: 52px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #8370FF 0%, #FF007A 100%);
+            background: linear-gradient(-45deg, $sixColor 0%, $fiveColor 100%);
+            background-size: 100%;
             border: 0;
             @include center;
             margin-top: 8px;
+            cursor: pointer;
+            @extend %ts;
+
             span {
                 color: #fff;
                 font-size: 30px;
             }
+
+            &:hover {
+                background-size: 135%;
+            }
         }
     }
-}
-</style>
+}</style>
