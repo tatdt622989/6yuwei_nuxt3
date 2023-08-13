@@ -2,18 +2,21 @@
     <div class="inner-page">
         <div class="head">
             <div class="wrap">
-                <nuxt-link to="/components/" class="btn circle">
-                    <i class="bi bi-arrow-left"></i>
-                </nuxt-link>
-                <div class="titleBox">
-                    <p class="category">Button</p>
-                    <h1>Gradient Button</h1>
+                <div class="left-layout">
+                    <nuxt-link to="/components/" class="btn circle">
+                        <i class="bi bi-arrow-left"></i>
+                    </nuxt-link>
+                    <div class="titleBox">
+                        <!-- <p class="category">Button</p> -->
+                        <h1 v-if="componentsType"><span>{{ componentsType?.title }}</span> {{ componentsData?.title ? '-' +
+                            componentsData?.title : '' }}</h1>
+                    </div>
                 </div>
                 <div class="toolBox">
                     <button class="storage btn circle">
                         <i class="bi bi-inboxes-fill"></i>
                     </button>
-                    <button class="copy btn circle">
+                    <button class="copy btn circle" @click="componentsTypeModal.open = true">
                         <i class="bi bi-arrow-left-right"></i>
                     </button>
                     <div class="balance">
@@ -39,6 +42,7 @@
                 <div class="editor">
                     <div class="preview">
                         <span class="title">Preview</span>
+                        <iframe :src="iframeSrc" frameborder="0" sandbox="allow-same-origin" v-if="iframeSrc"></iframe>
                     </div>
                     <div class="style">
                         <span class="title">CSS</span>
@@ -77,11 +81,14 @@
                 </div>
             </div>
         </div>
+        <ComponentsTypeModal :is-open="componentsTypeModal.open" :active-component-type="componentsType ?? null"
+            @close-modal="componentsTypeModal.open = false" />
     </div>
 </template>
 
 <script lang="ts" setup>
-import { Pagination, Autoplay, Navigation } from "swiper";
+import { useStore } from "~/store";
+import { Component, ComponentType } from "~/types";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 
@@ -91,15 +98,76 @@ interface Storage {
     data: string;
 }
 
+const store = useStore();
+const route = useRoute();
 const storageList = ref<Storage[]>([]);
+const URL = ref(route.params.id);
+const typeURL = computed(() => URL.value[0]);
+const componentId = computed(() => URL.value[1]);
+const { data: componentsRes, error: componentsError } = componentId.value ? await useFetch(`${store.api}/components/${componentId.value}/`) : { data: null, error: null };
+const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
+const componentsData = ref<null | Component>(null);
+const componentsType = computed<null | ComponentType>(() => getComponentType(typeURL.value));
+const iframeSrc = computed(() => {
+    if (!componentsData.value) return "";
+    if (!componentsType.value) return "";
+    return `${store.api}/components/sandbox/?typeId=${componentsType.value._id}&componentId=${componentsData.value._id}`;
+});
+const componentsTypeModal = ref({
+    open: false,
+    data: {},
+});
+
+function getComponentType(type: string) {
+    if (!componentsTypeList.value || componentsTypeList.value.length === 0) return null;
+    let result = null;
+    componentsTypeList.value.forEach((item) => {
+        if (item.customURL === type) {
+            result = item;
+        }
+    });
+    return result;
+}
+
+if (componentsRes) {
+    componentsData.value = componentsRes.value as Component;
+}
+
+// 判斷 componentsType 是否存在
+let componentsTypeIsExist = false;
+if (componentsTypeList.value && componentsTypeList.value.length > 0 && typeURL.value) {
+    componentsTypeList.value.forEach((item) => {
+        if (item.customURL === typeURL.value) {
+            componentsTypeIsExist = true;
+        }
+    });
+}
+
+// 若是 componentsType 不存在，則跳轉到第一個 componentsType
+if (componentsTypeList.value && componentsTypeList.value.length > 0 && !componentsTypeIsExist) {
+    const firstComponentType = componentsTypeList.value[0] ?? null;
+    navigateTo(`/components/generator/${firstComponentType.customURL}/`);
+}
+
+// 若是 componentsType 不存在，且 componentsTypeList 不存在，且請求錯誤，則跳轉到 generator 頁面
+if (componentsError?.value || typeListError?.value || componentsTypeList.value?.length === 0) {
+    navigateTo("/components/");
+}
 
 onMounted(() => {
+    console.log(typeURL.value, componentId.value, componentsData.value);
+    console.log(componentsData.value);
     for (let i = 0; i < 10; i++) {
         storageList.value.push({
             id: i.toString(),
             name: "Button",
             data: "data"
         });
+    }
+    // 若是第一次進入，則打開選擇 componentsType 的 modal
+    if (typeURL.value && localStorage.getItem("firstIn") !== "1") {
+        componentsTypeModal.value.open = true;
+        localStorage.setItem("firstIn", "1");
     }
 });
 
@@ -133,6 +201,23 @@ onMounted(() => {
             flex-direction: row;
             padding: 50px 20px 40px;
 
+            @include media(768) {
+                flex-wrap: wrap;
+                padding: 30px 20px 20px;
+            }
+
+        }
+
+        .left-layout {
+            display: flex;
+            align-items: center;
+
+            @include media(768) {
+                width: 100%;
+                margin-bottom: 24px;
+                // order: 2;
+            }
+
             >.btn {
                 margin-right: 30px;
                 flex-shrink: 0;
@@ -150,6 +235,16 @@ onMounted(() => {
 
             h1 {
                 margin: 0;
+                font-size: 28px;
+                @include clamp(2);
+
+                @include media(768) {
+                    font-size: 24px;
+                }
+
+                span {
+                    color: darken($mainColor, 5%);
+                }
             }
         }
 
@@ -158,9 +253,28 @@ onMounted(() => {
             display: flex;
             justify-content: flex-end;
 
+            @include media(768) {
+                width: 100%;
+                justify-content: flex-start;
+                margin-bottom: 10px;
+                order: 1;
+            }
+
             .btn {
                 margin-left: 20px;
                 cursor: pointer;
+
+                @include media(768) {
+                    margin-left: 0;
+                    margin-right: 10px;
+                    order: 2;
+                }
+            }
+
+            .storage {
+                @include media(768) {
+                    margin-left: 0;
+                }
             }
 
             .balance {
@@ -172,6 +286,15 @@ onMounted(() => {
                 justify-content: space-between;
                 margin-left: 20px;
 
+                @include media(768) {
+                    padding: 6px 14px;
+                    align-items: center;
+                    min-width: 110px;
+                    order: 1;
+                    margin-left: 0;
+                    margin-right: 20px;
+                }
+
                 p {
                     color: #FFF;
                     font-size: 22px;
@@ -179,6 +302,18 @@ onMounted(() => {
                     font-weight: 700;
                     line-height: normal;
                     letter-spacing: 0.77px;
+
+                    @include media(768) {
+                        font-size: 18px;
+                        vertical-align: middle;
+                    }
+                }
+
+                img {
+                    @include media(768) {
+                        width: 24px;
+                        height: 24px;
+                    }
                 }
             }
         }
@@ -326,6 +461,10 @@ onMounted(() => {
 
             .preview {
                 margin-bottom: 20px;
+                iframe {
+                    width: 100%;
+                    height: 100%;
+                }
             }
 
             .style {
@@ -386,6 +525,7 @@ onMounted(() => {
                 padding: 0 10px;
                 height: 170px;
                 display: flex;
+
                 @include media(1200) {
                     width: 140px;
                     height: 120px;
@@ -408,9 +548,11 @@ onMounted(() => {
         margin-bottom: 20px;
         border-radius: 10px;
         position: relative;
+
         @include media(-1201) {
             display: none;
         }
+
         @include after {
             width: 60px;
             height: 100%;
@@ -419,9 +561,11 @@ onMounted(() => {
             top: 0;
             z-index: 2;
         }
+
         .swiper-slide {
             width: 100px;
         }
+
         .item {
             width: 100px;
             background-color: $terColor;

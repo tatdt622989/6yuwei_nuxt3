@@ -100,7 +100,7 @@ const filterModal = ref({
 });
 
 store.isLoading = true;
-const { data: websiteReq, error } = await useFetch(`${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`);
+const { data: websiteRes, error } = await useFetch(`${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`);
 store.isLoading = false;
 
 interface ResRef {
@@ -109,8 +109,8 @@ interface ResRef {
   totalPage: number;
 }
 
-if (websiteReq.value) {
-  const res = websiteReq.value as ResRef;
+if (websiteRes.value) {
+  const res = websiteRes.value as ResRef;
   websites.value = res.list as Website[];
   total.value = res.total;
   totalPage.value = res.totalPage;

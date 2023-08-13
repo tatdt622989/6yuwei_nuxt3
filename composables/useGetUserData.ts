@@ -16,8 +16,9 @@ export const useGetUserData = () => {
             });
     
             const data = await res.user;
-            console.log(data);
-            store.user = data;
+            if (!data) {
+                return null;
+            }
         } catch (error: unknown) {
             return null;
         }

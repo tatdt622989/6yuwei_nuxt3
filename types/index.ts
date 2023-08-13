@@ -76,3 +76,23 @@ export interface Contact {
   email: string;
   message: string;
 }
+
+export interface ComponentType {
+  _id: string;
+  customURL: string;
+  title: string;
+  html: string;
+  javascript: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Component {
+  _id: string;
+  userId: string;
+  componentsType: ComponentType;
+  title: string;
+  styleFileName: string;
+  createdAt: string;
+  updatedAt: string;
+}
