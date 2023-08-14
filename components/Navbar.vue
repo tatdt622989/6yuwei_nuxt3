@@ -16,7 +16,7 @@
       <NuxtLink to="/animations" :class="{ current: unitName === 'animations' }">Animations</NuxtLink>
     </li>
     <li v-if="place === 'header'" class="account">
-      <NuxtLink to="/admin/login/" class="sign-in" v-if="!store.user">Sign in</NuxtLink>
+      <NuxtLink to="/admin/login/" class="sign-in" v-if="!store.user && store.isUserChecked">Sign in</NuxtLink>
       <NuxtLink to="/admin/account/" id="avatar" v-if="store.user">
         <img :src="avatArURL" alt="avatar" v-if="avatArURL">
         <i class="bi bi-person-fill" v-else></i>

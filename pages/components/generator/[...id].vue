@@ -33,7 +33,7 @@
             </div>
             <client-only>
                 <swiper :freeMode="true" class="storageList" :slides-per-view="'auto'" :space-between="10">
-                    <swiper-slide v-for="item in storageList" :key="item.id">
+                    <swiper-slide v-for="item in storageList" :key="item._id">
                         <div class="item"></div>
                     </swiper-slide>
                 </swiper>
@@ -42,7 +42,7 @@
                 <div class="editor">
                     <div class="preview">
                         <span class="title">Preview</span>
-                        <iframe :src="iframeSrc" frameborder="0" sandbox="allow-same-origin" v-if="iframeSrc"></iframe>
+                        <iframe :src="iframeSrc" frameborder="0" v-if="iframeSrc" ref="previewer" sandbox="allow-same-origin allow-scripts"></iframe>
                     </div>
                     <div class="style">
                         <span class="title">CSS</span>
@@ -75,8 +75,10 @@
                     </div>
                 </div>
                 <div class="storage">
-                    <div class="storageItem">
-                        <div class="item"></div>
+                    <div class="storageItem" v-for="item in storageList" :key="item._id">
+                        <div class="item">
+                            <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt="" v-if="item.screenshotFileName">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -89,34 +91,30 @@
 <script lang="ts" setup>
 import { useStore } from "~/store";
 import { Component, ComponentType } from "~/types";
+import html2canvas from 'html2canvas';
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 
-interface Storage {
-    id: string;
-    name: string;
-    data: string;
-}
-
 const store = useStore();
 const route = useRoute();
-const storageList = ref<Storage[]>([]);
 const URL = ref(route.params.id);
 const typeURL = computed(() => URL.value[0]);
 const componentId = computed(() => URL.value[1]);
 const { data: componentsRes, error: componentsError } = componentId.value ? await useFetch(`${store.api}/components/${componentId.value}/`) : { data: null, error: null };
+const storageList = ref<Component[]>([]);
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
 const componentsData = ref<null | Component>(null);
 const componentsType = computed<null | ComponentType>(() => getComponentType(typeURL.value));
 const iframeSrc = computed(() => {
     if (!componentsData.value) return "";
     if (!componentsType.value) return "";
-    return `${store.api}/components/sandbox/?typeId=${componentsType.value._id}&componentId=${componentsData.value._id}`;
+    return `/api/components/sandbox/?typeId=${componentsType.value._id}&componentId=${componentsData.value._id}`;
 });
 const componentsTypeModal = ref({
     open: false,
     data: {},
 });
+const previewer = ref<HTMLIFrameElement | null>(null);
 
 function getComponentType(type: string) {
     if (!componentsTypeList.value || componentsTypeList.value.length === 0) return null;
@@ -127,6 +125,30 @@ function getComponentType(type: string) {
         }
     });
     return result;
+}
+
+async function getStorageList() {
+    if (!store.user) return;
+    store.isLoading = true;
+    
+    try {
+        const res: Component[] = await $fetch(`${store.api}/components/user/list/`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res) return;
+        storageList.value = res;
+    } catch (err) {
+        if (err) {
+            store.pushNotification({
+                type: "error",
+                message: err.toString(),
+                timeout: 5000,
+            });
+            return;
+        }
+    }
+    store.isLoading = false;
 }
 
 if (componentsRes) {
@@ -154,20 +176,78 @@ if (componentsError?.value || typeListError?.value || componentsTypeList.value?.
     navigateTo("/components/");
 }
 
-onMounted(() => {
-    console.log(typeURL.value, componentId.value, componentsData.value);
-    console.log(componentsData.value);
-    for (let i = 0; i < 10; i++) {
-        storageList.value.push({
-            id: i.toString(),
-            name: "Button",
-            data: "data"
-        });
+watch(() => store.user, (user) => {
+    if (user) {
+        getStorageList();
     }
+});
+
+onMounted(() => {
     // 若是第一次進入，則打開選擇 componentsType 的 modal
     if (typeURL.value && localStorage.getItem("firstIn") !== "1") {
         componentsTypeModal.value.open = true;
         localStorage.setItem("firstIn", "1");
+    }
+    // 如果 screenshot 不存在，則 iframe 使用 html2canvas 截圖，並將截圖內容填充至600px x 400px的 canvas 中，再將 canvas 轉成 png 並上傳至 api server
+    if (!componentsData.value?.screenshotFileName && componentsData.value) {
+        const iframe = previewer.value;
+        if (!iframe) return;
+        const iframeDocument = iframe.contentDocument;
+        if (!iframeDocument) return;
+        const iframeBody = iframeDocument.querySelector("body");
+        if (!iframeBody) return;
+        html2canvas(iframeBody, {
+            scale: 1,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#fff",
+        }).then((canvas) => {
+            const height = canvas.height;
+            // fit to 600 x 400
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = 600;
+            tempCanvas.height = 400;
+            const scale = tempCanvas.height / height;
+            const tempCtx = tempCanvas.getContext("2d");
+            if (!tempCtx) return;
+
+            // 如果新宽度大于Canvas宽度，裁剪多余部分
+            var newWidth = canvas.width * scale;
+            if (newWidth > tempCanvas.width) {
+                var xOffset = (newWidth - tempCanvas.width) / 2;
+                tempCtx.drawImage(canvas, -xOffset, 0, newWidth, tempCanvas.height);
+            } else {
+                // 如果新宽度小于等于Canvas宽度，上下居中绘制
+                var yOffset = (tempCanvas.height - tempCanvas.height * scale) / 2;
+                tempCtx.drawImage(canvas, 0, yOffset, newWidth, tempCanvas.height * scale);
+            }
+            
+            tempCanvas.toBlob(async (blob) => {
+                if (!blob) return;
+                const formData = new FormData();
+                formData.append('componentId', componentsData.value?._id ?? "");
+                formData.append('screenshot', blob, "screenshot.png");
+                
+                try {
+                    $fetch(`${store.api}/components/screenshot/`, {
+                        method: "POST",
+                        credentials: "include",
+                        body: formData,
+                    });
+                } catch (err) {
+                    if (err) {
+                        store.pushNotification({
+                            type: "error",
+                            message: err.toString(),
+                            timeout: 5000,
+                        });
+                        return;
+                    }
+                }
+            });
+        });
     }
 });
 
@@ -461,6 +541,7 @@ onMounted(() => {
 
             .preview {
                 margin-bottom: 20px;
+
                 iframe {
                     width: 100%;
                     height: 100%;
@@ -525,6 +606,7 @@ onMounted(() => {
                 padding: 0 10px;
                 height: 170px;
                 display: flex;
+                margin-bottom: 20px;
 
                 @include media(1200) {
                     width: 140px;
@@ -536,6 +618,12 @@ onMounted(() => {
                     height: 100%;
                     background-color: $terColor;
                     border-radius: 10px;
+                    overflow: hidden;
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
                 }
             }
         }

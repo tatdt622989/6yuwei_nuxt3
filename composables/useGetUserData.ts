@@ -8,8 +8,8 @@ interface LoginStatusRes {
 
 export const useGetUserData = () => {
     return async () => {
+        const store = useStore();
         try {
-            const store = useStore();
             const res: LoginStatusRes = await $fetch(`${store.api}/loginStatus/`, {
                 method: "GET",
                 credentials: "include",
@@ -19,8 +19,10 @@ export const useGetUserData = () => {
             if (!data) {
                 return null;
             }
+            store.user = data;
         } catch (error: unknown) {
             return null;
         }
+        store.isUserChecked = true;
     }
 }

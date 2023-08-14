@@ -93,6 +93,7 @@ export interface Component {
   componentsType: ComponentType;
   title: string;
   styleFileName: string;
+  screenshotFileName: string;
   createdAt: string;
   updatedAt: string;
 }
