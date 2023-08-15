@@ -150,7 +150,6 @@ const handleScroll = () => {
 };
 
 watch(() => route.path, () => {
-  console.log(route.path);
   if (route.path === "/") {
     forceOpenFooter.value = false;
   } else {

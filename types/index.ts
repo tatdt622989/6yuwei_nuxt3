@@ -96,4 +96,5 @@ export interface Component {
   screenshotFileName: string;
   createdAt: string;
   updatedAt: string;
+  style?: string;
 }

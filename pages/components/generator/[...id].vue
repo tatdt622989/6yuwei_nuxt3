@@ -8,7 +8,7 @@
                     </nuxt-link>
                     <div class="titleBox">
                         <!-- <p class="category">Button</p> -->
-                        <h1 v-if="componentsType"><span>{{ componentsType?.title }}</span> {{ componentsData?.title ? '-' +
+                        <h1 v-if="componentsType"><span>{{ componentsType?.title }}</span> {{ componentsData?.title ? '- ' +
                             componentsData?.title : '' }}</h1>
                     </div>
                 </div>
@@ -26,65 +26,77 @@
                 </div>
             </div>
         </div>
-        <div class="wrap">
-            <div class="generatorBox">
-                <input type="text" placeholder="Search for components created by everyone" />
-                <button class="generatorBtn">Generate</button>
-            </div>
-            <client-only>
-                <swiper :freeMode="true" class="storageList" :slides-per-view="'auto'" :space-between="10">
-                    <swiper-slide v-for="item in storageList" :key="item._id">
-                        <div class="item"></div>
-                    </swiper-slide>
-                </swiper>
-            </client-only>
-            <div class="content">
-                <div class="editor">
-                    <div class="preview">
-                        <span class="title">Preview</span>
-                        <iframe :src="iframeSrc" frameborder="0" v-if="iframeSrc" ref="previewer" sandbox="allow-same-origin allow-scripts"></iframe>
-                    </div>
-                    <div class="style">
-                        <span class="title">CSS</span>
-                        <textarea readonly></textarea>
-                        <button class="copy">
-                            <span class="material-symbols-outlined">
-                                file_copy
-                            </span>
-                        </button>
-                    </div>
-                    <div class="bottom">
-                        <div class="script">
-                            <span class="title">JavaScript</span>
-                            <textarea readonly></textarea>
-                            <button class="copy">
+        <client-only>
+            <div class="wrap">
+                <div class="generatorBox">
+                    <input type="text" placeholder="Describe your components" v-model="description" />
+                    <button class="generatorBtn">Generate</button>
+                </div>
+                <client-only>
+                    <swiper :freeMode="true" class="storageList" :slides-per-view="'auto'" :space-between="10">
+                        <swiper-slide v-for="item in storageList" :key="item._id">
+                            <div class="item">
+                                <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt=""
+                                    v-if="item.screenshotFileName">
+                            </div>
+                        </swiper-slide>
+                    </swiper>
+                </client-only>
+                <div class="content">
+                    <div class="editor">
+                        <div class="preview">
+                            <span class="title">Preview</span>
+                            <iframe :src="iframeSrc" frameborder="0" v-if="iframeSrc" ref="previewer"
+                                sandbox="allow-same-origin allow-scripts"></iframe>
+                        </div>
+                        <div class="style">
+                            <span class="title">CSS</span>
+                            <div class="code" v-html="cssEl"></div>
+                            <button class="copy"
+                                @click="() => componentsData?.style ? copyToClipboard(componentsData?.style) : ''">
                                 <span class="material-symbols-outlined">
                                     file_copy
                                 </span>
                             </button>
                         </div>
-                        <div class="html">
-                            <span class="title">HTML</span>
-                            <textarea readonly></textarea>
-                            <button class="copy">
-                                <span class="material-symbols-outlined">
-                                    file_copy
-                                </span>
-                            </button>
+                        <div class="bottom">
+                            <div class="script">
+                                <span class="title">JavaScript</span>
+                                <div class="code" v-html="javascriptEl"></div>
+                                <button class="copy"
+                                    @click="() => componentsType?.html ? copyToClipboard(componentsType.javascript) : ''">
+                                    <span class="material-symbols-outlined">
+                                        file_copy
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="html">
+                                <span class="title">HTML</span>
+                                <div class="code" v-html="htmlEl"></div>
+                                <button class="copy"
+                                    @click="() => componentsType?.html ? copyToClipboard(componentsType.html) : ''">
+                                    <span class="material-symbols-outlined">
+                                        file_copy
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="storage">
-                    <div class="storageItem" v-for="item in storageList" :key="item._id">
-                        <div class="item">
-                            <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt="" v-if="item.screenshotFileName">
+                    <div class="storage">
+                        <div class="storageItem" v-for="item in storageList" :key="item._id">
+                            <div class="item">
+                                <nuxt-link :to="`/components/generator/${componentsType?.customURL}/${item._id}`">
+                                    <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt=""
+                                        v-if="item.screenshotFileName">
+                                </nuxt-link>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <ComponentsTypeModal :is-open="componentsTypeModal.open" :active-component-type="componentsType ?? null"
-            @close-modal="componentsTypeModal.open = false" />
+            <ComponentsTypeModal :is-open="componentsTypeModal.open" :active-component-type="componentsType ?? null"
+                @close-modal="componentsTypeModal.open = false" />
+        </client-only>
     </div>
 </template>
 
@@ -92,11 +104,17 @@
 import { useStore } from "~/store";
 import { Component, ComponentType } from "~/types";
 import html2canvas from 'html2canvas';
+import hljs from 'highlight.js/lib/core';
+import javascript from 'highlight.js/lib/languages/javascript';
+import CSS from 'highlight.js/lib/languages/css';
+import HTML from 'highlight.js/lib/languages/xml';
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
+import 'highlight.js/styles/atom-one-dark.css';
 
 const store = useStore();
 const route = useRoute();
+const router = useRouter();
 const URL = ref(route.params.id);
 const typeURL = computed(() => URL.value[0]);
 const componentId = computed(() => URL.value[1]);
@@ -110,11 +128,15 @@ const iframeSrc = computed(() => {
     if (!componentsType.value) return "";
     return `/api/components/sandbox/?typeId=${componentsType.value._id}&componentId=${componentsData.value._id}`;
 });
+const htmlEl = ref('');
+const javascriptEl = ref('');
+const cssEl = ref('');
 const componentsTypeModal = ref({
     open: false,
     data: {},
 });
 const previewer = ref<HTMLIFrameElement | null>(null);
+const description = ref("");
 
 function getComponentType(type: string) {
     if (!componentsTypeList.value || componentsTypeList.value.length === 0) return null;
@@ -130,7 +152,7 @@ function getComponentType(type: string) {
 async function getStorageList() {
     if (!store.user) return;
     store.isLoading = true;
-    
+
     try {
         const res: Component[] = await $fetch(`${store.api}/components/user/list/`, {
             method: "GET",
@@ -151,6 +173,22 @@ async function getStorageList() {
     store.isLoading = false;
 }
 
+// copy to clipboard
+function copyToClipboard(text: string) {
+    const input = document.createElement('textarea');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+
+    store.pushNotification({
+        type: "success",
+        message: "Copied to clipboard",
+        timeout: 5000,
+    });
+}
+
 if (componentsRes) {
     componentsData.value = componentsRes.value as Component;
 }
@@ -165,24 +203,22 @@ if (componentsTypeList.value && componentsTypeList.value.length > 0 && typeURL.v
     });
 }
 
-// 若是 componentsType 不存在，則跳轉到第一個 componentsType
-if (componentsTypeList.value && componentsTypeList.value.length > 0 && !componentsTypeIsExist) {
-    const firstComponentType = componentsTypeList.value[0] ?? null;
-    navigateTo(`/components/generator/${firstComponentType.customURL}/`);
-}
-
-// 若是 componentsType 不存在，且 componentsTypeList 不存在，且請求錯誤，則跳轉到 generator 頁面
-if (componentsError?.value || typeListError?.value || componentsTypeList.value?.length === 0) {
-    navigateTo("/components/");
-}
-
 watch(() => store.user, (user) => {
     if (user) {
         getStorageList();
     }
-});
+}, { immediate: true });
 
-onMounted(() => {
+onMounted(async () => {
+    // 若是 componentsType 不存在，則跳轉到第一個 componentsType
+    if (componentsTypeList.value && componentsTypeList.value.length > 0 && !componentsTypeIsExist) {
+        const firstComponentType = componentsTypeList.value[0] ?? null;
+        navigateTo(`/components/generator/${firstComponentType.customURL}/`);
+    }
+    // 若是 componentsType 不存在，且 componentsTypeList 不存在，且請求錯誤，則跳轉到 generator 頁面
+    if (componentsError?.value || typeListError?.value || componentsTypeList.value?.length === 0) {
+        navigateTo("/components/");
+    }
     // 若是第一次進入，則打開選擇 componentsType 的 modal
     if (typeURL.value && localStorage.getItem("firstIn") !== "1") {
         componentsTypeModal.value.open = true;
@@ -223,19 +259,26 @@ onMounted(() => {
                 var yOffset = (tempCanvas.height - tempCanvas.height * scale) / 2;
                 tempCtx.drawImage(canvas, 0, yOffset, newWidth, tempCanvas.height * scale);
             }
-            
+
             tempCanvas.toBlob(async (blob) => {
                 if (!blob) return;
                 const formData = new FormData();
                 formData.append('componentId', componentsData.value?._id ?? "");
                 formData.append('screenshot', blob, "screenshot.png");
-                
+
                 try {
-                    $fetch(`${store.api}/components/screenshot/`, {
+                    interface uploadRes {
+                        screenshotFileName: string
+                    }
+                    const res: uploadRes = await $fetch(`${store.api}/components/screenshot/`, {
                         method: "POST",
                         credentials: "include",
                         body: formData,
                     });
+                    if (!res) return;
+                    if (!componentsData.value) return;
+                    componentsData.value.screenshotFileName = res.screenshotFileName;
+                    getStorageList();
                 } catch (err) {
                     if (err) {
                         store.pushNotification({
@@ -249,6 +292,25 @@ onMounted(() => {
             });
         });
     }
+    hljs.registerLanguage('javascript', javascript);
+    hljs.registerLanguage('css', CSS);
+    hljs.registerLanguage('html', HTML);
+    htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsType.value?.html ?? "", {
+        language: 'html',
+    }).value}</code></pre>`;
+    javascriptEl.value = `<pre><code class="language-javascript">${hljs.highlight(componentsType.value?.javascript ?? "", {
+        language: 'javascript',
+    }).value}</code></pre>`;
+    cssEl.value = `<pre><code class="language-css">${hljs.highlight(componentsData.value?.style ?? "", {
+        language: 'css',
+    }).value}</code></pre>`;
+});
+
+onBeforeUnmount(() => {
+    // hljs unregister
+    hljs.unregisterLanguage('javascript');
+    hljs.unregisterLanguage('css');
+    hljs.unregisterLanguage('html');
 });
 
 </script>
@@ -476,9 +538,27 @@ onMounted(() => {
             background-color: $secColor;
             padding: 20px;
             flex-grow: 1;
+            min-width: 0;
 
             @include media(1200) {
                 order: 2;
+            }
+
+            .code {
+                display: flex;
+                margin: 0;
+                overflow: auto;
+                padding: 16px;
+                width: 100%;
+                max-height: 500px;
+
+                @include media(768) {
+                    max-height: 300px;
+                }
+
+                &::-webkit-scrollbar {
+                    height: 6px;
+                }
             }
 
             .preview,
@@ -486,10 +566,15 @@ onMounted(() => {
             .script,
             .html {
                 border: 2px solid #696060;
-                height: 545px;
+                height: 500px;
                 position: relative;
                 border-radius: 10px;
                 overflow: hidden;
+                background-color: darken($secColor, 5%);
+
+                @include media(768) {
+                    height: 300px;
+                }
 
                 .title {
                     color: #B5B5B5;
@@ -502,7 +587,8 @@ onMounted(() => {
                     position: absolute;
                 }
 
-                textarea {
+                textarea,
+                :deep(pre) {
                     border: 0;
                     width: 100%;
                     height: 100%;
@@ -511,6 +597,23 @@ onMounted(() => {
                     padding: 0;
                     resize: vertical;
                     min-height: 260px;
+                    color: #fff;
+
+                }
+
+                :deep(pre) {
+                    display: flex;
+                    align-items: stretch;
+                    margin-bottom: 0;
+                    margin-top: 25px;
+                    padding: 0 8px;
+                    width: 100%;
+
+                    code {
+                        background: darken($secColor, 5%);
+                        display: block;
+                        width: 100%;
+                    }
                 }
 
                 .copy {
@@ -619,6 +722,7 @@ onMounted(() => {
                     background-color: $terColor;
                     border-radius: 10px;
                     overflow: hidden;
+
                     img {
                         width: 100%;
                         height: 100%;
@@ -659,6 +763,12 @@ onMounted(() => {
             background-color: $terColor;
             height: 100px;
             border-radius: 10px;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
         }
     }
 

@@ -4,7 +4,7 @@
       <div class="intro">
         <h1>Library of AI components <br>
           built with <span>GPT-4</span> !<i class="bi bi-stars"></i></h1>
-        <nuxt-link to="/components/generator" class="try">Try it!</nuxt-link>
+        <nuxt-link :to="`/components/generator${componentsTypeList ? '/'+componentsTypeList[0].customURL : ''}`" class="try">Try it!</nuxt-link>
       </div>
       <div class="wrap">
         <div class="search-box">
@@ -24,10 +24,8 @@
 </template>
 
 <script lang="ts" setup>
+import { Component, ComponentType } from "~/types";
 import { useStore } from "~/store";
-const currentPage = ref(1);
-const total = ref(0);
-const totalPage = ref(1);
 
 useHead({
   title: "Components",
@@ -42,6 +40,10 @@ useHead({
 });
 
 const store = useStore();
+const currentPage = ref(1);
+const total = ref(0);
+const totalPage = ref(1);
+const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
 </script>
 
 <style lang="scss" scoped>
@@ -50,6 +52,10 @@ const store = useStore();
 .main {
   padding-top: 56px;
   padding-bottom: 45px;
+
+  @include media(768) {
+    padding-top: 45px;
+  }
 
   .wrap {
     max-width: 1480px;
@@ -68,6 +74,14 @@ const store = useStore();
     color: $secColor;
     font-size: 38px;
     letter-spacing: 1.33px;
+
+    @include media(768) {
+      font-size: 32px;
+    }
+    
+    @include media(576) {
+      font-size: 28px;
+    }
 
     span {
       background: linear-gradient(90deg, $fiveColor, $sixColor);
@@ -99,6 +113,15 @@ const store = useStore();
     margin-bottom: 70px;
     @extend %ts;
     cursor: pointer;
+
+    @include media(768) {
+      margin-bottom: 45px;
+    }
+
+    @include media(576) {
+      font-size: 20px;
+      width: 180px;
+    }
 
     &:hover {
       transform: scale(1.05);
@@ -149,6 +172,9 @@ const store = useStore();
 
   .tag-box {
     margin-bottom: 60px;
+    @include media(768) {
+      margin-bottom: 45px;
+    }
   }
 
   .content {
@@ -164,6 +190,13 @@ const store = useStore();
       display: flex;
       @include media(1200) {
         width: 50%;
+        margin-bottom: 40px;
+      }
+      @include media(768) {
+        width: 100%;
+      }
+      @include media(576) {
+        margin-bottom: 20px;
       }
     }
   }

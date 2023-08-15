@@ -16,13 +16,14 @@ export const useGetUserData = () => {
             });
     
             const data = await res.user;
+            store.isUserChecked = true;
             if (!data) {
                 return null;
             }
             store.user = data;
         } catch (error: unknown) {
+            store.isUserChecked = true;
             return null;
         }
-        store.isUserChecked = true;
     }
 }
