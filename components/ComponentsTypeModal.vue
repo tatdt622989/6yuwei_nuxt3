@@ -53,7 +53,7 @@ const { data: componentsTypeList, error } = await useFetch<ComponentType[]>(`${s
 
 const apply = () => {
     if (!props.activeComponentType) return;
-    navigateTo(`/components/${route.params.id}/${props.activeComponentType.customURL}`);
+    navigateTo(`/components/generator/${props.activeComponentType.customURL}`);
     emit("close-modal");
 };
 

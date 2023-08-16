@@ -12,7 +12,7 @@
                             componentsData?.title : '' }}</h1>
                     </div>
                 </div>
-                <div class="toolBox">
+                <div class="tool-box">
                     <button class="storage btn circle">
                         <i class="bi bi-inboxes-fill"></i>
                     </button>
@@ -28,12 +28,12 @@
         </div>
         <client-only>
             <div class="wrap">
-                <div class="generatorBox">
-                    <input type="text" placeholder="Describe your components" v-model="description" />
-                    <button class="generatorBtn">Generate</button>
+                <div class="generator-box">
+                    <input type="text" placeholder="Describe your components" v-model="prompt" />
+                    <button class="generatorBtn" @click="componentGenerator">Generate</button>
                 </div>
                 <client-only>
-                    <swiper :freeMode="true" class="storageList" :slides-per-view="'auto'" :space-between="10">
+                    <swiper :freeMode="true" class="storageList" :slides-per-view="'auto'" :space-between="10" v-show="storageList.length > 0">
                         <swiper-slide v-for="item in storageList" :key="item._id">
                             <div class="item">
                                 <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt=""
@@ -82,8 +82,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="storage">
-                        <div class="storageItem" v-for="item in storageList" :key="item._id">
+                    <div class="storage" v-show="storageList.length > 0">
+                        <div class="storage-item" v-for="item in storageList" :key="item._id">
                             <div class="item">
                                 <nuxt-link :to="`/components/generator/${componentsType?.customURL}/${item._id}`">
                                     <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt=""
@@ -136,7 +136,7 @@ const componentsTypeModal = ref({
     data: {},
 });
 const previewer = ref<HTMLIFrameElement | null>(null);
-const description = ref("");
+const prompt = ref("");
 
 function getComponentType(type: string) {
     if (!componentsTypeList.value || componentsTypeList.value.length === 0) return null;
@@ -160,6 +160,45 @@ async function getStorageList() {
         });
         if (!res) return;
         storageList.value = res;
+    } catch (err) {
+        if (err) {
+            store.pushNotification({
+                type: "error",
+                message: err.toString(),
+                timeout: 5000,
+            });
+            return;
+        }
+    }
+    store.isLoading = false;
+}
+
+async function componentGenerator() {
+    if (!componentsType.value) return;
+    if (!prompt.value) return store.pushNotification({
+        type: "error",
+        message: "Please enter a description",
+        timeout: 5000,
+    });
+    if (!store.user) return;
+    store.isLoading = true;
+
+    try {
+        const res: Component = await $fetch(`${store.api}/components/generate/`, {
+            method: "POST",
+            credentials: "include",
+            body: {
+                typeId: componentsType.value._id,
+                prompt: prompt.value,
+            },
+        });
+        if (!res) return;
+        store.pushNotification({
+            type: "success",
+            message: "Generate success",
+            timeout: 5000,
+        });
+        navigateTo(`/components/generator/${componentsType.value.customURL}/${res._id}`);
     } catch (err) {
         if (err) {
             store.pushNotification({
@@ -210,6 +249,9 @@ watch(() => store.user, (user) => {
 }, { immediate: true });
 
 onMounted(async () => {
+    hljs.registerLanguage('javascript', javascript);
+    hljs.registerLanguage('css', CSS);
+    hljs.registerLanguage('html', HTML);
     // 若是 componentsType 不存在，則跳轉到第一個 componentsType
     if (componentsTypeList.value && componentsTypeList.value.length > 0 && !componentsTypeIsExist) {
         const firstComponentType = componentsTypeList.value[0] ?? null;
@@ -224,77 +266,6 @@ onMounted(async () => {
         componentsTypeModal.value.open = true;
         localStorage.setItem("firstIn", "1");
     }
-    // 如果 screenshot 不存在，則 iframe 使用 html2canvas 截圖，並將截圖內容填充至600px x 400px的 canvas 中，再將 canvas 轉成 png 並上傳至 api server
-    if (!componentsData.value?.screenshotFileName && componentsData.value) {
-        const iframe = previewer.value;
-        if (!iframe) return;
-        const iframeDocument = iframe.contentDocument;
-        if (!iframeDocument) return;
-        const iframeBody = iframeDocument.querySelector("body");
-        if (!iframeBody) return;
-        html2canvas(iframeBody, {
-            scale: 1,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: "#fff",
-        }).then((canvas) => {
-            const height = canvas.height;
-            // fit to 600 x 400
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
-            const tempCanvas = document.createElement("canvas");
-            tempCanvas.width = 600;
-            tempCanvas.height = 400;
-            const scale = tempCanvas.height / height;
-            const tempCtx = tempCanvas.getContext("2d");
-            if (!tempCtx) return;
-
-            // 如果新宽度大于Canvas宽度，裁剪多余部分
-            var newWidth = canvas.width * scale;
-            if (newWidth > tempCanvas.width) {
-                var xOffset = (newWidth - tempCanvas.width) / 2;
-                tempCtx.drawImage(canvas, -xOffset, 0, newWidth, tempCanvas.height);
-            } else {
-                // 如果新宽度小于等于Canvas宽度，上下居中绘制
-                var yOffset = (tempCanvas.height - tempCanvas.height * scale) / 2;
-                tempCtx.drawImage(canvas, 0, yOffset, newWidth, tempCanvas.height * scale);
-            }
-
-            tempCanvas.toBlob(async (blob) => {
-                if (!blob) return;
-                const formData = new FormData();
-                formData.append('componentId', componentsData.value?._id ?? "");
-                formData.append('screenshot', blob, "screenshot.png");
-
-                try {
-                    interface uploadRes {
-                        screenshotFileName: string
-                    }
-                    const res: uploadRes = await $fetch(`${store.api}/components/screenshot/`, {
-                        method: "POST",
-                        credentials: "include",
-                        body: formData,
-                    });
-                    if (!res) return;
-                    if (!componentsData.value) return;
-                    componentsData.value.screenshotFileName = res.screenshotFileName;
-                    getStorageList();
-                } catch (err) {
-                    if (err) {
-                        store.pushNotification({
-                            type: "error",
-                            message: err.toString(),
-                            timeout: 5000,
-                        });
-                        return;
-                    }
-                }
-            });
-        });
-    }
-    hljs.registerLanguage('javascript', javascript);
-    hljs.registerLanguage('css', CSS);
-    hljs.registerLanguage('html', HTML);
     htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsType.value?.html ?? "", {
         language: 'html',
     }).value}</code></pre>`;
@@ -304,6 +275,83 @@ onMounted(async () => {
     cssEl.value = `<pre><code class="language-css">${hljs.highlight(componentsData.value?.style ?? "", {
         language: 'css',
     }).value}</code></pre>`;
+    // 如果 screenshot 不存在，則 iframe 使用 html2canvas 截圖，並將截圖內容填充至600px x 400px的 canvas 中，再將 canvas 轉成 png 並上傳至 api server
+    if (!componentsData.value?.screenshotFileName && componentsData.value) {
+        await nextTick();
+        const iframe = previewer.value;
+        if (!iframe) return;
+        iframe.onload = function() {
+            if (!iframe) return;
+            const iframeDocument = iframe.contentDocument;
+            console.log(iframeDocument?.querySelector('button'));
+            if (!iframeDocument) return;
+            const iframeBody = iframeDocument.querySelector("body");
+            if (!iframeBody) return;
+            html2canvas(iframeBody, {
+                scale: 1,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: "#fff",
+            }).then((canvas) => {
+                const height = canvas.height;
+                // fit to 600 x 400
+                const ctx = canvas.getContext("2d");
+                if (!ctx) return;
+                const tempCanvas = document.createElement("canvas");
+                tempCanvas.width = 600;
+                tempCanvas.height = 400;
+                const scale = tempCanvas.height / height;
+                const tempCtx = tempCanvas.getContext("2d");
+                if (!tempCtx) return;
+    
+                // 如果新宽度大于Canvas宽度，裁剪多余部分
+                var newWidth = canvas.width * scale;
+                if (newWidth > tempCanvas.width) {
+                    var xOffset = (newWidth - tempCanvas.width) / 2;
+                    tempCtx.drawImage(canvas, -xOffset, 0, newWidth, tempCanvas.height);
+                } else {
+                    // 如果新宽度小于等于Canvas宽度，上下居中绘制
+                    var yOffset = (tempCanvas.height - tempCanvas.height * scale) / 2;
+                    tempCtx.drawImage(canvas, 0, yOffset, newWidth, tempCanvas.height * scale);
+                }
+    
+                tempCanvas.toBlob(async (blob) => {
+                    
+                    if (!blob) return;
+                    const formData = new FormData();
+                    formData.append('componentId', componentsData.value?._id ?? "");
+                    formData.append('screenshot', blob, "screenshot.png");
+                    console.log(formData);
+    
+                    try {
+                        interface uploadRes {
+                            screenshotFileName: string
+                        }
+                        const res: uploadRes = await $fetch(`${store.api}/components/screenshot/`, {
+                            method: "POST",
+                            credentials: "include",
+                            body: formData,
+                        });
+                        if (!res) return;
+                        if (!componentsData.value) return;
+                        componentsData.value.screenshotFileName = res.screenshotFileName;
+                        getStorageList();
+                    } catch (err) {
+                        if (err) {
+                            store.pushNotification({
+                                type: "error",
+                                message: err.toString(),
+                                timeout: 5000,
+                            });
+                            return;
+                        }
+                    }
+                });
+            }).catch((err) => {
+                console.log(err);
+            });
+        };
+    }
 });
 
 onBeforeUnmount(() => {
@@ -390,7 +438,7 @@ onBeforeUnmount(() => {
             }
         }
 
-        .toolBox {
+        .tool-box {
             flex-grow: 1;
             display: flex;
             justify-content: flex-end;
@@ -465,7 +513,7 @@ onBeforeUnmount(() => {
         }
     }
 
-    .generatorBox {
+    .generator-box {
         display: flex;
         overflow: hidden;
         border-radius: 10px;
@@ -704,7 +752,7 @@ onBeforeUnmount(() => {
                 display: none;
             }
 
-            .storageItem {
+            .storage-item {
                 width: 50%;
                 padding: 0 10px;
                 height: 170px;
@@ -722,6 +770,12 @@ onBeforeUnmount(() => {
                     background-color: $terColor;
                     border-radius: 10px;
                     overflow: hidden;
+
+                    a {
+                        display: flex;
+                        width: 100%;
+                        height: 100%;
+                    }
 
                     img {
                         width: 100%;

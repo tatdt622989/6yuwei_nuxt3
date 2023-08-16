@@ -15,7 +15,7 @@
         </div>
         <div class="tag-box"></div>
         <div class="content">
-          <ComponentsCard v-for="item in 5" />
+          <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id" />
         </div>
         <Pagination :total="totalPage" :url="'/components/'" />
       </div>
@@ -39,11 +39,29 @@ useHead({
   ],
 });
 
+interface ComponentsRes {
+  msg: string
+  components : Component[]
+  pageSize : number
+  currentPage : number
+  total : number
+  totalPage: number
+};
+
 const store = useStore();
 const currentPage = ref(1);
 const total = ref(0);
 const totalPage = ref(1);
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
+const { data: componentsRes, error: listError } = await useFetch<ComponentsRes>(`${store.api}/components/list/?page=${currentPage.value}`);
+const componentsList = ref<Component[]>([]);
+
+if (componentsRes.value) {
+  total.value = componentsRes.value.total;
+  totalPage.value = componentsRes.value.totalPage;
+  componentsList.value = componentsRes.value.components;
+  console.log(componentsList.value);
+}
 </script>
 
 <style lang="scss" scoped>

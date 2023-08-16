@@ -3,15 +3,19 @@
         <div class="card">
             <div class="head">
                 <div class="category">
-                    <span>Button</span>
+                    <span>{{ props.component.componentsType.title }}</span>
                     <img src="@/assets/images/arrow.png" alt="arrow">
                 </div>
             </div>
-            <div class="content"></div>
+            <div class="content">
+                <nuxt-link :to="`/components/generator/${props.component.componentsType.customURL}/${props.component._id}`">
+                    <img :src="`${store.api}/components/screenshot/${props.component.screenshotFileName}`" :alt="props.component.title" v-if="props.component.screenshotFileName">
+                </nuxt-link>
+            </div>
             <div class="info">
                 <div class="text">
-                    <h2>Gradient Button</h2>
-                    <p class="by">create by <span class="author">6yuwei</span></p>
+                    <h2>{{ props.component.title }}</h2>
+                    <p class="by">Create date <span class="author">{{ timeFormat(props.component.createdAt) }}</span></p>
                 </div>
                 <button class="copy">
                     <span class="material-symbols-outlined">
@@ -24,6 +28,28 @@
 </template>
 
 <script lang="ts" setup>
+import { Component, ComponentType } from "~/types";
+import { useStore } from "~/store";
+
+const props = defineProps({
+    component: {
+        type: Object as PropType<Component>,
+        default: () => []
+    },
+});
+const store = useStore();
+
+function timeFormat(time: string) {
+    const date = new Date(time);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    return `${year}-${month}-${day}`;
+}
+
+onMounted(() => {
+});
 </script>
 
 <style lang="scss" scoped>
@@ -67,6 +93,17 @@
         height: 270px;
         border-radius: 10px;
         border: 2px solid #737373;
+        overflow: hidden;
+        a {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
     }
 
     .info {
