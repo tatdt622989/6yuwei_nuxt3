@@ -85,6 +85,7 @@ export interface ComponentType {
   javascript: string;
   createdAt: string;
   updatedAt: string;
+  coverFileName?: string;
 }
 
 export interface Component {

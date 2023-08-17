@@ -8,12 +8,20 @@
       </div>
       <div class="wrap">
         <div class="search-box">
-          <input type="text" placeholder="Search for components created by everyone" />
-          <button class="search-btn">
+          <input type="text" placeholder="Search for components created by everyone" v-model="keyword" @keyup="(e) => {
+            if (e.code === 'Enter') {
+              search();
+            }
+          }" />
+          <button class="search-btn" @click="search">
             <i class="bi bi-search"></i>
           </button>
         </div>
-        <div class="tag-box"></div>
+        <div class="tag-box">
+          <button class="tag-item" v-for="item in componentsTypeList" :key="item._id" @click="typeSearch(item.title)">
+            <span>{{ item.title }}</span>
+          </button>
+        </div>
         <div class="content">
           <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id" />
         </div>
@@ -49,12 +57,44 @@ interface ComponentsRes {
 };
 
 const store = useStore();
-const currentPage = ref(1);
+const route = useRoute();
+const currentPage = computed(() => {
+  return route.query.page ? parseInt(route.query.page as string, 10) : 1;
+});
 const total = ref(0);
 const totalPage = ref(1);
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
 const { data: componentsRes, error: listError } = await useFetch<ComponentsRes>(`${store.api}/components/list/?page=${currentPage.value}`);
 const componentsList = ref<Component[]>([]);
+const keyword = ref("");
+
+async function search() {
+    store.isLoading = true;
+
+    try {
+        const res: ComponentsRes = await $fetch(`${store.api}/components/list/?page=${currentPage.value}&keyword=${keyword.value}`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res) return;
+        componentsList.value = res.components;
+    } catch (err) {
+        if (err) {
+            store.pushNotification({
+                type: "error",
+                message: err.toString(),
+                timeout: 5000,
+            });
+            return;
+        }
+    }
+    store.isLoading = false;
+}
+
+function typeSearch(type: string) {
+  keyword.value = type;
+  search();
+}
 
 if (componentsRes.value) {
   total.value = componentsRes.value.total;
@@ -154,6 +194,7 @@ if (componentsRes.value) {
     box-shadow: 0px 0px 30px 0px rgba(40, 203, 146, 0.20);
     align-items: center;
     padding-right: 16px;
+    margin-bottom: 16px;
     input {
       width: 100%;
       height: 52px;
@@ -189,9 +230,32 @@ if (componentsRes.value) {
   }
 
   .tag-box {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin: 0 -8px;
     margin-bottom: 60px;
     @include media(768) {
       margin-bottom: 45px;
+    }
+    .tag-item {
+      border: 2px solid $mainColor;
+      border-radius: 10px;
+      color: $mainColor;
+      border-color: $mainColor;
+      padding: 0 20px;
+      background: none;
+      cursor: pointer;
+      @extend %ts;
+      margin: 0 8px;
+      &:hover {
+        background: $mainColor;
+        color: $secColor;
+      }
+      span {
+        font-size: 20px;
+        line-height: 36px;
+      }
     }
   }
 

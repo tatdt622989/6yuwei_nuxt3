@@ -12,9 +12,9 @@
                         </div>
                         <div class="modal-body">
                             <ul class="component-type-list">
-                                <li class="item" v-for="item in componentsTypeList" :key="item._id" :class="{ active : item._id === props.activeComponentType?._id }">
-                                    <div class="img-box">
-                                        <img :src="`/images/${item.customURL}.png`" :alt="item.title">
+                                <li class="item" v-for="item in componentsTypeList" :key="item._id" :class="{ active : item._id === currentType?._id }">
+                                    <div class="img-box" @click="currentType = item">
+                                        <img :src="`${store.api}/components/types/cover/${item.coverFileName}`" :alt="item.title" v-if="item.coverFileName">
                                     </div>
                                     <p class="title">{{ item.title }}</p>
                                 </li>
@@ -50,10 +50,11 @@ const emit = defineEmits(["close-modal"]);
 const store = useStore();
 const route = useRoute();
 const { data: componentsTypeList, error } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
+const currentType = ref<ComponentType | null>(null);
 
 const apply = () => {
-    if (!props.activeComponentType) return;
-    navigateTo(`/components/generator/${props.activeComponentType.customURL}`);
+    if (!currentType.value) return;
+    navigateTo(`/components/generator/${currentType.value.customURL}`);
     emit("close-modal");
 };
 
@@ -68,6 +69,9 @@ function bodyOverflow() {
 watch(() => props.isOpen, () => bodyOverflow);
 
 onMounted(() => {
+    if (props.activeComponentType) {
+        currentType.value = props.activeComponentType;
+    };
     bodyOverflow();
 });
 </script>

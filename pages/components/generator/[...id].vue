@@ -29,7 +29,11 @@
         <client-only>
             <div class="wrap">
                 <div class="generator-box">
-                    <input type="text" placeholder="Describe your components" v-model="prompt" />
+                    <input type="text" placeholder="Describe your components" v-model="prompt" @keyup="(e) => {
+                        if (e.code === 'Enter') {
+                            // componentGenerator();
+                        }
+                    }"/>
                     <button class="generatorBtn" @click="componentGenerator">Generate</button>
                 </div>
                 <client-only>
@@ -154,7 +158,7 @@ async function getStorageList() {
     store.isLoading = true;
 
     try {
-        const res: Component[] = await $fetch(`${store.api}/components/user/list/`, {
+        const res: Component[] = await $fetch(`${store.api}/components/user/list/?typeId=${componentsType.value?._id}`, {
             method: "GET",
             credentials: "include",
         });
@@ -174,13 +178,15 @@ async function getStorageList() {
 }
 
 async function componentGenerator() {
+    if (!store.user) return navigateTo("/admin/login/");
     if (!componentsType.value) return;
-    if (!prompt.value) return store.pushNotification({
-        type: "error",
-        message: "Please enter a description",
-        timeout: 5000,
-    });
-    if (!store.user) return;
+    if (!prompt.value) {
+        return store.pushNotification({
+            type: "error",
+            message: "Please enter a description",
+            timeout: 5000,
+        });
+    }
     store.isLoading = true;
 
     try {
@@ -192,7 +198,7 @@ async function componentGenerator() {
                 prompt: prompt.value,
             },
         });
-        if (!res) return;
+        if (!res) return store.isLoading = false;
         store.pushNotification({
             type: "success",
             message: "Generate success",
@@ -201,6 +207,7 @@ async function componentGenerator() {
         navigateTo(`/components/generator/${componentsType.value.customURL}/${res._id}`);
     } catch (err) {
         if (err) {
+            store.isLoading = false;
             store.pushNotification({
                 type: "error",
                 message: err.toString(),
