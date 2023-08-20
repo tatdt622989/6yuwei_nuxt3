@@ -9,6 +9,7 @@ interface LoginStatusRes {
 export const useGetUserData = () => {
     return async () => {
         const store = useStore();
+        if (store.user) return null;
         try {
             const res: LoginStatusRes = await $fetch(`${store.api}/loginStatus/`, {
                 method: "GET",

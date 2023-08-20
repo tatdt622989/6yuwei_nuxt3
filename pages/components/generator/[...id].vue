@@ -7,41 +7,27 @@
                         <i class="bi bi-arrow-left"></i>
                     </nuxt-link>
                     <div class="titleBox">
-                        <!-- <p class="category">Button</p> -->
                         <h1 v-if="componentsType"><span>{{ componentsType?.title }}</span> {{ componentsData?.title ? '- ' +
                             componentsData?.title : '' }}</h1>
                     </div>
                 </div>
-                <div class="tool-box">
-                    <button class="storage btn circle">
-                        <i class="bi bi-inboxes-fill"></i>
-                    </button>
-                    <button class="copy btn circle" @click="componentsTypeModal.open = true">
-                        <i class="bi bi-arrow-left-right"></i>
-                    </button>
-                    <div class="balance">
-                        <p>999</p>
-                        <img src="@/assets/images/currency.svg" alt="currency">
-                    </div>
-                </div>
+                <ComponentsToolbar @open-modal="openModal" />
             </div>
         </div>
         <client-only>
             <div class="wrap">
                 <div class="generator-box">
-                    <input type="text" placeholder="Describe your components" v-model="prompt" @keyup="(e) => {
-                        if (e.code === 'Enter') {
-                            // componentGenerator();
-                        }
-                    }"/>
+                    <input type="text" placeholder="Describe your components" v-model="prompt"/>
                     <button class="generatorBtn" @click="componentGenerator">Generate</button>
                 </div>
                 <client-only>
                     <swiper :freeMode="true" class="storageList" :slides-per-view="'auto'" :space-between="10" v-show="storageList.length > 0">
                         <swiper-slide v-for="item in storageList" :key="item._id">
                             <div class="item">
-                                <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt=""
+                                <nuxt-link :to="`/components/generator/${componentsType?.customURL}/${item._id}`">
+                                    <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt=""
                                     v-if="item.screenshotFileName">
+                                </nuxt-link>
                             </div>
                         </swiper-slide>
                     </swiper>
@@ -116,6 +102,18 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import 'highlight.js/styles/atom-one-dark.css';
 
+useHead({
+  title: "Components - generator",
+  titleTemplate: "%s - 6yuwei",
+  meta: [
+    {
+      hid: "description",
+      name: "description",
+      content: "Components - generator",
+    },
+  ],
+});
+
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
@@ -132,6 +130,7 @@ const iframeSrc = computed(() => {
     if (!componentsType.value) return "";
     return `/api/components/sandbox/?typeId=${componentsType.value._id}&componentId=${componentsData.value._id}`;
 });
+const copyToClipboard = useCopyToClipboard();
 const htmlEl = ref('');
 const javascriptEl = ref('');
 const cssEl = ref('');
@@ -141,6 +140,10 @@ const componentsTypeModal = ref({
 });
 const previewer = ref<HTMLIFrameElement | null>(null);
 const prompt = ref("");
+
+function openModal() {
+    componentsTypeModal.value.open = true;
+}
 
 function getComponentType(type: string) {
     if (!componentsTypeList.value || componentsTypeList.value.length === 0) return null;
@@ -219,22 +222,6 @@ async function componentGenerator() {
     store.isLoading = false;
 }
 
-// copy to clipboard
-function copyToClipboard(text: string) {
-    const input = document.createElement('textarea');
-    input.value = text;
-    document.body.appendChild(input);
-    input.select();
-    document.execCommand('copy');
-    document.body.removeChild(input);
-
-    store.pushNotification({
-        type: "success",
-        message: "Copied to clipboard",
-        timeout: 5000,
-    });
-}
-
 if (componentsRes) {
     componentsData.value = componentsRes.value as Component;
 }
@@ -290,7 +277,6 @@ onMounted(async () => {
         iframe.onload = function() {
             if (!iframe) return;
             const iframeDocument = iframe.contentDocument;
-            console.log(iframeDocument?.querySelector('button'));
             if (!iframeDocument) return;
             const iframeBody = iframeDocument.querySelector("body");
             if (!iframeBody) return;
@@ -328,8 +314,6 @@ onMounted(async () => {
                     const formData = new FormData();
                     formData.append('componentId', componentsData.value?._id ?? "");
                     formData.append('screenshot', blob, "screenshot.png");
-                    console.log(formData);
-    
                     try {
                         interface uploadRes {
                             screenshotFileName: string
@@ -441,76 +425,6 @@ onBeforeUnmount(() => {
 
                 span {
                     color: darken($mainColor, 5%);
-                }
-            }
-        }
-
-        .tool-box {
-            flex-grow: 1;
-            display: flex;
-            justify-content: flex-end;
-
-            @include media(768) {
-                width: 100%;
-                justify-content: flex-start;
-                margin-bottom: 10px;
-                order: 1;
-            }
-
-            .btn {
-                margin-left: 20px;
-                cursor: pointer;
-
-                @include media(768) {
-                    margin-left: 0;
-                    margin-right: 10px;
-                    order: 2;
-                }
-            }
-
-            .storage {
-                @include media(768) {
-                    margin-left: 0;
-                }
-            }
-
-            .balance {
-                background-color: $secColor;
-                border-radius: 10px;
-                display: flex;
-                padding: 10px 16px;
-                min-width: 140px;
-                justify-content: space-between;
-                margin-left: 20px;
-
-                @include media(768) {
-                    padding: 6px 14px;
-                    align-items: center;
-                    min-width: 110px;
-                    order: 1;
-                    margin-left: 0;
-                    margin-right: 20px;
-                }
-
-                p {
-                    color: #FFF;
-                    font-size: 22px;
-                    font-style: normal;
-                    font-weight: 700;
-                    line-height: normal;
-                    letter-spacing: 0.77px;
-
-                    @include media(768) {
-                        font-size: 18px;
-                        vertical-align: middle;
-                    }
-                }
-
-                img {
-                    @include media(768) {
-                        width: 24px;
-                        height: 24px;
-                    }
                 }
             }
         }

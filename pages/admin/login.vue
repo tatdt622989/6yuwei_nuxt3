@@ -67,9 +67,11 @@ useHead({
 });
 
 const store = useStore();
+const route = useRoute();
 const email = ref('');
 const password = ref('');
 const isLoading = computed(() => store.isLoading);
+const redirect = route.query.redirect as string;
 
 interface LoginRes {
   msg: string;
@@ -110,21 +112,31 @@ const submit = async () => {
     });
   }
 
+  store.isLoading = false;
   if (res.data.value) {
     const data = res.data.value as LoginRes;
     const { user } = data;
     if (user) {
-      store.setUser(user);
+      store.user = user;
       store.pushNotification({
         type: 'success',
         message: 'Login successfully!',
         timeout: 3000,
       });
-      await navigateTo('/admin/account/');
+      if (redirect) {
+        navigateTo(redirect);
+      } else {
+        navigateTo('/admin/account/');
+      }
     }
   }
-  store.isLoading = false;
 };
+
+onMounted(async () => {
+  if (store.user) {
+    await navigateTo('/admin/account/');
+  }
+});
 </script>
 
 <style scoped lang="scss">

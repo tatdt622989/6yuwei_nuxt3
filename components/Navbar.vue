@@ -41,7 +41,8 @@ const route = useRoute();
 const unitName = computed(() => route.path.split("/")[1]);
 const store = useStore();
 const avatArURL = computed(() => {
-  if (store.user) {
+  console.log(store.user);
+  if (store.user && store.user.photo) {
     return `${store.api}/admin/uploads/${store.user._id}/${store.user.photo}`;
   }
 });

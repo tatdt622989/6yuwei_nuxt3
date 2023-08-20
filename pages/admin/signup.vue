@@ -56,6 +56,10 @@
 import { User } from '~/types';
 import { useStore } from '~/store';
 
+definePageMeta({
+  layout: 'no-layout'
+});
+
 useHead({
   title: "Singup",
   titleTemplate: "%s - 6yuwei",
@@ -99,7 +103,7 @@ const submit = async () => {
   if (error) {
     store.pushNotification({
       type: 'error',
-      message: error.message,
+      message: error.data,
       timeout: 5000,
     });
     store.isLoading = false;
@@ -116,7 +120,7 @@ const submit = async () => {
         message: 'Register successfully!',
         timeout: 3000,
       });
-      await navigateTo('/admin/');
+      await navigateTo('/admin/account/');
     }
   }
   store.isLoading = false;

@@ -66,12 +66,18 @@ function bodyOverflow() {
     }
 }
 
-watch(() => props.isOpen, () => bodyOverflow);
+watch(() => props.isOpen, () => {
+    bodyOverflow();
+});
 
 onMounted(() => {
     if (props.activeComponentType) {
         currentType.value = props.activeComponentType;
     };
+    bodyOverflow();
+});
+
+onBeforeUnmount(() => {
     bodyOverflow();
 });
 </script>

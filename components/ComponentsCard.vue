@@ -6,6 +6,9 @@
                     <span>{{ props.component.componentsType.title }}</span>
                     <img src="@/assets/images/arrow.png" alt="arrow">
                 </div>
+                <button class="favorites">
+                    <i class="bi bi-star"></i>
+                </button>
             </div>
             <div class="content">
                 <nuxt-link :to="`/components/generator/${props.component.componentsType.customURL}/${props.component._id}`">
@@ -17,11 +20,11 @@
                     <h2>{{ props.component.title }}</h2>
                     <p class="by">Create date <span class="author">{{ timeFormat(props.component.createdAt) }}</span></p>
                 </div>
-                <button class="copy">
+                <!-- <button class="copy" @click="copyToClipboard(props.component.style)">
                     <span class="material-symbols-outlined">
                         file_copy
                     </span>
-                </button>
+                </button> -->
             </div>
         </div>
     </div>
@@ -38,6 +41,7 @@ const props = defineProps({
     },
 });
 const store = useStore();
+// const copyToClipboard = useCopyToClipboard();
 
 function timeFormat(time: string) {
     const date = new Date(time);
@@ -64,11 +68,13 @@ onMounted(() => {
     width: 100%;
 
     .head {
+        display: flex;
+        align-items: center;
+        padding-bottom: 16px;
         .category {
             display: flex;
             border-radius: 5px 0 0 5px;
             overflow: hidden;
-            margin-bottom: 18px;
 
             span {
                 background-color: $mainColor;
@@ -76,7 +82,7 @@ onMounted(() => {
                 font-size: 22px;
                 font-style: normal;
                 font-weight: 700;
-                line-height: normal;
+                line-height: 36px;
                 letter-spacing: 0.77px;
                 padding-left: 13px;
                 padding-right: 2px;
@@ -85,6 +91,21 @@ onMounted(() => {
 
             img {
                 height: 36px;
+            }
+        }
+
+        .favorites {
+            background: none;
+            border: 0;
+            @include center;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            margin-left: auto;
+            i {
+                color: $mainColor;
+                font-size: 32px;
+                color: $mainColor;
             }
         }
     }
@@ -145,6 +166,7 @@ onMounted(() => {
             margin-top: 8px;
             cursor: pointer;
             @extend %ts;
+            flex-shrink: 0;
 
             span {
                 color: #fff;

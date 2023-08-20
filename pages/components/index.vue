@@ -1,6 +1,11 @@
 <template>
   <div class="inner-page">
-    <div class="main">
+    <div class="main" :class="{ 'no-login' : !store.user}">
+      <div class="head">
+        <div class="wrap">
+          <ComponentsToolbar />
+        </div>
+      </div>
       <div class="intro">
         <h1>Library of AI components <br>
           built with <span>GPT-4</span> !<i class="bi bi-stars"></i></h1>
@@ -96,20 +101,51 @@ function typeSearch(type: string) {
   search();
 }
 
+async function getList() {
+  store.isLoading = true;
+
+  try {
+    const res: ComponentsRes = await $fetch(`${store.api}/components/list/?page=${currentPage.value}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res) return;
+    componentsList.value = res.components;
+  } catch (err) {
+    if (err) {
+      store.pushNotification({
+        type: "error",
+        message: err.toString(),
+        timeout: 5000,
+      });
+      return;
+    }
+  }
+  store.isLoading = false;
+}
+
 if (componentsRes.value) {
   total.value = componentsRes.value.total;
   totalPage.value = componentsRes.value.totalPage;
   componentsList.value = componentsRes.value.components;
-  console.log(componentsList.value);
 }
+
+watch(currentPage, async () => {
+  await getList();
+});
+
 </script>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/_setting.scss';
 
 .main {
-  padding-top: 56px;
+  padding-top: 50px;
   padding-bottom: 45px;
+
+  &.no-login {
+    padding-top: 70px;
+  }
 
   @include media(768) {
     padding-top: 45px;
@@ -132,6 +168,7 @@ if (componentsRes.value) {
     color: $secColor;
     font-size: 38px;
     letter-spacing: 1.33px;
+    margin: 20px 0 36px;
 
     @include media(768) {
       font-size: 32px;
@@ -168,7 +205,7 @@ if (componentsRes.value) {
     letter-spacing: 0.6px;
     text-align: center;
     @include center;
-    margin-bottom: 70px;
+    margin-bottom: 50px;
     @extend %ts;
     cursor: pointer;
 
