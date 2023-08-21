@@ -83,6 +83,7 @@ async function search() {
         });
         if (!res) return;
         componentsList.value = res.components;
+        totalPage.value = res.totalPage;
     } catch (err) {
         if (err) {
             store.pushNotification({
