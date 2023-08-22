@@ -170,7 +170,7 @@ async function getStorageList() {
     store.isLoading = true;
 
     try {
-        const res: ComponentsRes = await $fetch(`${store.api}/components/user/list/?typeId=${componentsType.value?._id}`, {
+        const res: ComponentsRes = await $fetch(`${store.api}/components/user/?typeId=${componentsType.value?._id}`, {
             method: "GET",
             credentials: "include",
         });

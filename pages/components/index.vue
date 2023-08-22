@@ -1,6 +1,6 @@
 <template>
   <div class="inner-page">
-    <div class="main" :class="{ 'no-login' : !store.user}">
+    <div class="main" :class="{ 'no-login': !store.user }">
       <div class="head">
         <div class="wrap">
           <ComponentsToolbar />
@@ -9,7 +9,8 @@
       <div class="intro">
         <h1>Library of AI components <br>
           built with <span>GPT-4</span> !<i class="bi bi-stars"></i></h1>
-        <nuxt-link :to="`/components/generator${componentsTypeList ? '/'+componentsTypeList[0].customURL : ''}`" class="try">Try it!</nuxt-link>
+        <nuxt-link :to="`/components/generator${componentsTypeList ? '/' + componentsTypeList[0].customURL : ''}`"
+          class="try">Try it!</nuxt-link>
       </div>
       <div class="wrap">
         <div class="search-box">
@@ -54,10 +55,10 @@ useHead({
 
 interface ComponentsRes {
   msg: string
-  components : Component[]
-  pageSize : number
-  currentPage : number
-  total : number
+  components: Component[]
+  pageSize: number
+  currentPage: number
+  total: number
   totalPage: number
 };
 
@@ -69,32 +70,32 @@ const currentPage = computed(() => {
 const total = ref(0);
 const totalPage = ref(1);
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
-const { data: componentsRes, error: listError } = await useFetch<ComponentsRes>(`${store.api}/components/list/?page=${currentPage.value}`);
+const { data: componentsRes, error: listError } = await useFetch<ComponentsRes>(`${store.api}/components/?page=${currentPage.value}`);
 const componentsList = ref<Component[]>([]);
 const keyword = ref("");
 
 async function search() {
-    store.isLoading = true;
+  store.isLoading = true;
 
-    try {
-        const res: ComponentsRes = await $fetch(`${store.api}/components/list/?page=${currentPage.value}&keyword=${keyword.value}`, {
-            method: "GET",
-            credentials: "include",
-        });
-        if (!res) return;
-        componentsList.value = res.components;
-        totalPage.value = res.totalPage;
-    } catch (err) {
-        if (err) {
-            store.pushNotification({
-                type: "error",
-                message: err.toString(),
-                timeout: 5000,
-            });
-            return;
-        }
+  try {
+    const res: ComponentsRes = await $fetch(`${store.api}/components/?page=${currentPage.value}&keyword=${keyword.value}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res) return;
+    componentsList.value = res.components;
+    totalPage.value = res.totalPage;
+  } catch (err) {
+    if (err) {
+      store.pushNotification({
+        type: "error",
+        message: err.toString(),
+        timeout: 5000,
+      });
+      return;
     }
-    store.isLoading = false;
+  }
+  store.isLoading = false;
 }
 
 function typeSearch(type: string) {
@@ -106,7 +107,7 @@ async function getList() {
   store.isLoading = true;
 
   try {
-    const res: ComponentsRes = await $fetch(`${store.api}/components/list/?page=${currentPage.value}`, {
+    const res: ComponentsRes = await $fetch(`${store.api}/components/?page=${currentPage.value}`, {
       method: "GET",
       credentials: "include",
     });
@@ -156,12 +157,16 @@ watch(currentPage, async () => {
     max-width: 1480px;
     box-sizing: border-box;
     margin: 0 auto;
+    &:deep(.tool-box) {
+      justify-content: flex-end;
+    }
   }
 
   .intro {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding: 0 20px;
   }
 
   h1 {
@@ -173,8 +178,9 @@ watch(currentPage, async () => {
 
     @include media(768) {
       font-size: 32px;
+      margin-bottom: 24px;
     }
-    
+
     @include media(576) {
       font-size: 28px;
     }
@@ -211,7 +217,7 @@ watch(currentPage, async () => {
     cursor: pointer;
 
     @include media(768) {
-      margin-bottom: 45px;
+      margin-bottom: 38px;
     }
 
     @include media(576) {
@@ -233,6 +239,7 @@ watch(currentPage, async () => {
     align-items: center;
     padding-right: 16px;
     margin-bottom: 16px;
+
     input {
       width: 100%;
       height: 52px;
@@ -253,6 +260,7 @@ watch(currentPage, async () => {
         color: #A6E1CB;
       }
     }
+
     .search-btn {
       background: none;
       border: 0;
@@ -260,6 +268,7 @@ watch(currentPage, async () => {
       width: 44px;
       height: 44px;
       cursor: pointer;
+
       i {
         font-size: 22px;
         color: $mainColor;
@@ -272,10 +281,12 @@ watch(currentPage, async () => {
     justify-content: flex-start;
     flex-wrap: wrap;
     margin: 0 -8px;
-    margin-bottom: 60px;
+    margin-bottom: 52px;
+
     @include media(768) {
       margin-bottom: 45px;
     }
+
     .tag-item {
       border: 2px solid $mainColor;
       border-radius: 10px;
@@ -286,13 +297,24 @@ watch(currentPage, async () => {
       cursor: pointer;
       @extend %ts;
       margin: 0 8px;
+      margin-bottom: 8px;
+
+      @include media(768) {
+        padding: 0 10px;
+      }
+
       &:hover {
         background: $mainColor;
         color: $secColor;
       }
+
       span {
         font-size: 20px;
         line-height: 36px;
+
+        @include media(768) {
+          font-size: 18px;
+        }
       }
     }
   }
@@ -302,23 +324,26 @@ watch(currentPage, async () => {
     flex-wrap: wrap;
     margin-bottom: 44px;
     margin: 0 -15px;
+
     :deep(.card-wrap) {
       width: calc(33.33%);
       margin-bottom: 60px;
       padding: 0 15px;
       box-sizing: border-box;
       display: flex;
+
       @include media(1200) {
         width: 50%;
         margin-bottom: 40px;
       }
+
       @include media(768) {
         width: 100%;
       }
+
       @include media(576) {
         margin-bottom: 20px;
       }
     }
   }
-}
-</style>
+}</style>

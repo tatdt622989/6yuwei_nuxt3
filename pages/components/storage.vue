@@ -8,7 +8,7 @@
                             <i class="bi bi-arrow-left"></i>
                         </nuxt-link>
                         <div class="titleBox">
-                            <h1>My storage</h1>
+                            <h1>Storage</h1>
                         </div>
                     </div>
                     <ComponentsToolbar />
@@ -32,11 +32,16 @@
                     </button>
                 </div>
                 <div class="content">
-                    <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id" />
+                    <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id" @delete-component="() => {
+                        confirmModal.open = true;
+                        confirmModal.id = item._id;
+                    }" />
                 </div>
                 <Pagination :total="totalPage" :url="'/components/storage'" />
             </div>
         </div>
+        <AdminConfirmModal :is-open="confirmModal.open" :action="confirmModal.action"
+            @close-modal="confirmModal.open = false" @on-confirm="deleteComponent" />
     </div>
 </template>
 
@@ -45,7 +50,7 @@ import { useStore } from "~/store";
 import { Component, ComponentType } from "~/types";
 
 useHead({
-    title: "Components - storage",
+    title: "Components - Storage",
     titleTemplate: "%s - 6yuwei",
     meta: [
         {
@@ -65,6 +70,10 @@ interface ComponentsRes {
     totalPage: number
 };
 
+interface deleteComponentRes {
+    msg: string
+};
+
 const store = useStore();
 const route = useRoute();
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
@@ -74,12 +83,19 @@ const totalPage = ref(1);
 const currentPage = computed(() => {
     return route.query.page ? parseInt(route.query.page as string, 10) : 1;
 });
+const confirmModal = reactive({
+    open: false,
+    isConfirm: false,
+    id: "",
+    targetFunc: null as Function | null,
+    action: "delete",
+});
 
 async function search() {
     store.isLoading = true;
 
     try {
-        const res: ComponentsRes = await $fetch(`${store.api}/components/list/?page=${currentPage.value}&keyword=${keyword.value}`, {
+        const res: ComponentsRes = await $fetch(`${store.api}/components/?page=${currentPage.value}&keyword=${keyword.value}`, {
             method: "GET",
             credentials: "include",
         });
@@ -107,7 +123,7 @@ function typeSearch(type: string) {
 async function getComponents() {
     store.isLoading = true;
     try {
-        const res: ComponentsRes = await $fetch(`${store.api}/components/user/list/?page=${currentPage.value}`, {
+        const res: ComponentsRes = await $fetch(`${store.api}/components/user/?page=${currentPage.value}`, {
             method: "GET",
         });
         if (res.msg) {
@@ -115,6 +131,35 @@ async function getComponents() {
             componentsList.value = res.components;
         }
         store.isLoading = false;
+    } catch (err) {
+        console.log(err);
+        store.isLoading = false;
+        if (err) {
+            return store.pushNotification({
+                type: "error",
+                message: err.toString(),
+                timeout: 5000,
+            });
+        }
+    }
+}
+
+async function deleteComponent() {
+    const id = confirmModal.id;
+    store.isLoading = true;
+    try {
+        const res: deleteComponentRes = await $fetch(`${store.api}/components/${id}`, {
+            method: "DELETE",
+        });
+        if (res.msg) {
+            store.isLoading = false;
+            await getComponents();
+            return store.pushNotification({
+                type: "success",
+                message: res.msg,
+                timeout: 5000,
+            });
+        }
     } catch (err) {
         console.log(err);
         store.isLoading = false;
@@ -160,7 +205,7 @@ onMounted(() => {
         padding: 20px 20px 40px;
 
         @include media(768) {
-            flex-wrap: wrap;
+            // flex-wrap: wrap;
             padding: 30px 20px 20px;
         }
 
@@ -169,16 +214,26 @@ onMounted(() => {
     .left-layout {
         display: flex;
         align-items: center;
+        flex-grow: 1;
 
         @include media(768) {
-            width: 100%;
-            margin-bottom: 24px;
+            // width: 100%;
+            margin-bottom: 10px;
             // order: 2;
         }
 
         >.btn {
             margin-right: 30px;
             flex-shrink: 0;
+        }
+    }
+
+    :deep(.tool-box) {
+        
+        @include media(768) {
+            width: auto;
+            flex-grow: 0;
+            
         }
     }
 
@@ -290,7 +345,7 @@ onMounted(() => {
     justify-content: flex-start;
     flex-wrap: wrap;
     margin: 0 -8px;
-    margin-bottom: 60px;
+    margin-bottom: 52px;
 
     @include media(768) {
         margin-bottom: 45px;
@@ -306,15 +361,24 @@ onMounted(() => {
         cursor: pointer;
         @extend %ts;
         margin: 0 8px;
+        margin-bottom: 8px;
 
+        @include media(768) {
+            padding: 0 10px;
+        }
+        
         &:hover {
             background: $mainColor;
             color: $secColor;
         }
-
+        
         span {
             font-size: 20px;
             line-height: 36px;
+            @include media(768) {
+                font-size: 18px;
+            }
         }
     }
-}</style>
+}
+</style>

@@ -9,10 +9,15 @@
                 <button class="favorites">
                     <i class="bi bi-star"></i>
                 </button>
+                <button class="delete" v-if="route.path.startsWith('/components/storage')"
+                    @click="emit('delete-component', props.component._id)">
+                    <i class="bi bi-trash"></i>
+                </button>
             </div>
             <div class="content">
                 <nuxt-link :to="`/components/generator/${props.component.componentsType.customURL}/${props.component._id}`">
-                    <img :src="`${store.api}/components/screenshot/${props.component.screenshotFileName}`" :alt="props.component.title" v-if="props.component.screenshotFileName">
+                    <img :src="`${store.api}/components/screenshot/${props.component.screenshotFileName}`"
+                        :alt="props.component.title" v-if="props.component.screenshotFileName">
                 </nuxt-link>
             </div>
             <div class="info">
@@ -40,7 +45,9 @@ const props = defineProps({
         default: () => []
     },
 });
+const emit = defineEmits(["delete-component"]);
 const store = useStore();
+const route = useRoute();
 // const copyToClipboard = useCopyToClipboard();
 
 function timeFormat(time: string) {
@@ -71,6 +78,7 @@ onMounted(() => {
         display: flex;
         align-items: center;
         padding-bottom: 16px;
+
         .category {
             display: flex;
             border-radius: 5px 0 0 5px;
@@ -94,19 +102,40 @@ onMounted(() => {
             }
         }
 
-        .favorites {
+        button {
+            padding: 6px;
+            @include center;
+            border-radius: 99px;
             background: none;
             border: 0;
             @include center;
             width: 44px;
             height: 44px;
             cursor: pointer;
-            margin-left: auto;
+            @extend %ts;
+
             i {
+                @extend %ts;
                 color: $mainColor;
-                font-size: 32px;
+                font-size: 28px;
                 color: $mainColor;
             }
+
+            &:hover {
+                background: $mainColor;
+
+                i {
+                    color: $secColor;
+                }
+            }
+        }
+
+        .favorites {
+            margin-left: auto;
+        }
+
+        .delete {
+            margin-left: 16px;
         }
     }
 
@@ -115,10 +144,16 @@ onMounted(() => {
         border-radius: 10px;
         border: 2px solid #737373;
         overflow: hidden;
+
+        @include media(480) {
+            height: 200px;
+        }
+
         a {
             display: flex;
             width: 100%;
             height: 100%;
+
             img {
                 width: 100%;
                 height: 100%;
@@ -178,4 +213,5 @@ onMounted(() => {
             }
         }
     }
-}</style>
+}
+</style>
