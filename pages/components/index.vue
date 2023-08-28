@@ -29,7 +29,8 @@
           </button>
         </div>
         <div class="content">
-          <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id" />
+          <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id"
+            :favorites-id-list="favoritesIDList" @update-favorites-list="getFavoriteIDList" />
         </div>
         <Pagination :total="totalPage" :url="'/components/'" />
       </div>
@@ -62,6 +63,11 @@ interface ComponentsRes {
   totalPage: number
 };
 
+interface FavoriteRes {
+  msg: string
+  idList: string[]
+}
+
 const store = useStore();
 const route = useRoute();
 const currentPage = computed(() => {
@@ -72,6 +78,7 @@ const totalPage = ref(1);
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
 const { data: componentsRes, error: listError } = await useFetch<ComponentsRes>(`${store.api}/components/?page=${currentPage.value}`);
 const componentsList = ref<Component[]>([]);
+const favoritesIDList = ref<string[]>([]);
 const keyword = ref("");
 
 async function search() {
@@ -126,6 +133,28 @@ async function getList() {
   store.isLoading = false;
 }
 
+async function getFavoriteIDList() {
+  store.isLoading = true;
+  try {
+    const res: FavoriteRes = await $fetch(`${store.api}/components/favorites/id/`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res) return;
+    favoritesIDList.value = res.idList;
+  } catch (err) {
+    if (err) {
+      store.pushNotification({
+        type: "error",
+        message: err.toString(),
+        timeout: 5000,
+      });
+      return;
+    }
+  }
+  store.isLoading = false;
+}
+
 if (componentsRes.value) {
   total.value = componentsRes.value.total;
   totalPage.value = componentsRes.value.totalPage;
@@ -136,6 +165,9 @@ watch(currentPage, async () => {
   await getList();
 });
 
+onMounted(async () => {
+  await getFavoriteIDList();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -157,6 +189,7 @@ watch(currentPage, async () => {
     max-width: 1480px;
     box-sizing: border-box;
     margin: 0 auto;
+
     &:deep(.tool-box) {
       justify-content: flex-end;
     }
@@ -346,4 +379,5 @@ watch(currentPage, async () => {
       }
     }
   }
-}</style>
+}
+</style>

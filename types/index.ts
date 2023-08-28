@@ -8,6 +8,7 @@ export interface User {
   permissions: string;
   createdAt: string;
   photo: string;
+  balance: number;
 }
 
 export interface Photo {

@@ -10,7 +10,7 @@
             <i class="bi bi-arrow-left-right"></i>
         </button>
         <div class="balance" v-if="route.path.startsWith('/components/generator/')">
-            <p>999</p>
+            <p>{{ store.user ? store.user?.balance : 30 }}</p>
             <img src="@/assets/images/currency.svg" alt="currency">
         </div>
     </div>

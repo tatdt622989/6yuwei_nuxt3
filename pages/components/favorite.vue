@@ -14,11 +14,19 @@
                     <ComponentsToolbar />
                 </div>
             </div>
+            <div class="wrap">
+                <div class="content">
+                    <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id"/>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
+import { useStore } from "~/store";
+import { Component, ComponentType } from "~/types";
+
 useHead({
     title: "Components - Favorite",
     titleTemplate: "%s - 6yuwei",
@@ -29,6 +37,57 @@ useHead({
             content: "Components - Favorite",
         },
     ],
+});
+
+interface ComponentsRes {
+    msg: string
+    components: Component[]
+    pageSize: number
+    currentPage: number
+    total: number
+    totalPage: number
+};
+
+const store = useStore();
+const route = useRoute();
+const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
+const componentsList = ref<Component[]>([]);
+const keyword = ref("");
+const totalPage = ref(1);
+const currentPage = computed(() => {
+    return route.query.page ? parseInt(route.query.page as string, 10) : 1;
+});
+
+async function getComponents() {
+    store.isLoading = true;
+    try {
+        const res: ComponentsRes = await $fetch(`${store.api}/components/favorites/?page=${currentPage.value}`, {
+            method: "GET",
+        });
+        if (res.msg) {
+            totalPage.value = res.totalPage;
+            componentsList.value = res.components;
+        }
+        store.isLoading = false;
+    } catch (err) {
+        console.log(err);
+        store.isLoading = false;
+        if (err) {
+            return store.pushNotification({
+                type: "error",
+                message: err.toString(),
+                timeout: 5000,
+            });
+        }
+    }
+}
+
+watch(currentPage, async () => {
+    await getComponents();
+});
+
+onMounted(() => {
+    getComponents();
 });
 </script>
 
@@ -113,6 +172,34 @@ useHead({
 
     .btn {
         align-self: center;
+    }
+}
+
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 44px;
+    margin: 0 -15px;
+
+    :deep(.card-wrap) {
+        width: calc(33.33%);
+        margin-bottom: 60px;
+        padding: 0 15px;
+        box-sizing: border-box;
+        display: flex;
+
+        @include media(1200) {
+            width: 50%;
+            margin-bottom: 40px;
+        }
+
+        @include media(768) {
+            width: 100%;
+        }
+
+        @include media(576) {
+            margin-bottom: 20px;
+        }
     }
 }
 </style>

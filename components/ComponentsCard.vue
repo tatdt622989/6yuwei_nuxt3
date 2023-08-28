@@ -6,8 +6,9 @@
                     <span>{{ props.component.componentsType.title }}</span>
                     <img src="@/assets/images/arrow.png" alt="arrow">
                 </div>
-                <button class="favorites">
-                    <i class="bi bi-star"></i>
+                <button class="favorites" @click="toggleFavorite" v-if="!route.path.startsWith('/components/favorite')">
+                    <i class="bi bi-star-fill" v-if="props.favoritesIdList.includes(props.component._id)"></i>
+                    <i class="bi bi-star" v-else></i>
                 </button>
                 <button class="delete" v-if="route.path.startsWith('/components/storage')"
                     @click="emit('delete-component', props.component._id)">
@@ -39,16 +40,23 @@
 import { Component, ComponentType } from "~/types";
 import { useStore } from "~/store";
 
+interface FavoriteRes {
+    msg: string
+}
+
 const props = defineProps({
     component: {
         type: Object as PropType<Component>,
         default: () => []
     },
+    favoritesIdList: {
+        type: Array as PropType<string[]>,
+        default: () => []
+    }
 });
-const emit = defineEmits(["delete-component"]);
+const emit = defineEmits(["delete-component", "update-favorites-list"]);
 const store = useStore();
 const route = useRoute();
-// const copyToClipboard = useCopyToClipboard();
 
 function timeFormat(time: string) {
     const date = new Date(time);
@@ -57,6 +65,36 @@ function timeFormat(time: string) {
     const day = date.getDate();
 
     return `${year}-${month}-${day}`;
+}
+
+async function toggleFavorite() {
+    try {
+        const res: FavoriteRes = await $fetch(`${store.api}/components/favorites/`, {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                componentId: props.component._id
+            })
+        });
+        emit("update-favorites-list");
+        if (res.msg) {
+            store.pushNotification({
+                type: "success",
+                message: res.msg,
+                timeout: 5000,
+            });
+            return;
+        }
+    } catch (error) {
+        if (error) {
+        store.pushNotification({
+            type: "error",
+            message: error.toString(),
+            timeout: 5000,
+        });
+        return;
+        }
+    }
 }
 
 onMounted(() => {
