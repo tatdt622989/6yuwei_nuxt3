@@ -49,4 +49,9 @@ export default defineNuxtConfig({
     //   }
     // }
   },
+  runtimeConfig: {
+    public: {
+      gtagId: 'G-HW6MDZLN6Z',
+    }
+  }
 })

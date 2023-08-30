@@ -80,14 +80,14 @@
                     <td>
                         <div class="action-wrap">
                             <button class="action copy"
-                                @click="emit('openConfirmModal', emit('copyItem'), unitItem._id, 'copy')">
+                                @click="emit('openConfirmModal', null, unitItem._id, 'copy')">
                                 <span class="material-symbols-outlined icon">
                                     content_copy
                                 </span>
                                 <span class="text">Copy</span>
                             </button>
                             <button class="action delete"
-                                @click="emit('openConfirmModal', emit('deleteItem'), unitItem._id, 'delete')">
+                                @click="emit('openConfirmModal', null, unitItem._id, 'delete')">
                                 <span class="material-symbols-outlined icon">
                                     delete
                                 </span>
@@ -119,6 +119,9 @@ const props = defineProps({
     total: Number,
     selector: Array as PropType<string[]>,
     isAllSelected: Boolean,
+    isConfirm: Boolean,
+    confirmAction: String,
+    confirmId: String,
 });
 const store = useStore();
 const unitItems = ref<Website[] | Animation[]>([]);
@@ -146,6 +149,16 @@ watch(() => props.isAllSelected, (val) => {
 watch(() => props.selector, (val) => {
     if (val) selector.value = val;
 }, { immediate: true });
+
+watch(() => props.isConfirm, (val) => {
+    if (val) {
+        if (props.confirmAction === 'delete') {
+            emit('deleteItem', props.confirmId);
+        } else if (props.confirmAction === 'copy') {
+            emit('copyItem', props.confirmId);
+        }
+    }
+});
 </script>
 
 <style lang="scss" scoped>

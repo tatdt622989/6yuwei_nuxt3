@@ -15,7 +15,8 @@
           @open-confirm-modal="openConfirmModal" @update-visibility="updateVisibility" @update-homepage="updateHomepage"
           @update-top="updateTop" @select-all-item="selectAllItem" @set-unit-items="set3DCGs"
           @set-is-all-selected="setIsAllSelected" @set-selector="setSelector" :is-all-selected="isAllSelected"
-          :selector="selector" :unit-items="threeDCGs" :total="total" />
+          :selector="selector" :unit-items="threeDCGs" :total="total" :is-confirm="confirmModal.isConfirm"
+          :confirm-action="confirmModal.action" :confirm-id="confirmModal.id" />
         <Pagination :total="totalPage" :url="'/admin/3dcgs/'" />
       </div>
     </div>
@@ -101,14 +102,18 @@ const openEditorModal = (
 const openConfirmModal = (targetFunc: Function, id: string = "", action: string) => {
   confirmModal.isConfirm = false;
   confirmModal.open = true;
-  confirmModal.targetFunc = targetFunc;
+  if (targetFunc) {
+    confirmModal.targetFunc = targetFunc;
+  }
   confirmModal.id = id;
   confirmModal.action = action;
 };
 
 const onConfirm = async () => {
   confirmModal.isConfirm = true;
-  confirmModal.targetFunc && confirmModal.targetFunc();
+  if (confirmModal.targetFunc) {
+    confirmModal.targetFunc && confirmModal.targetFunc();
+  }
 };
 
 const closeEditorModal = async () => {

@@ -123,6 +123,11 @@ interface ComponentsRes {
     totalPage: number
 };
 
+interface BalanceRes {
+    msg: string
+    balance: number
+};
+
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
@@ -190,7 +195,7 @@ async function getStorageList() {
 }
 
 async function componentGenerator() {
-    if (!store.user) return navigateTo("/admin/login/");
+    if (!store.user) return navigateTo("/admin/login/?redirect=/components/");
     if (!componentsType.value) return;
     if (!prompt.value) {
         return store.pushNotification({
@@ -216,6 +221,13 @@ async function componentGenerator() {
             message: "Generate success",
             timeout: 5000,
         });
+        // update balance
+        const balanceRes: BalanceRes = await $fetch(`${store.api}/user/balance/`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!balanceRes) return;
+        store.user.balance = balanceRes.balance;
         navigateTo(`/components/generator/${componentsType.value.customURL}/${res._id}`);
     } catch (err) {
         if (err) {
