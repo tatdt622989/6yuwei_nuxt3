@@ -75,8 +75,12 @@ const currentPage = computed(() => {
 });
 const total = ref(0);
 const totalPage = ref(1);
+
+store.isLoading = true;
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
 const { data: componentsRes, error: listError } = await useFetch<ComponentsRes>(`${store.api}/components/?page=${currentPage.value}`);
+store.isLoading = false;
+
 const componentsList = ref<Component[]>([]);
 const favoritesIDList = ref<string[]>([]);
 const keyword = ref("");
@@ -179,9 +183,9 @@ onMounted(async () => {
   padding-top: 50px;
   padding-bottom: 45px;
 
-  &.no-login {
-    padding-top: 70px;
-  }
+  // &.no-login {
+  //   padding-top: 70px;
+  // }
 
   @include media(768) {
     padding-top: 45px;

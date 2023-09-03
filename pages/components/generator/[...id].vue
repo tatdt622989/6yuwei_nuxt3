@@ -134,9 +134,13 @@ const router = useRouter();
 const URL = ref(route.params.id);
 const typeURL = computed(() => URL.value[0]);
 const componentId = computed(() => URL.value[1]);
+
+store.isLoading = true;
 const { data: componentsRes, error: componentsError } = componentId.value ? await useFetch(`${store.api}/components/${componentId.value}/`) : { data: null, error: null };
 const storageList = ref<Component[]>([]);
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
+store.isLoading = false;
+
 const componentsData = ref<null | Component>(null);
 const componentsType = computed<null | ComponentType>(() => getComponentType(typeURL.value));
 const iframeSrc = computed(() => {

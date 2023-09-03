@@ -9,14 +9,14 @@ export default defineNuxtConfig({
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/icon?family=Material+Icons' }
       ]
     },
-    pageTransition: {
-      name: 'page',
-      mode: 'out-in' // default
-    },
-    layoutTransition: {
-      name: 'layout',
-      mode: 'out-in' // default
-    }
+    // pageTransition: {
+    //   name: 'page',
+    //   mode: 'out-in' // default
+    // },
+    // layoutTransition: {
+    //   name: 'layout',
+    //   mode: 'out-in' // default
+    // }
   },
   modules: [
     '@pinia/nuxt',

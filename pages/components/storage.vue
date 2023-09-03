@@ -76,7 +76,11 @@ interface deleteComponentRes {
 
 const store = useStore();
 const route = useRoute();
+
+store.isLoading = true;
 const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
+store.isLoading = false;
+
 const componentsList = ref<Component[]>([]);
 const keyword = ref("");
 const totalPage = ref(1);
