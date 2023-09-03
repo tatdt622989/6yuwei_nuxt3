@@ -15,13 +15,23 @@
     <li>
       <NuxtLink to="/animations" :class="{ current: unitName === 'animations' }">Animations</NuxtLink>
     </li>
-    <li v-if="place === 'header'" class="account">
+    <li v-if="place === 'header'" class="account" :class="{ 'no-login': !store.user }">
       <NuxtLink to="/admin/login/" class="sign-in" v-if="!store.user && store.isUserChecked">Sign in</NuxtLink>
-      <NuxtLink to="/admin/account/" id="avatar" v-if="store.user">
+      <NuxtLink to="/admin/account/" id="avatar" v-else="store.user">
         <img :src="avatArURL" alt="avatar" v-if="avatArURL">
         <i class="bi bi-person-fill" v-else></i>
       </NuxtLink>
       <span id="user-name" v-if="userName">{{ userName }}</span>
+      <div class="user-menu" v-if="store.user">
+        <ul>
+          <li>
+            <NuxtLink to="/admin/account/">Account</NuxtLink>
+          </li>
+          <li>
+            <a href="javascript:;" @click="logout">Logout</a>
+          </li>
+        </ul>
+      </div>
     </li>
   </ul>
 </template>
@@ -52,6 +62,28 @@ const userName = computed(() => {
 });
 let resize = () => {
   emit('close-menu');
+}
+
+async function logout() {
+  try {
+    const res: { msg: string } = await $fetch(`${store.api}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.msg === "Successful logout") {
+      store.user = null;
+      store.isUserChecked = true;
+      store.pushNotification({
+        type: "success",
+        message: res.msg,
+        timeout: 5000,
+      });
+      return navigateTo("/");
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 onMounted(() => {
@@ -126,6 +158,86 @@ ul {
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      &:not(.no-login):hover {
+        .user-menu {
+          opacity: 1;
+          pointer-events: auto;
+        }
+      }
+      @include media(1200) {
+        flex-wrap: wrap;
+      }
+    }
+
+    .user-menu.user-menu {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: $mainColor;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba($mainColor, 0.3);
+      padding: 10px 0;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 99;
+      display: flex;
+      @extend %ts;
+      flex-direction: column;
+      overflow: hidden;
+
+      @include media(1200) {
+        opacity: 1;
+        pointer-events: auto;
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-top: 16px;
+        padding: 0;
+      }
+
+      ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        min-width: 150px;
+        width: 100%;
+        @include media(1200) {
+          padding: 0;
+        }
+
+        li {
+          margin: 0;
+          display: flex;
+          width: 100%;
+          padding: 0;
+          &:last-of-type {
+            a {
+              border: 0;
+            }
+          }
+          a {
+            border-color: $terColor;
+            text-align: center;
+            color: $secColor;
+            padding: 8px 20px;
+            width: 100%;
+            @extend %ts;
+            font-size: 18px;
+
+            @include media(1200) {
+              padding: 10px 20px;
+            }
+
+            &:hover {
+              background-color: lighten($mainColor, 5%);
+            }
+          }
+        }
+      }
     }
 
     #avatar {
@@ -139,10 +251,9 @@ ul {
       background-color: lighten($secColor, 5%);
       flex-shrink: 0;
       margin: 10px 0;
+      position: relative;
+      padding: 0;
 
-      &#avatar {
-        padding: 0;
-      }
 
       i {
         font-size: 36px;

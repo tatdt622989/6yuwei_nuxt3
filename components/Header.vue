@@ -126,6 +126,16 @@ header {
       margin: 0;
       padding: 0 20px;
       box-sizing: border-box;
+      &.account {
+        display: flex;
+        padding-top: 20px;
+        @include media(1200) {
+          padding-top: 16px;
+        }
+        a {
+          width: 100%;
+        }
+      }
       a {
         border-bottom: 1px solid darken($terColor, 10%);
         box-sizing: border-box;
@@ -148,7 +158,7 @@ header {
     width: 100%;
     box-sizing: border-box;
     justify-content: center;
-    padding-top: 60px;
+    padding-top: 30px;
     li {
       border: 0;
       padding: 0 10px;

@@ -65,6 +65,16 @@
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li> -->
+        <li class="user-menu">
+          <ul>
+            <li>
+              <a href="javascript:;" @click="logout">
+                <i class="bi bi-box-arrow-right"></i>
+                Logout
+              </a>
+            </li>
+          </ul>
+        </li>
       </ul>
     </transition>
     <div class="toggler">
@@ -99,6 +109,29 @@ const handleResize = () => {
     open.value = false;
   }
 };
+
+async function logout() {
+  open.value = false;
+  try {
+    const res: { msg: string } = await $fetch(`${store.api}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.msg === "Successful logout") {
+      store.user = null;
+      store.isUserChecked = true;
+      store.pushNotification({
+        type: "success",
+        message: res.msg,
+        timeout: 5000,
+      });
+      return navigateTo("/");
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 onMounted(() => {
   if (window.innerWidth > 1200) {
@@ -272,6 +305,37 @@ onUnmounted(() => {
         i {
           font-size: 22px;
           margin-right: 10px;
+        }
+      }
+    }
+  }
+
+  .user-menu {
+    position: static;
+    padding-top: 20px;
+    @include media(-1201) {
+      display: none;
+    }
+    ul {
+      height: auto;
+      position: static;
+      padding: 0;
+      background-color: #a3d9c6;
+      border-radius: 10px;
+      // padding: 5px 0;
+      pointer-events: auto;
+      z-index: 1;
+      li {
+        padding: 0;
+        a {
+          padding: 0 14px;
+          border-radius: 0;
+          display: flex;
+          align-items: center;
+          &:hover {
+            background-color: lighten($mainColor, 5%);
+            color: $secColor;
+          }
         }
       }
     }

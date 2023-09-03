@@ -18,6 +18,16 @@
           <img v-if="user?.photo" :src="userPhotoPath" :alt="user?.username" />
         </div>
         <div class="txtBox">{{ user?.username }}</div>
+        <div class="user-menu" v-if="store.user">
+          <ul>
+            <li>
+              <NuxtLink to="/admin/account/">Account</NuxtLink>
+            </li>
+            <li>
+              <a href="javascript:;" @click="logout">Logout</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </header>
@@ -55,6 +65,28 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("keydown", keydownHandler);
 });
+
+async function logout() {
+  try {
+    const res: { msg: string } = await $fetch(`${store.api}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.msg === "Successful logout") {
+      store.user = null;
+      store.isUserChecked = true;
+      store.pushNotification({
+        type: "success",
+        message: res.msg,
+        timeout: 5000,
+      });
+      return navigateTo("/");
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 watch(
   () => route.path,
@@ -173,6 +205,8 @@ watch(
     padding: 6px;
     border-radius: 12px;
     @extend %ts;
+    position: relative;
+    cursor: pointer;
 
     .img-box {
       width: 48px;
@@ -183,6 +217,7 @@ watch(
       cursor: pointer;
       position: relative;
       overflow: hidden;
+
       img {
         width: 100%;
         height: 100%;
@@ -194,6 +229,91 @@ watch(
       font-size: 20px;
       font-weight: bold;
       padding-left: 16px;
+    }
+
+    &:hover {
+      .user-menu {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+
+    .user-menu {
+      @include media(1200) {
+        display: none;
+      }
+    }
+  }
+
+  .user-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: $mainColor;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba($mainColor, 0.3);
+    padding: 10px 0;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99;
+    display: flex;
+    @extend %ts;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+
+    @include media(1200) {
+      opacity: 1;
+      pointer-events: auto;
+      position: static;
+      transform: none;
+      width: 100%;
+      margin-top: 16px;
+      padding: 0;
+    }
+
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      max-width: 100%;
+      width: 100%;
+
+      @include media(1200) {
+        padding: 0;
+      }
+
+      li {
+        margin: 0;
+        display: flex;
+        width: 100%;
+        padding: 0;
+
+        &:last-of-type {
+          a {
+            border: 0;
+          }
+        }
+
+        a {
+          border-color: $terColor;
+          text-align: center;
+          color: $secColor;
+          padding: 10px 20px;
+          width: 100%;
+          @extend %ts;
+          font-weight: bold;
+          font-size: 18px;
+          letter-spacing: 0.8px;
+
+          &:hover {
+            background-color: lighten($mainColor, 5%);
+          }
+        }
+      }
     }
   }
 
@@ -223,4 +343,5 @@ watch(
       }
     }
   }
-}</style>
+}
+</style>

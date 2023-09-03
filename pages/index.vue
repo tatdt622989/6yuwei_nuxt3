@@ -1677,7 +1677,7 @@ h2 {
   }
 }
 
-:deep(.swiper-pagination) {
+:deep(.swiper-pagination.swiper-pagination-bullets) {
   @include center(transform, x);
   bottom: -50px;
   justify-content: center;
@@ -1716,4 +1716,5 @@ h2 {
       }
     }
   }
-}</style>
+}
+</style>
