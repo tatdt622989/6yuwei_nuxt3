@@ -32,7 +32,10 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="unitItem in unitItems" :key="unitItem._id">
+                <tr v-for="unitItem in unitItems" :key="unitItem._id" draggable="true" @dragstart=""
+                    @dragenter="() => { dragOverId = unitItem._id as string }"
+                    @dragend="() => { dragOverId = '' }"
+                    :class="{ over: unitItem._id === dragOverId }">
                     <td>
                         <label class="selector">
                             <input type="checkbox" v-model="selector" :value="unitItem._id" />
@@ -79,15 +82,13 @@
                     </td>
                     <td>
                         <div class="action-wrap">
-                            <button class="action copy"
-                                @click="emit('openConfirmModal', null, unitItem._id, 'copy')">
+                            <button class="action copy" @click="emit('openConfirmModal', null, unitItem._id, 'copy')">
                                 <span class="material-symbols-outlined icon">
                                     content_copy
                                 </span>
                                 <span class="text">Copy</span>
                             </button>
-                            <button class="action delete"
-                                @click="emit('openConfirmModal', null, unitItem._id, 'delete')">
+                            <button class="action delete" @click="emit('openConfirmModal', null, unitItem._id, 'delete')">
                                 <span class="material-symbols-outlined icon">
                                     delete
                                 </span>
@@ -127,6 +128,12 @@ const store = useStore();
 const unitItems = ref<Website[] | Animation[]>([]);
 const isAllSelected = ref(false);
 const selector = ref<string[]>([]);
+const dragOverId = ref('');
+
+const preventDrag = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+};
 
 // 回寫資料
 watch(unitItems, (val) => {
@@ -239,6 +246,7 @@ watch(() => props.isConfirm, (val) => {
         vertical-align: middle;
         letter-spacing: 0.8px;
         font-size: 16px;
+        @extend %ts;
 
         &:nth-of-type(1) {
             @include media(1200) {
@@ -302,9 +310,15 @@ watch(() => props.isConfirm, (val) => {
                 color: $secColor;
             }
         }
-    }
 
-    tr {}
+    }
+    
+    tr.over {
+        background-color: $terColor;
+        td {
+            background-color: $terColor;
+        }
+    }
 
     .preview-box {
         cursor: pointer;
@@ -388,6 +402,8 @@ watch(() => props.isConfirm, (val) => {
         }
     }
 }
+
+.list-responsive {}
 
 .selector {
     width: 24px;

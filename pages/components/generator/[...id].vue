@@ -321,6 +321,10 @@ onMounted(async () => {
                 const scale = tempCanvas.height / height;
                 const tempCtx = tempCanvas.getContext("2d");
                 if (!tempCtx) return;
+
+                // 填入白色背景
+                tempCtx.fillStyle = "#f8f8f8";
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
     
                 // 如果新宽度大于Canvas宽度，裁剪多余部分
                 var newWidth = canvas.width * scale;
@@ -328,9 +332,10 @@ onMounted(async () => {
                     var xOffset = (newWidth - tempCanvas.width) / 2;
                     tempCtx.drawImage(canvas, -xOffset, 0, newWidth, tempCanvas.height);
                 } else {
-                    // 如果新宽度小于等于Canvas宽度，上下居中绘制
-                    var yOffset = (tempCanvas.height - tempCanvas.height * scale) / 2;
-                    tempCtx.drawImage(canvas, 0, yOffset, newWidth, tempCanvas.height * scale);
+                    // 如果新宽度小于等于Canvas宽度，縮放後左右居中
+                    var xOffset = (tempCanvas.width - newWidth) / 2;
+                    var yOffset = (tempCanvas.height - height * scale) / 2;
+                    tempCtx.drawImage(canvas, xOffset, yOffset, newWidth, height * scale);
                 }
     
                 tempCanvas.toBlob(async (blob) => {
