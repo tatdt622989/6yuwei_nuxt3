@@ -100,7 +100,7 @@ const filterModal = ref({
 });
 store.isLoading = true;
 const { data: threeDCGReq, error } = await useFetch(
-  `${store.api}/3dcgs/list/?page=${currentPage.value}&sort=${sort.value}`
+  `${store.api}/3dcgs/?page=${currentPage.value}&sort=${sort.value}`
 );
 store.isLoading = false;
 
@@ -136,7 +136,7 @@ const removeCategory = (category: string) => {
 
 const getList = async (page: number = 1) => {
   store.isLoading = true;
-  let api = `${store.api}/3dcgs/list/?page=${page}&sort=${sort.value}&category=${categoryArr.value.join(
+  let api = `${store.api}/3dcgs/?page=${page}&sort=${sort.value}&category=${categoryArr.value.join(
     ","
   )}`;
   const res = await $fetch(api, {

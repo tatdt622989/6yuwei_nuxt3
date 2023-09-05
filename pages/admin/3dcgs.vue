@@ -143,7 +143,7 @@ const copyData = async () => {
       message: "3DCG not found",
       timeout: 5000,
     });
-  const api = `${store.api}/3dcgs/admin/list/`;
+  const api = `${store.api}/3dcgs/admin/`;
   const data = {
     title: threeDCG.title,
     description: threeDCG.description,
@@ -183,7 +183,7 @@ const copyData = async () => {
 
 const getList = async () => {
   store.isLoading = true;
-  const api = `${store.api}/3dcgs/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
+  const api = `${store.api}/3dcgs/admin/?page=${currentPage.value}&keyword=${keyword.value}`;
   const res = await $fetch(api, {
     method: "GET",
     credentials: "include",
@@ -261,7 +261,7 @@ const getCategory = async () => {
 
 const deleteData = async () => {
   store.isLoading = true;
-  const api = `${store.api}/3dcgs/admin/list/delete/`;
+  const api = `${store.api}/3dcgs/admin/delete/`;
   const ids = confirmModal.id.split(",");
   const res = await useFetch(api, {
     method: "POST",

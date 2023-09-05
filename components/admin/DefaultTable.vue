@@ -2,7 +2,8 @@
     <div class="table-responsive px-0">
         <div class="table-tool">
             <p class="total">Total: {{ total }}</p>
-            <div v-if="props.selector && props.selector.length > 0" class="right">
+            <div v-if="props.selector && props.selector.length > 0"
+                class="right">
                 <p class="selected">{{ props.selector.length }} item selected</p>
                 <button class="delete btn"
                     @click=" emit('openConfirmModal', emit('deleteItem'), props.selector.join(','), 'delete')">
@@ -14,14 +15,18 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col" width="65">
+                    <th scope="col"
+                        width="65">
                         <label class="selector">
-                            <input type="checkbox" v-model="isAllSelected" @change=" emit('selectAllItem')" />
+                            <input type="checkbox"
+                                v-model="isAllSelected"
+                                @change=" emit('selectAllItem')" />
                             <span class="bg"></span>
                             <span class="material-symbols-outlined mark"> check </span>
                         </label>
                     </th>
-                    <th scope="col" width="90">Top</th>
+                    <th scope="col"
+                        width="90">Top</th>
                     <th scope="col">Preview</th>
                     <th scope="col">Title</th>
                     <th scope="col">Category</th>
@@ -32,13 +37,18 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="unitItem in unitItems" :key="unitItem._id" draggable="true" @dragstart=""
+                <tr v-for="unitItem in unitItems"
+                    :key="unitItem._id"
+                    @dragstart=""
                     @dragenter="() => { dragOverId = unitItem._id as string }"
+                    @drop.prevent="dragDrop"
                     @dragend="() => { dragOverId = '' }"
                     :class="{ over: unitItem._id === dragOverId }">
                     <td>
                         <label class="selector">
-                            <input type="checkbox" v-model="selector" :value="unitItem._id" />
+                            <input type="checkbox"
+                                v-model="selector"
+                                :value="unitItem._id" />
                             <span class="bg"></span>
                             <span class="material-symbols-outlined mark"> check </span>
                         </label>
@@ -52,8 +62,10 @@
                         </button>
                     </td>
                     <td>
-                        <div class="preview-box" @click=" emit('openEditorModal', 'edit', unitItem)">
-                            <img v-if="unitItem.photos[0]" :src="`${store.api}/admin/uploads/${unitItem.photos[0].url}`"
+                        <div class="preview-box"
+                            @click=" emit('openEditorModal', 'edit', unitItem)">
+                            <img v-if="unitItem.photos[0]"
+                                :src="`${store.api}/admin/uploads/${unitItem.photos[0].url}`"
                                 :alt="unitItem.title" />
                             <span class="material-symbols-outlined">nature_people</span>
                         </div>
@@ -62,9 +74,11 @@
                     <td>{{ unitItem.category }}</td>
                     <td>
                         <label class="switch">
-                            <input type="checkbox" v-model="unitItem.visible" @change="
-                                emit('updateVisibility', unitItem._id ?? '', unitItem.visible)
-                                " />
+                            <input type="checkbox"
+                                v-model="unitItem.visible"
+                                @change="
+                                    emit('updateVisibility', unitItem._id ?? '', unitItem.visible)
+                                    " />
                             <span class="bg">
                                 <span class="toggler" />
                             </span>
@@ -72,9 +86,11 @@
                     </td>
                     <td>
                         <label class="switch">
-                            <input type="checkbox" v-model="unitItem.homepage" @change="
-                                emit('updateHomepage', unitItem._id ?? '', unitItem.homepage)
-                                " />
+                            <input type="checkbox"
+                                v-model="unitItem.homepage"
+                                @change="
+                                    emit('updateHomepage', unitItem._id ?? '', unitItem.homepage)
+                                    " />
                             <span class="bg">
                                 <span class="toggler" />
                             </span>
@@ -82,13 +98,90 @@
                     </td>
                     <td>
                         <div class="action-wrap">
-                            <button class="action copy" @click="emit('openConfirmModal', null, unitItem._id, 'copy')">
+                            <button class="action copy"
+                                @click="emit('openConfirmModal', null, unitItem._id, 'copy')">
                                 <span class="material-symbols-outlined icon">
                                     content_copy
                                 </span>
                                 <span class="text">Copy</span>
                             </button>
-                            <button class="action delete" @click="emit('openConfirmModal', null, unitItem._id, 'delete')">
+                            <button class="action delete"
+                                @click="emit('openConfirmModal', null, unitItem._id, 'delete')">
+                                <span class="material-symbols-outlined icon">
+                                    delete
+                                </span>
+                                <span class="text">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                    <td @mousedown="(e) => colMoveStart(e, unitItem)"
+                        @mousemove="(e) => colMove(e)">
+                        <button class="dragger">
+                            <span class="material-symbols-outlined">
+                                drag_indicator
+                            </span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="dragCloneEl" :style="dragCloneElCSS">
+            <tbody>
+                <tr
+                    v-if="dragData"
+                    ref="dragCloneEl">
+                    <td width="65">
+                        <label class="selector">
+                            <input type="checkbox"
+                                v-model="selector" />
+                            <span class="bg"></span>
+                            <span class="material-symbols-outlined mark"> check </span>
+                        </label>
+                    </td>
+                    <td width="90">
+                        <button :class="['pin', { active: dragData.top }]">
+                            <span class="material-icons">
+                                bookmark
+                            </span>
+                        </button>
+                    </td>
+                    <td>
+                        <div class="preview-box">
+                            <img v-if="dragData.photos[0]"
+                                :src="`${store.api}/admin/uploads/${dragData.photos[0].url}`"
+                                :alt="dragData.title" />
+                            <span class="material-symbols-outlined">nature_people</span>
+                        </div>
+                    </td>
+                    <td>{{ dragData.title }}</td>
+                    <td>{{ dragData.category }}</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox"
+                                v-model="dragData.visible" />
+                            <span class="bg">
+                                <span class="toggler" />
+                            </span>
+                        </label>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox"
+                                v-model="dragData.homepage" />
+                            <span class="bg">
+                                <span class="toggler" />
+                            </span>
+                        </label>
+                    </td>
+                    <td>
+                        <div class="action-wrap">
+                            <button class="action copy">
+                                <span class="material-symbols-outlined icon">
+                                    content_copy
+                                </span>
+                                <span class="text">Copy</span>
+                            </button>
+                            <button class="action delete">
                                 <span class="material-symbols-outlined icon">
                                     delete
                                 </span>
@@ -110,8 +203,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Website, Animation } from "~/types";
+import { Website, Animation, ThreeDCG } from "~/types";
 import { useStore } from "~/store";
+import { CSSProperties } from "nuxt/dist/app/compat/vue-demi";
 
 const emit = defineEmits(['openEditorModal', 'openConfirmModal', 'selectAllItem', 'updateTop',
     'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setUnitItems', 'setIsAllSelected', 'setSelector']);
@@ -124,16 +218,48 @@ const props = defineProps({
     confirmAction: String,
     confirmId: String,
 });
+
 const store = useStore();
 const unitItems = ref<Website[] | Animation[]>([]);
 const isAllSelected = ref(false);
 const selector = ref<string[]>([]);
 const dragOverId = ref('');
+const dragData = ref<Website | Animation | null>(null);
+const dragCloneEl = ref<HTMLElement | null>(null);
+const dragstartPos = reactive({
+    x: 0,
+    y: 0,
+});
+const dragCloneElCSS = reactive<CSSProperties>({
+    transform: 'translate(0, 0)',
+    position: 'absolute',
+    zIndex: '999',
+    left: '',
+    top: '',
+    width: '',
+});
 
-const preventDrag = (e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+const colMoveStart = (e: MouseEvent, data: Website | Animation | ThreeDCG) => {
+    const target = (e.target as HTMLElement).closest('tr') as HTMLElement;
+    const { top, left, width } = target.getBoundingClientRect();
+    const { clientX, clientY } = e;
+    dragstartPos.x = clientX;
+    dragstartPos.y = clientY;
+    dragCloneElCSS.left = `0px`;
+    dragCloneElCSS.top = `${top}px`;
+    dragCloneElCSS.width = `${width}px`;
+    dragData.value = data;
 };
+
+const colMove = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const { top, left } = target.getBoundingClientRect();
+    const { clientX, clientY } = e;
+};
+
+const dragDrop = (e: DragEvent) => {
+};
+
 
 // 回寫資料
 watch(unitItems, (val) => {
@@ -178,6 +304,7 @@ watch(() => props.isConfirm, (val) => {
     padding: 0;
     margin-bottom: 30px;
     overflow: auto;
+    position: relative;
 
     &::-webkit-scrollbar {
         height: 6px;
@@ -194,7 +321,8 @@ watch(() => props.isConfirm, (val) => {
         min-width: 1024px;
     }
 
-    th {
+    th,
+    .dragCloneEl td {
         vertical-align: middle;
         padding: 20px;
         border-top: 0;
@@ -204,6 +332,8 @@ watch(() => props.isConfirm, (val) => {
         font-size: 18px;
 
         &:nth-of-type(1) {
+            width: 5%;
+
             @include media(1200) {
                 width: 64px;
                 text-align: center;
@@ -211,10 +341,16 @@ watch(() => props.isConfirm, (val) => {
         }
 
         &:nth-of-type(2) {
+            width: 5%;
             text-align: center;
+            @include media(1700) {
+                width: 8%;
+            }
         }
 
         &:nth-of-type(3) {
+            width: 10%;
+
             @include media(1200) {
                 width: 120px;
                 padding: 20px 0;
@@ -222,16 +358,36 @@ watch(() => props.isConfirm, (val) => {
         }
 
         &:nth-of-type(4) {
-            width: 20%;
+            width: 30%;
+            @include media(1700) {
+                width: 20%;
+            }
         }
 
         &:nth-of-type(5) {
             width: 15%;
         }
 
+        &:nth-of-type(6) {
+            width: 10%;
+        }
+
+        &:nth-of-type(7) {
+            width: 10%;
+        }
+
+        &:nth-of-type(8) {
+            width: 10%;
+            @include media(1700) {
+                width: 15%;
+            }
+        }
+
         &:last-of-type {
-            width: 80px;
-            text-align: center;
+            width: 5%;
+            @include media(1700) {
+                width: 7%;
+            }
         }
 
         @include media(1200) {
@@ -262,6 +418,10 @@ watch(() => props.isConfirm, (val) => {
             @include media(1200) {
                 padding: 10px 0;
             }
+        }
+
+        &:last-of-type {
+            text-align: center;
         }
 
 
@@ -304,6 +464,7 @@ watch(() => props.isConfirm, (val) => {
             background: none;
             cursor: pointer;
             @include center;
+            display: inline;
 
             span {
                 font-size: 28px;
@@ -312,9 +473,10 @@ watch(() => props.isConfirm, (val) => {
         }
 
     }
-    
+
     tr.over {
         background-color: $terColor;
+
         td {
             background-color: $terColor;
         }
@@ -399,6 +561,16 @@ watch(() => props.isConfirm, (val) => {
             vertical-align: middle;
             font-weight: bold;
             letter-spacing: 0.8px;
+        }
+    }
+
+    .dragCloneEl {
+        width: 100%;
+        table-layout: fixed;
+
+        td *:not(.action, .dragger) {
+            padding: 0;
+            pointer-events: none;
         }
     }
 }
@@ -610,5 +782,4 @@ watch(() => props.isConfirm, (val) => {
         min-width: 0;
         flex-shrink: 0;
     }
-}
-</style>
+}</style>

@@ -143,7 +143,7 @@ const copyData = async () => {
       message: "animation not found",
       timeout: 5000,
     });
-  const api = `${store.api}/animations/admin/list/`;
+  const api = `${store.api}/animations/admin/`;
   const data = {
     title: animation.title,
     description: animation.description,
@@ -183,7 +183,7 @@ const copyData = async () => {
 
 const getList = async () => {
   store.isLoading = true;
-  const api = `${store.api}/animations/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
+  const api = `${store.api}/animations/admin/?page=${currentPage.value}&keyword=${keyword.value}`;
   const res = await $fetch(api, {
     method: "GET",
     credentials: "include",
@@ -261,7 +261,7 @@ const getCategory = async () => {
 
 const deleteData = async () => {
   store.isLoading = true;
-  const api = `${store.api}/animations/admin/list/delete/`;
+  const api = `${store.api}/animations/admin/delete/`;
   const ids = confirmModal.id.split(",");
   const res = await useFetch(api, {
     method: "POST",

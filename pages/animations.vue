@@ -101,7 +101,7 @@ const filterModal = ref({
 
 store.isLoading = true;
 const { data: animationReq, error } = await useFetch(
-  `${store.api}/animations/list/?page=${currentPage.value}&sort=${sort.value}`
+  `${store.api}/animations/?page=${currentPage.value}&sort=${sort.value}`
 );
 store.isLoading = false;
 
@@ -137,7 +137,7 @@ const removeCategory = (category: string) => {
 
 const getList = async (page: number = 1) => {
   store.isLoading = true;
-  let api = `${store.api}/animations/list/?page=${page}&sort=${sort.value}&category=${categoryArr.value.join(
+  let api = `${store.api}/animations/?page=${page}&sort=${sort.value}&category=${categoryArr.value.join(
     ","
   )}`;
   const res = await $fetch(api, {

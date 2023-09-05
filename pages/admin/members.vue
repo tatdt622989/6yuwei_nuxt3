@@ -138,7 +138,7 @@ const getList = async () => {
 
 const deleteData = async () => {
   store.isLoading = true;
-  const api = `${store.api}/contact/admin/list/delete/`;
+  const api = `${store.api}/contact/admin/delete/`;
   const ids = confirmModal.id.split(",");
   const res = await useFetch(api, {
     method: "POST",

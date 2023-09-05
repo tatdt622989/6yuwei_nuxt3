@@ -141,7 +141,7 @@ const copyData = async () => {
       message: "Website not found",
       timeout: 5000,
     });
-  const api = `${store.api}/websites/admin/list/`;
+  const api = `${store.api}/websites/admin/`;
   const data = {
     title: website.title,
     description: website.description,
@@ -181,7 +181,7 @@ const copyData = async () => {
 
 const getList = async () => {
   store.isLoading = true;
-  const api = `${store.api}/websites/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
+  const api = `${store.api}/websites/admin/?page=${currentPage.value}&keyword=${keyword.value}`;
   const res = await $fetch(api, {
     method: "GET",
     credentials: "include",
@@ -259,7 +259,7 @@ const getCategory = async () => {
 
 const deleteData = async () => {
   store.isLoading = true;
-  const api = `${store.api}/websites/admin/list/delete/`;
+  const api = `${store.api}/websites/admin/delete/`;
   const ids = confirmModal.id.split(",");
   const res = await useFetch(api, {
     method: "POST",

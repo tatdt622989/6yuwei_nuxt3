@@ -1,15 +1,19 @@
 <template>
   <div class="inner-page">
-    <Banner :unit-name="'Websites'" :describe="'Websites created using various technologies'" />
+    <Banner :unit-name="'Websites'"
+      :describe="'Websites created using various technologies'" />
     <div class="main">
       <div class="wrap">
         <div class="tools">
           <div class="item active-category-box">
             <div class="category-wrap">
-              <div class="category" v-for="(item, index) in categoryArr" :key="Date.now() + index">
+              <div class="category"
+                v-for="(item, index) in categoryArr"
+                :key="Date.now() + index">
                 <span class="text">{{ item }}</span>
                 <span class="remove">
-                  <span class="material-icons" @click="removeCategory(item)">
+                  <span class="material-icons"
+                    @click="removeCategory(item)">
                     close
                   </span>
                 </span>
@@ -17,12 +21,14 @@
             </div>
           </div>
           <div class="item filter">
-            <button class="btn" @click="filterModal.open = true">
+            <button class="btn"
+              @click="filterModal.open = true">
               <span class="material-icons"> filter_alt </span>
             </button>
           </div>
           <div class="item layout">
-            <button class="btn" @click="layoutToggler">
+            <button class="btn"
+              @click="layoutToggler">
               <span class="material-icons">{{
                 layout !== "card" ? "grid_view" : "view_list"
               }}</span>
@@ -30,20 +36,27 @@
           </div>
           <div class="item sort">
             <div class="selectWrap">
-              <select v-model="sort" name="" class="select">
-                <option value="0" disabled>Sort By</option>
+              <select v-model="sort"
+                name=""
+                class="select">
+                <option value="0"
+                  disabled>Sort By</option>
                 <option value="asc">old -> new</option>
                 <option value="desc">new -> old</option>
               </select>
             </div>
           </div>
         </div>
-        <div class="content" :class="[layout]">
-          <div class="item card" v-for="website in websites" :key="website._id">
+        <div class="content"
+          :class="[layout]">
+          <div class="item card"
+            v-for="website in websites"
+            :key="website._id">
             <div class="item-content">
               <div class="img-wrap">
                 <NuxtLink :to="`/website/${website._id}`">
-                  <img v-if="website.photos[0]" :src="`${store.api}/admin/uploads/${website.photos[0]?.url}`"
+                  <img v-if="website.photos[0]"
+                    :src="`${store.api}/admin/uploads/${website.photos[0]?.url}`"
                     :alt="website.title" />
                 </NuxtLink>
               </div>
@@ -59,11 +72,15 @@
             </div>
           </div>
         </div>
-        <Pagination :total="totalPage" :url="'/websites/'" />
+        <Pagination :total="totalPage"
+          :url="'/websites/'" />
       </div>
     </div>
-    <FilterModal :is-open="filterModal.open" :active-category-arr="categoryArr" :unit-name="'websites'"
-      @close-modal="filterModal.open = false" @set-category-arr="setCategoryArr" />
+    <FilterModal :is-open="filterModal.open"
+      :active-category-arr="categoryArr"
+      :unit-name="'websites'"
+      @close-modal="filterModal.open = false"
+      @set-category-arr="setCategoryArr" />
   </div>
 </template>
 
@@ -100,7 +117,7 @@ const filterModal = ref({
 });
 
 store.isLoading = true;
-const { data: websiteRes, error } = await useFetch(`${store.api}/websites/list/?page=${currentPage.value}&sort=${sort.value}`);
+const { data: websiteRes, error } = await useFetch(`${store.api}/websites/?page=${currentPage.value}&sort=${sort.value}`);
 store.isLoading = false;
 
 interface ResRef {
@@ -135,7 +152,7 @@ const removeCategory = (category: string) => {
 
 const getList = async (page: number = 1) => {
   store.isLoading = true;
-  let api = `${store.api}/websites/list/?page=${page}&sort=${sort.value}&category=${categoryArr.value.join(
+  let api = `${store.api}/websites/?page=${page}&sort=${sort.value}&category=${categoryArr.value.join(
     ","
   )}`;
   const res = await $fetch(api, {

@@ -179,7 +179,7 @@ const selectAllItem = () => {
 
 const getList = async () => {
   store.isLoading = true;
-  const api = `${store.api}/contact/admin/list/?page=${currentPage.value}&keyword=${keyword.value}`;
+  const api = `${store.api}/contact/admin/?page=${currentPage.value}&keyword=${keyword.value}`;
   const res = await useFetch(api, {
     method: "GET",
     credentials: "include",
@@ -213,7 +213,7 @@ const getList = async () => {
 
 const deleteData = async () => {
   store.isLoading = true;
-  const api = `${store.api}/contact/admin/list/delete/`;
+  const api = `${store.api}/contact/admin/delete/`;
   const ids = confirmModal.id.split(",");
   const res = await useFetch(api, {
     method: "POST",

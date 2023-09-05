@@ -414,7 +414,7 @@ const verify = () => {
 };
 
 const save = async () => {
-  const api = `${store.api}/${props.unit}/admin/list/`;
+  const api = `${store.api}/${props.unit}/admin/`;
   if (textEditorRef.value) {
     textEditorRef.value.generateEditorHTML();
   }
