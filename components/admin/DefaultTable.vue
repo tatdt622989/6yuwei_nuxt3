@@ -39,10 +39,9 @@
             <tbody>
                 <tr v-for="unitItem in unitItems"
                     :key="unitItem._id"
-                    @dragstart=""
-                    @dragenter="() => { dragOverId = unitItem._id as string }"
-                    @drop.prevent="dragDrop"
-                    @dragend="() => { dragOverId = '' }"
+                    @mouseenter="colMoveEnter(unitItem._id as string)"
+                    @mouseleave="() => { dragOverId = '' }"
+                    @mouseup.stop="colMouseUp"
                     :class="{ over: unitItem._id === dragOverId }">
                     <td>
                         <label class="selector">
@@ -114,8 +113,7 @@
                             </button>
                         </div>
                     </td>
-                    <td @mousedown="(e) => colMoveStart(e, unitItem)"
-                        @mousemove="(e) => colMove(e)">
+                    <td @mousedown="(e) => colMoveStart(e, unitItem)">
                         <button class="dragger">
                             <span class="material-symbols-outlined">
                                 drag_indicator
@@ -125,10 +123,10 @@
                 </tr>
             </tbody>
         </table>
-        <table class="dragCloneEl" :style="dragCloneElCSS">
+        <table class="dragCloneEl"
+            :style="dragCloneElCSS">
             <tbody>
-                <tr
-                    v-if="dragData"
+                <tr v-if="dragData"
                     ref="dragCloneEl">
                     <td width="65">
                         <label class="selector">
@@ -208,7 +206,7 @@ import { useStore } from "~/store";
 import { CSSProperties } from "nuxt/dist/app/compat/vue-demi";
 
 const emit = defineEmits(['openEditorModal', 'openConfirmModal', 'selectAllItem', 'updateTop',
-    'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setUnitItems', 'setIsAllSelected', 'setSelector']);
+    'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setUnitItems', 'setIsAllSelected', 'setSelector','updateSortData']);
 const props = defineProps({
     unitItems: Array as PropType<Website[] | Animation[]>,
     total: Number,
@@ -238,27 +236,73 @@ const dragCloneElCSS = reactive<CSSProperties>({
     top: '',
     width: '',
 });
+const dataClone = ref<Website | Animation | null>(null);
 
 const colMoveStart = (e: MouseEvent, data: Website | Animation | ThreeDCG) => {
     const target = (e.target as HTMLElement).closest('tr') as HTMLElement;
+    const wrapper = target.closest('.table-responsive') as HTMLElement;
+    const wrapperLeft = wrapper.getBoundingClientRect().left;
     const { top, left, width } = target.getBoundingClientRect();
+    const offsetTop = top + (document.documentElement.scrollTop || document.body.scrollTop);
     const { clientX, clientY } = e;
     dragstartPos.x = clientX;
     dragstartPos.y = clientY;
-    dragCloneElCSS.left = `0px`;
-    dragCloneElCSS.top = `${top}px`;
+    dragCloneElCSS.left = `${wrapperLeft}px`;
+    dragCloneElCSS.top = `${offsetTop}px`;
     dragCloneElCSS.width = `${width}px`;
     dragData.value = data;
+    dataClone.value = JSON.parse(JSON.stringify(unitItems.value));
 };
 
-const colMove = (e: MouseEvent) => {
+const bodyMove = (e: MouseEvent) => {
+    if (!dragData.value) return;
     const target = e.target as HTMLElement;
-    const { top, left } = target.getBoundingClientRect();
     const { clientX, clientY } = e;
+    const x = clientX - dragstartPos.x;
+    const y = clientY - dragstartPos.y;
+
+    dragCloneElCSS.transform = `translate(${x}px, ${y}px)`;
 };
 
-const dragDrop = (e: DragEvent) => {
+const colMoveEnter = (id: string) => {
+    if (!dragData.value) return;
+    dragOverId.value = id;
+    // resort data
+    const dragIndex = unitItems.value.findIndex((item) => item._id === dragData.value?._id);
+    const dragOverIndex = unitItems.value.findIndex((item) => item._id === id);
+    // exchange data
+    const temp = unitItems.value[dragIndex];
+    unitItems.value[dragIndex] = unitItems.value[dragOverIndex];
+    unitItems.value[dragOverIndex] = temp;
 };
+
+const bodyMouseUp = () => {
+    if (dragData.value) {
+        dragData.value = null;
+        dragOverId.value = '';
+        dragCloneElCSS.transform = 'translate(0, 0)';
+        unitItems.value = JSON.parse(JSON.stringify(dataClone.value));
+    }
+    dataClone.value = null;
+};
+
+const colMouseUp = () => {
+    if (!dragData.value) return;
+    emit('updateSortData', unitItems.value);
+    dragData.value = null;
+    dragOverId.value = '';
+    dragCloneElCSS.transform = 'translate(0, 0)';
+};
+
+onMounted(() => {
+    document.body.addEventListener('mousemove', bodyMove);
+    document.body.addEventListener('mouseup', bodyMouseUp);
+});
+
+onBeforeUnmount(() => {
+    document.body.removeEventListener('mousemove', bodyMove);
+    document.body.removeEventListener('mouseup', bodyMouseUp);
+});
 
 
 // 回寫資料
@@ -297,14 +341,17 @@ watch(() => props.isConfirm, (val) => {
 <style lang="scss" scoped>
 @import "bootstrap/scss/bootstrap";
 
+.container-fluid {
+    position: relative;
+}
+
 .table-responsive {
     background-color: #fff;
     box-shadow: 0 0 10px $terColor;
     border-radius: 12px;
     padding: 0;
     margin-bottom: 30px;
-    overflow: auto;
-    position: relative;
+    overflow: visible;
 
     &::-webkit-scrollbar {
         height: 6px;
@@ -343,6 +390,7 @@ watch(() => props.isConfirm, (val) => {
         &:nth-of-type(2) {
             width: 5%;
             text-align: center;
+
             @include media(1700) {
                 width: 8%;
             }
@@ -359,6 +407,7 @@ watch(() => props.isConfirm, (val) => {
 
         &:nth-of-type(4) {
             width: 30%;
+
             @include media(1700) {
                 width: 20%;
             }
@@ -378,6 +427,7 @@ watch(() => props.isConfirm, (val) => {
 
         &:nth-of-type(8) {
             width: 10%;
+
             @include media(1700) {
                 width: 15%;
             }
@@ -385,8 +435,12 @@ watch(() => props.isConfirm, (val) => {
 
         &:last-of-type {
             width: 5%;
+
             @include media(1700) {
                 width: 7%;
+            }
+            @include media(1200) {
+                display: none;
             }
         }
 
@@ -422,6 +476,9 @@ watch(() => props.isConfirm, (val) => {
 
         &:last-of-type {
             text-align: center;
+            @include media(1200) {
+                display: none;
+            }
         }
 
 
@@ -479,6 +536,7 @@ watch(() => props.isConfirm, (val) => {
 
         td {
             background-color: $terColor;
+            opacity: 0.5;
         }
     }
 
@@ -567,10 +625,20 @@ watch(() => props.isConfirm, (val) => {
     .dragCloneEl {
         width: 100%;
         table-layout: fixed;
+        box-shadow: 0 0 12px darken($terColor, 5);
+        pointer-events: none;
+        @include media(1200) {
+            display: none;
+        }
 
         td *:not(.action, .dragger) {
             padding: 0;
             pointer-events: none;
+        }
+
+        td {
+            font-size: 16px;
+            padding: 10px 20px;
         }
     }
 }

@@ -179,7 +179,7 @@ async function getStorageList() {
     store.isLoading = true;
 
     try {
-        const res: ComponentsRes = await $fetch(`${store.api}/components/user/?typeId=${componentsType.value?._id}`, {
+        const res = await $fetch<ComponentsRes>(`${store.api}/components/user/?typeId=${componentsType.value?._id}`, {
             method: "GET",
             credentials: "include",
         });
@@ -211,7 +211,7 @@ async function componentGenerator() {
     store.isLoading = true;
 
     try {
-        const res: Component = await $fetch(`${store.api}/components/generate/`, {
+        const res = await $fetch<Component>(`${store.api}/components/generate/`, {
             method: "POST",
             credentials: "include",
             body: {
@@ -226,7 +226,7 @@ async function componentGenerator() {
             timeout: 5000,
         });
         // update balance
-        const balanceRes: BalanceRes = await $fetch(`${store.api}/user/balance/`, {
+        const balanceRes = await $fetch<BalanceRes>(`${store.api}/user/balance/`, {
             method: "GET",
             credentials: "include",
         });
@@ -348,7 +348,7 @@ onMounted(async () => {
                         interface uploadRes {
                             screenshotFileName: string
                         }
-                        const res: uploadRes = await $fetch(`${store.api}/components/screenshot/`, {
+                        const res = await $fetch<uploadRes>(`${store.api}/components/screenshot/`, {
                             method: "POST",
                             credentials: "include",
                             body: formData,

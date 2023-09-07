@@ -69,7 +69,7 @@ function timeFormat(time: string) {
 
 async function toggleFavorite() {
     try {
-        const res: FavoriteRes = await $fetch(`${store.api}/components/favorites/`, {
+        const res = await $fetch<FavoriteRes>(`${store.api}/components/favorites/`, {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({

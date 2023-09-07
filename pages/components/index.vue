@@ -89,7 +89,7 @@ async function search() {
   store.isLoading = true;
 
   try {
-    const res: ComponentsRes = await $fetch(`${store.api}/components/?page=${currentPage.value}&keyword=${keyword.value}`, {
+    const res = await $fetch<ComponentsRes>(`${store.api}/components/?page=${currentPage.value}&keyword=${keyword.value}`, {
       method: "GET",
       credentials: "include",
     });
@@ -118,7 +118,7 @@ async function getList() {
   store.isLoading = true;
 
   try {
-    const res: ComponentsRes = await $fetch(`${store.api}/components/?page=${currentPage.value}`, {
+    const res = await $fetch<ComponentsRes>(`${store.api}/components/?page=${currentPage.value}`, {
       method: "GET",
       credentials: "include",
     });
@@ -140,7 +140,7 @@ async function getList() {
 async function getFavoriteIDList() {
   store.isLoading = true;
   try {
-    const res: FavoriteRes = await $fetch(`${store.api}/components/favorites/id/`, {
+    const res = await $fetch<FavoriteRes>(`${store.api}/components/favorites/id/`, {
       method: "GET",
       credentials: "include",
     });

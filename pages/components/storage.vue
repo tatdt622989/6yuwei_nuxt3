@@ -99,7 +99,7 @@ async function search() {
     store.isLoading = true;
 
     try {
-        const res: ComponentsRes = await $fetch(`${store.api}/components/?page=${currentPage.value}&keyword=${keyword.value}`, {
+        const res = await $fetch<ComponentsRes>(`${store.api}/components/?page=${currentPage.value}&keyword=${keyword.value}`, {
             method: "GET",
             credentials: "include",
         });
@@ -127,7 +127,7 @@ function typeSearch(type: string) {
 async function getComponents() {
     store.isLoading = true;
     try {
-        const res: ComponentsRes = await $fetch(`${store.api}/components/user/?page=${currentPage.value}`, {
+        const res = await $fetch<ComponentsRes>(`${store.api}/components/user/?page=${currentPage.value}`, {
             method: "GET",
         });
         if (res.msg) {
@@ -152,7 +152,7 @@ async function deleteComponent() {
     const id = confirmModal.id;
     store.isLoading = true;
     try {
-        const res: deleteComponentRes = await $fetch(`${store.api}/components/${id}`, {
+        const res = await $fetch<deleteComponentRes>(`${store.api}/components/${id}`, {
             method: "DELETE",
         });
         if (res.msg) {

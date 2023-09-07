@@ -32,6 +32,7 @@ export interface Website {
   visible: boolean;
   homepage: boolean;
   top: boolean;
+  sort: number;
 }
 
 export interface ThreeDCG {
@@ -47,6 +48,7 @@ export interface ThreeDCG {
   visible: boolean;
   homepage: boolean;
   top: boolean;
+  sort: number;
 }
 
 export interface Animation {
@@ -63,6 +65,7 @@ export interface Animation {
   visible: boolean;
   homepage: boolean;
   top: boolean;
+  sort: number;
 }
 
 export type Editor = Website & ThreeDCG & Animation;

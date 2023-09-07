@@ -11,7 +11,7 @@ export const useGetUserData = () => {
         const store = useStore();
         if (store.user) return null;
         try {
-            const res: LoginStatusRes = await $fetch(`${store.api}/loginStatus/`, {
+            const res = await $fetch<LoginStatusRes>(`${store.api}/loginStatus/`, {
                 method: "GET",
                 credentials: "include",
             });

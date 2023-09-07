@@ -3,27 +3,54 @@
     <div class="titleWrap">
       <div class="text">
         <h2 class="title">Websites</h2>
-        <p class="result" v-if="keyword">Search keyword: <span>{{ keyword ? `${keyword}` : "" }}</span></p>
+        <p class="result"
+          v-if="keyword">Search keyword: <span>{{ keyword ? `${keyword}` : "" }}</span></p>
       </div>
       <AdminContentToolbar @open-editor-modal="openEditorModal" />
     </div>
     <div class="container-fluid">
       <div class="row">
-        <AdminDefaultTable @copy-item="copyData" @delete-item="deleteData" @open-editor-modal="openEditorModal"
-          @open-confirm-modal="openConfirmModal" @update-visibility="updateVisibility" @update-homepage="updateHomepage"
-          @update-top="updateTop" @select-all-item="selectAllItem" @set-unit-items="setWebsites"
-          @set-is-all-selected="setIsAllSelected" @set-selector="setSelector" :is-all-selected="isAllSelected"
-          :selector="selector" :unit-items="websites" :total="total" :is-confirm="confirmModal.isConfirm"
-          :confirm-action="confirmModal.action" :confirm-id="confirmModal.id" />
-        <Pagination :total="totalPage" :url="'/admin/websites/'" />
+        <AdminDefaultTable @copy-item="copyData"
+          @delete-item="deleteData"
+          @open-editor-modal="openEditorModal"
+          @open-confirm-modal="openConfirmModal"
+          @update-visibility="updateVisibility"
+          @update-homepage="updateHomepage"
+          @update-top="updateTop"
+          @update-sort-data="updateSortData"
+          @select-all-item="selectAllItem"
+          @set-unit-items="setWebsites"
+          @set-is-all-selected="setIsAllSelected"
+          @set-selector="setSelector"
+          :is-all-selected="isAllSelected"
+          :selector="selector"
+          :unit-items="websites"
+          :total="total"
+          :is-confirm="confirmModal.isConfirm"
+          :confirm-action="confirmModal.action"
+          :confirm-id="confirmModal.id" />
+        <Pagination :total="totalPage"
+          :url="'/admin/websites/'" />
       </div>
     </div>
-    <AdminEditorModal :unit="'websites'" :is-open="editorModal.open" :action="editorModal.action" :data="editorModal.data"
-      :confirm-modal="confirmModal" :category="category" :delete-data="deleteData" @open-confirm-modal="openConfirmModal"
-      @close-modal="closeEditorModal" @reload-list="getList" @set-editor-data="setEditorData"
+    <AdminEditorModal :unit="'websites'"
+      :is-open="editorModal.open"
+      :action="editorModal.action"
+      :data="editorModal.data"
+      :confirm-modal="confirmModal"
+      :category="category"
+      :delete-data="deleteData"
+      @open-confirm-modal="openConfirmModal"
+      @close-modal="closeEditorModal"
+      @reload-list="getList"
+      @set-editor-data="setEditorData"
       @update-category="getCategory" />
-    <AdminConfirmModal :is-open="confirmModal.open" :is-confirm="confirmModal.isConfirm" :action="confirmModal.action"
-      @close-modal="confirmModal.open = false" @confirm="confirmModal.isConfirm = true" @on-confirm="onConfirm" />
+    <AdminConfirmModal :is-open="confirmModal.open"
+      :is-confirm="confirmModal.isConfirm"
+      :action="confirmModal.action"
+      @close-modal="confirmModal.open = false"
+      @confirm="confirmModal.isConfirm = true"
+      @on-confirm="onConfirm" />
   </div>
 </template>
 
@@ -36,6 +63,10 @@ interface UpdateData {
   data: {
     [key: string]: string | boolean | Array<string>;
   };
+}
+
+interface MultipleUpdateRes {
+  msg: string;
 }
 
 useHead({
@@ -285,7 +316,7 @@ const deleteData = async () => {
 
 const updateData = async (data: UpdateData) => {
   store.isLoading = true;
-  const api = `${store.api}/websites/admin/list`;
+  const api = `${store.api}/websites/admin/`;
   const res = await useFetch(api, {
     method: "PUT",
     credentials: "include",
@@ -340,6 +371,39 @@ const updateTop = async (id: string, top: boolean) => {
       top,
     },
   });
+};
+
+const updateSortData = async (unitItems: Website[]) => {
+  store.isLoading = true;
+  // 取得排序資料
+  const pageSize = 12;
+  const initPageNum = (currentPage.value - 1) * pageSize;
+  const sortData = unitItems.map((item) => {
+    return {
+      _id: item._id,
+      sort: unitItems.findIndex((unitItem) => unitItem._id === item._id) + initPageNum,
+    };
+  });
+  try {
+    const res = await $fetch<MultipleUpdateRes>(`${store.api}/websites/admin/multiple/`, {
+      method: 'PUT',
+      credentials: "include",
+      body: {
+        data: sortData,
+      },
+    });
+
+    if (res.msg) {
+      store.pushNotification({
+        type: 'success',
+        message: res.msg,
+        timeout: 5000,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+  store.isLoading = false;
 };
 
 const setWebsites = (data: Array<Website>) => {
@@ -409,5 +473,4 @@ watch(
     min-width: 0;
     flex-shrink: 0;
   }
-}
-</style>
+}</style>

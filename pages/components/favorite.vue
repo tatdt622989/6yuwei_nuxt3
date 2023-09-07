@@ -65,7 +65,7 @@ const currentPage = computed(() => {
 async function getComponents() {
     store.isLoading = true;
     try {
-        const res: ComponentsRes = await $fetch(`${store.api}/components/favorites/?page=${currentPage.value}`, {
+        const res = await $fetch<ComponentsRes>(`${store.api}/components/favorites/?page=${currentPage.value}`, {
             method: "GET",
         });
         if (res.msg) {

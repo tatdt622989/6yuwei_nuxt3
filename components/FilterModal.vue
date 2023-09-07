@@ -89,7 +89,7 @@ onMounted(async () => {
     msg: string;
   }
   try {
-    const res: categoryRes = await $fetch(`${store.api}/${props.unitName}/category/`, {
+    const res = await $fetch<categoryRes>(`${store.api}/${props.unitName}/category/`, {
       method: "GET",
     });
     if (!res) return;
