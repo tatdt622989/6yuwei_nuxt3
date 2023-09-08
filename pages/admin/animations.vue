@@ -377,21 +377,12 @@ const updateTop = async (id: string, top: boolean) => {
 
 const updateSortData = async (unitItems: Animation[]) => {
   store.isLoading = true;
-  // 取得排序資料
-  const pageSize = 12;
-  const initPageNum = (currentPage.value - 1) * pageSize;
-  const sortData = unitItems.map((item) => {
-    return {
-      _id: item._id,
-      sort: unitItems.findIndex((unitItem) => unitItem._id === item._id) + initPageNum,
-    };
-  });
   try {
     const res = await $fetch<MultipleUpdateRes>(`${store.api}/animations/admin/multiple/`, {
       method: 'PUT',
       credentials: "include",
       body: {
-        data: sortData,
+        data: unitItems,
       },
     });
 

@@ -113,8 +113,8 @@
                             </button>
                         </div>
                     </td>
-                    <td @mousedown="(e) => colMoveStart(e, unitItem)">
-                        <button class="dragger">
+                    <td>
+                        <button class="dragger"  @mousedown="(e) => colMoveStart(e, unitItem)">
                             <span class="material-symbols-outlined">
                                 drag_indicator
                             </span>
@@ -218,9 +218,14 @@ const props = defineProps({
 });
 
 const store = useStore();
+const route = useRoute();
+
 const unitItems = ref<Website[] | Animation[]>([]);
 const isAllSelected = ref(false);
 const selector = ref<string[]>([]);
+const currentPage = computed(() => {
+  return route.query.page ? parseInt(route.query.page as string) : 1;
+});
 const dragOverId = ref('');
 const dragData = ref<Website | Animation | null>(null);
 const dragCloneEl = ref<HTMLElement | null>(null);
@@ -288,7 +293,19 @@ const bodyMouseUp = () => {
 
 const colMouseUp = () => {
     if (!dragData.value) return;
-    emit('updateSortData', unitItems.value);
+    if (!props.total) return;
+    const pageSize = 12;
+    const initPageNum = props.total - (currentPage.value - 1) * pageSize;
+    // 處理置頂排序
+    unitItems.value.sort((a, b) => Number(b.top) - Number(a.top));
+    // 取得排序資料
+    const sortData = unitItems.value.map((item) => {
+        return {
+        _id: item._id,
+        sort: initPageNum - unitItems.value.findIndex((unitItem) => unitItem._id === item._id),
+        };
+    });
+    emit('updateSortData', sortData);
     dragData.value = null;
     dragOverId.value = '';
     dragCloneElCSS.transform = 'translate(0, 0)';
@@ -522,6 +539,9 @@ watch(() => props.isConfirm, (val) => {
             cursor: pointer;
             @include center;
             display: inline;
+            display: flex;
+            width: 52px;
+            height: 52px;
 
             span {
                 font-size: 28px;
