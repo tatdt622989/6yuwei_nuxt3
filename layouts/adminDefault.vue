@@ -15,8 +15,13 @@
 </template>
 
 <script lang="ts" setup>
+import { useStore } from "~/store";
+
+const store = useStore();
 const keyword = ref('');
 provide('keyword', keyword);
+
+store.isUserChecked = true;
 </script>
 
 <style lang="scss" scoped>

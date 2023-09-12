@@ -114,7 +114,7 @@
                         </div>
                     </td>
                     <td>
-                        <button class="dragger"  @mousedown="(e) => colMoveStart(e, unitItem)">
+                        <button class="dragger"  @mousedown="(e) => colMoveStart(e, unitItem)" v-if="!keyword">
                             <span class="material-symbols-outlined">
                                 drag_indicator
                             </span>
@@ -221,6 +221,7 @@ const store = useStore();
 const route = useRoute();
 
 const unitItems = ref<Website[] | Animation[]>([]);
+const keyword = inject("keyword") as Ref<string>;
 const isAllSelected = ref(false);
 const selector = ref<string[]>([]);
 const currentPage = computed(() => {

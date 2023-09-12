@@ -17,7 +17,7 @@
     </li>
     <li v-if="place === 'header'" class="account" :class="{ 'no-login': !store.user }">
       <NuxtLink to="/admin/login/" class="sign-in" v-if="!store.user && store.isUserChecked">Sign in</NuxtLink>
-      <NuxtLink to="/admin/account/" id="avatar" v-else="store.user">
+      <NuxtLink to="/admin/account/" id="avatar" v-else-if="store.isUserChecked">
         <img :src="avatArURL" alt="avatar" v-if="avatArURL">
         <i class="bi bi-person-fill" v-else></i>
       </NuxtLink>

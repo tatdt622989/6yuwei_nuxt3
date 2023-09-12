@@ -47,11 +47,9 @@
                     <span class="material-symbols-outlined mark"> check </span>
                   </label>
                 </td>
-                <td></td>
-                <td class="email">
-                </td>
-                <td>
-                </td>
+                <td class="name">{{ item.username }}</td>
+                <td class="email">{{ item.email }}</td>
+                <td>{{ item.phone }}</td>
                 <td>
                   <div class="action-wrap">
                     <button class="action delete" @click="openConfirmModal(deleteData, item?._id)">
@@ -73,14 +71,21 @@
 </template>
 
 <script lang="ts" setup>
-import { Editor, Animation, User } from "~/types";
+import { Editor, User } from "~/types";
 import { useStore } from "~/store";
+import { Console } from "console";
 
 interface UpdateData {
   _id: string;
   data: {
     [key: string]: string | boolean | Array<string>;
   };
+}
+
+interface DataRes {
+  msg: string;
+  data: Array<User>;
+  total: number;
 }
 
 useHead({
@@ -102,6 +107,10 @@ definePageMeta({
 });
 
 const store = useStore();
+const route = useRoute();
+const currentPage = computed(() => {
+  return route.query.page ? parseInt(route.query.page as string) : 1;
+});
 const keyword = inject("keyword") as Ref<string>;
 const changeToEditor = useChangeToEditor();
 const members = ref<User[]>([]);
@@ -133,7 +142,25 @@ const selectAllItem = () => {
 };
 
 const getList = async () => {
-  
+  try {
+    const res = await $fetch<DataRes>(`${store.api}/members/?page=1&limit=12&keyword=${keyword.value}`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (res.data) {
+      members.value = res.data;
+      total.value = res.total;
+      totalPage.value = Math.ceil(res.total / 10);
+    }
+  } catch (error) {
+    console.log(error);
+    store.pushNotification({
+      type: "error",
+      message: 'Something went wrong',
+      timeout: 5000,
+    });
+  }
 }
 
 const deleteData = async () => {
@@ -163,14 +190,14 @@ const deleteData = async () => {
 
 const openEditorModal = (
   action: "add" | "edit",
-  data: Animation | null = null
+  data: User | null = null
 ) => {
 
   editorModal.action = action;
   editorModal.data = null;
   if (action !== 'add' && action !== 'edit') throw new Error('action must be add or edit');
   if (action === "edit" && data) {
-    editorModal.data = changeToEditor(data);
+    // editorModal.data = changeToEditor(data);
   }
   editorModal.open = true;
 };
@@ -183,6 +210,10 @@ const openConfirmModal = (targetFunc: Function, id: string = "") => {
   }
   confirmModal.id = id;
 };
+
+onMounted(async () => {
+  await getList();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -245,6 +276,9 @@ const openConfirmModal = (targetFunc: Function, id: string = "") => {
       @include media(1200) {
         text-align: center;
       }
+    }
+    &.name {
+      font-weight: bold;
     }
     &.message {
       white-space: nowrap;

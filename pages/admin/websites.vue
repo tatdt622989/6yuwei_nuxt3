@@ -248,7 +248,6 @@ const getList = async () => {
   }
   store.isLoading = false;
 };
-
 const getCategory = async () => {
   store.isLoading = true;
   const api = `${store.api}/websites/admin/category/`;
@@ -345,7 +344,6 @@ const updateData = async (data: UpdateData) => {
   await getList();
   editorModal.open = false;
 };
-
 const updateVisibility = async (id: string, visible: boolean) => {
   updateData({
     _id: id,
@@ -354,7 +352,6 @@ const updateVisibility = async (id: string, visible: boolean) => {
     },
   });
 };
-
 const updateHomepage = async (id: string, homepage: boolean) => {
   updateData({
     _id: id,
@@ -363,7 +360,6 @@ const updateHomepage = async (id: string, homepage: boolean) => {
     },
   });
 };
-
 const updateTop = async (id: string, top: boolean) => {
   updateData({
     _id: id,
@@ -372,7 +368,6 @@ const updateTop = async (id: string, top: boolean) => {
     },
   });
 };
-
 const updateSortData = async (unitItems: Website[]) => {
   store.isLoading = true;
   try {
