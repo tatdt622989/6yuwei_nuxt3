@@ -20,7 +20,7 @@
               <div class="photo-area">
                 <div class="preview">
                   <i class="bi bi-person-fill"></i>
-                  <img v-if="preview || user.photo" :src="preview || userPhotoPath" :alt="user.username" />
+                  <img v-if="preview || user.photo || user.externalPhoto" :src="preview || userPhotoPath || (user.externalPhoto as string)" :alt="user.username" />
                 </div>
                 <div class="upload">
                   <label>
@@ -162,9 +162,11 @@ const user = ref<User>({
   permissions: "user",
   createdAt: "",
   photo: "",
+  externalPhoto: "",
   balance: 0,
 });
 const userPhotoPath = computed(() => {
+  if (!user.value.photo) return "";
   return `${store.api}/admin/uploads/${user.value._id}/${user.value.photo}`;
 });
 const createdAt = computed(() => {

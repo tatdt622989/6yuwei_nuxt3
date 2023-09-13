@@ -15,7 +15,7 @@
       </div>
       <div class="member">
         <div class="img-box">
-          <img v-if="user?.photo" :src="userPhotoPath" :alt="user?.username" />
+          <img v-if="user?.photo || user?.externalPhoto" :src="userPhotoPath || (user.externalPhoto as string)" :alt="user?.username" />
         </div>
         <div class="txtBox">{{ user?.username }}</div>
         <div class="user-menu" v-if="store.user">
@@ -42,7 +42,7 @@ const externalKeyword = inject("keyword") as Ref<string>;
 const keyword = ref("");
 const user = computed(() => store.user);
 const userPhotoPath = computed(() => {
-  if (!user.value) return "";
+  if (!user.value || !user.value.photo) return "";
   return `${store.api}/admin/uploads/${user.value._id}/${user.value.photo}`;
 });
 const hasSearch = computed(() => {

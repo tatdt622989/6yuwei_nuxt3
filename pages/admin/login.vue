@@ -44,7 +44,7 @@
         </NuxtLink>
       </p>
       <p class="or">or</p>
-      <button class="googleLogin">
+      <button class="googleLogin" @click="googleLogin">
         <svg width="2443"
           height="2500"
           viewBox="0 0 256 262"
@@ -153,6 +153,11 @@ const submit = async () => {
       }
     }
   }
+};
+
+const googleLogin = async (e: Event) => {
+  e.preventDefault();
+  window.location.href = `${store.api}/googleLogin/`;
 };
 
 onMounted(async () => {

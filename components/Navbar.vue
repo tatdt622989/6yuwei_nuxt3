@@ -18,7 +18,7 @@
     <li v-if="place === 'header'" class="account" :class="{ 'no-login': !store.user }">
       <NuxtLink to="/admin/login/" class="sign-in" v-if="!store.user && store.isUserChecked">Sign in</NuxtLink>
       <NuxtLink to="/admin/account/" id="avatar" v-else-if="store.isUserChecked">
-        <img :src="avatArURL" alt="avatar" v-if="avatArURL">
+        <img :src="avatArURL || (store.user?.externalPhoto ?? '')" alt="avatar" v-if="avatArURL || store.user?.externalPhoto">
         <i class="bi bi-person-fill" v-else></i>
       </NuxtLink>
       <span id="user-name" v-if="userName">{{ userName }}</span>
@@ -54,6 +54,7 @@ const avatArURL = computed(() => {
   if (store.user && store.user.photo) {
     return `${store.api}/admin/uploads/${store.user._id}/${store.user.photo}`;
   }
+  return '';
 });
 const userName = computed(() => {
   if (store.user) {
@@ -66,7 +67,7 @@ let resize = () => {
 
 async function logout() {
   try {
-    const res: { msg: string } = await $fetch(`${store.api}/logout`, {
+    const res = await $fetch<{ msg: string }>(`${store.api}/logout`, {
       method: "POST",
       credentials: "include",
     });

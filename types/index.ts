@@ -8,6 +8,7 @@ export interface User {
   permissions: string;
   createdAt: string;
   photo: string;
+  externalPhoto: String,
   balance: number;
 }
 
