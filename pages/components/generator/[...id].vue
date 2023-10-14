@@ -3,7 +3,8 @@
         <div class="head">
             <div class="wrap">
                 <div class="left-layout">
-                    <nuxt-link to="/components/" class="btn circle">
+                    <nuxt-link to="/components/"
+                        class="btn circle">
                         <i class="bi bi-arrow-left"></i>
                     </nuxt-link>
                     <div class="titleBox">
@@ -17,16 +18,26 @@
         <client-only>
             <div class="wrap">
                 <div class="generator-box">
-                    <input type="text" placeholder="Describe your components" v-model="prompt"/>
-                    <button class="generatorBtn" @click="componentGenerator">Generate</button>
+                    <input type="text"
+                        placeholder="Describe your components"
+                        v-model="prompt" />
+                    <button class="generator-btn"
+                        :class="{ 'fine-tuning': canFineTuning }"
+                        @click="componentGenerator">{{ canFineTuning ? 'Fine-tuning' : 'Generate' }}</button>
                 </div>
                 <client-only>
-                    <swiper :freeMode="true" class="storageList" :slides-per-view="'auto'" :space-between="10" v-show="storageList.length > 0">
-                        <swiper-slide v-for="item in storageList" :key="item._id">
+                    <swiper :freeMode="true"
+                        class="storageList"
+                        :slides-per-view="'auto'"
+                        :space-between="10"
+                        v-show="storageList.length > 0">
+                        <swiper-slide v-for="item in storageList"
+                            :key="item._id">
                             <div class="item">
                                 <nuxt-link :to="`/components/generator/${componentsType?.customURL}/${item._id}`">
-                                    <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt=""
-                                    v-if="item.screenshotFileName">
+                                    <img :src="`/api/components/screenshot/${item.screenshotFileName}`"
+                                        alt=""
+                                        v-if="item.screenshotFileName">
                                 </nuxt-link>
                             </div>
                         </swiper-slide>
@@ -36,12 +47,16 @@
                     <div class="editor">
                         <div class="preview">
                             <span class="title">Preview</span>
-                            <iframe :src="iframeSrc" frameborder="0" v-if="iframeSrc" ref="previewer"
+                            <iframe :src="iframeSrc"
+                                frameborder="0"
+                                v-if="iframeSrc"
+                                ref="previewer"
                                 sandbox="allow-same-origin allow-scripts"></iframe>
                         </div>
                         <div class="style">
                             <span class="title">CSS</span>
-                            <div class="code" v-html="cssEl"></div>
+                            <div class="code"
+                                v-html="cssEl"></div>
                             <button class="copy"
                                 @click="() => componentsData?.style ? copyToClipboard(componentsData?.style) : ''">
                                 <span class="material-symbols-outlined">
@@ -52,7 +67,8 @@
                         <div class="bottom">
                             <div class="script">
                                 <span class="title">JavaScript</span>
-                                <div class="code" v-html="javascriptEl"></div>
+                                <div class="code"
+                                    v-html="javascriptEl"></div>
                                 <button class="copy"
                                     @click="() => componentsType?.html ? copyToClipboard(componentsType.javascript) : ''">
                                     <span class="material-symbols-outlined">
@@ -62,7 +78,8 @@
                             </div>
                             <div class="html">
                                 <span class="title">HTML</span>
-                                <div class="code" v-html="htmlEl"></div>
+                                <div class="code"
+                                    v-html="htmlEl"></div>
                                 <button class="copy"
                                     @click="() => componentsType?.html ? copyToClipboard(componentsType.html) : ''">
                                     <span class="material-symbols-outlined">
@@ -72,11 +89,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="storage" v-show="storageList.length > 0">
-                        <div class="storage-item" v-for="item in storageList" :key="item._id">
+                    <div class="storage"
+                        v-show="storageList.length > 0">
+                        <div class="storage-item"
+                            v-for="item in storageList"
+                            :key="item._id">
                             <div class="item">
                                 <nuxt-link :to="`/components/generator/${componentsType?.customURL}/${item._id}`">
-                                    <img :src="`/api/components/screenshot/${item.screenshotFileName}`" alt=""
+                                    <img :src="`/api/components/screenshot/${item.screenshotFileName}`"
+                                        alt=""
                                         v-if="item.screenshotFileName">
                                 </nuxt-link>
                             </div>
@@ -84,7 +105,8 @@
                     </div>
                 </div>
             </div>
-            <ComponentsTypeModal :is-open="componentsTypeModal.open" :active-component-type="componentsType ?? null"
+            <ComponentsTypeModal :is-open="componentsTypeModal.open"
+                :active-component-type="componentsType ?? null"
                 @close-modal="componentsTypeModal.open = false" />
         </client-only>
     </div>
@@ -102,24 +124,12 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import 'highlight.js/styles/atom-one-dark.css';
 
-useHead({
-  title: "Components - generator",
-  titleTemplate: "%s - 6yuwei",
-  meta: [
-    {
-      hid: "description",
-      name: "description",
-      content: "Components - generator",
-    },
-  ],
-});
-
 interface ComponentsRes {
     msg: string
-    components : Component[]
-    pageSize : number
-    currentPage : number
-    total : number
+    components: Component[]
+    pageSize: number
+    currentPage: number
+    total: number
     totalPage: number
 };
 
@@ -131,10 +141,10 @@ interface BalanceRes {
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
+
 const URL = ref(route.params.id);
 const typeURL = computed(() => URL.value[0]);
 const componentId = computed(() => URL.value[1]);
-
 store.isLoading = true;
 const { data: componentsRes, error: componentsError } = componentId.value ? await useFetch(`${store.api}/components/${componentId.value}/`) : { data: null, error: null };
 const storageList = ref<Component[]>([]);
@@ -142,6 +152,7 @@ const { data: componentsTypeList, error: typeListError } = await useFetch<Compon
 store.isLoading = false;
 
 const componentsData = ref<null | Component>(null);
+const canFineTuning = computed(() => componentId.value && store.user?._id === componentsData.value?.userId ? true : false);
 const componentsType = computed<null | ComponentType>(() => getComponentType(typeURL.value));
 const iframeSrc = computed(() => {
     if (!componentsData.value) return "";
@@ -159,8 +170,61 @@ const componentsTypeModal = ref({
 const previewer = ref<HTMLIFrameElement | null>(null);
 const prompt = ref("");
 
+if (componentsRes) {
+    componentsData.value = componentsRes.value as Component;
+}
+
+useHead({
+    title: `${componentsData.value?.title ?? "generator"}`,
+    titleTemplate: "%s - 6yuwei",
+    meta: [
+        {
+            hid: "description",
+            name: "description",
+            content: `${componentsData.value?.title ?? "generator"}`,
+        },
+    ],
+});
+
 function openModal() {
     componentsTypeModal.value.open = true;
+}
+
+async function getComponentsData() {
+    if (!componentId.value) return;
+    try {
+        const res = await $fetch<Component>(`${store.api}/components/${componentId.value}/`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res) return;
+        componentsData.value = res;
+        const iframe = previewer.value;
+        if (!iframe) return;
+        // reset iframe
+        iframe.src = "";
+        await nextTick();
+        iframe.src = iframeSrc.value;
+        // update code
+        htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsType.value?.html ?? "", {
+            language: 'html',
+        }).value}</code></pre>`;
+        javascriptEl.value = `<pre><code class="language-javascript">${hljs.highlight(componentsType.value?.javascript ?? "", {
+            language: 'javascript',
+        }).value}</code></pre>`;
+        cssEl.value = `<pre><code class="language-css">${hljs.highlight(componentsData.value?.style ?? "", {
+            language: 'css',
+        }).value}</code></pre>`;
+    } catch (err) {
+        if (err) {
+            store.pushNotification({
+                type: "error",
+                message: err.toString(),
+                timeout: 5000,
+            });
+            return store.isLoading = false;
+        }
+    }
 }
 
 function getComponentType(type: string) {
@@ -208,16 +272,30 @@ async function componentGenerator() {
             timeout: 5000,
         });
     }
+
+    if (store.isLoading) {
+        return store.pushNotification({
+            type: "error",
+            message: "Please wait for the previous request to complete",
+            timeout: 5000,
+        });
+    }
+
     store.isLoading = true;
 
     try {
-        const res = await $fetch<Component>(`${store.api}/components/generate/`, {
+        const api = canFineTuning.value ? `${store.api}/components/generate/update/` : `${store.api}/components/generate/`;
+        const body = canFineTuning.value ? {
+            componentId: componentsData.value?._id,
+            prompt: prompt.value,
+        } : {
+            typeId: componentsType.value._id,
+            prompt: prompt.value,
+        };
+        const res = await $fetch<Component>(api, {
             method: "POST",
             credentials: "include",
-            body: {
-                typeId: componentsType.value._id,
-                prompt: prompt.value,
-            },
+            body,
         });
         if (!res) return store.isLoading = false;
         store.pushNotification({
@@ -232,6 +310,12 @@ async function componentGenerator() {
         });
         if (!balanceRes) return;
         store.user.balance = balanceRes.balance;
+        if (canFineTuning.value) {
+            await getComponentsData();
+            await updateScreenshot();
+            await getStorageList();
+            return;
+        }
         navigateTo(`/components/generator/${componentsType.value.customURL}/${res._id}`);
     } catch (err) {
         if (err) {
@@ -247,8 +331,85 @@ async function componentGenerator() {
     store.isLoading = false;
 }
 
-if (componentsRes) {
-    componentsData.value = componentsRes.value as Component;
+// screenshot 使用 html2canvas 並根據 iframe 截圖，截圖內容填充至600px x 400px的 canvas 中，再將 canvas 轉成 png 並上傳至 api server
+async function updateScreenshot() {
+    if (componentsData.value) {
+        const iframe = previewer.value;
+        if (!iframe) return;
+        iframe.onload = function () {
+            if (!iframe) return;
+            const iframeDocument = iframe.contentDocument;
+            if (!iframeDocument) return;
+            const iframeBody = iframeDocument.querySelector("body");
+            if (!iframeBody) return;
+            html2canvas(iframeBody, {
+                scale: 1,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: "#fff",
+            }).then((canvas) => {
+                const height = canvas.height;
+                // fit to 600 x 400
+                const ctx = canvas.getContext("2d");
+                if (!ctx) return;
+                const tempCanvas = document.createElement("canvas");
+                tempCanvas.width = 600;
+                tempCanvas.height = 400;
+                const scale = tempCanvas.height / height;
+                const tempCtx = tempCanvas.getContext("2d");
+                if (!tempCtx) return;
+
+                // 填入白色背景
+                tempCtx.fillStyle = "#f8f8f8";
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                // 如果新宽度大于Canvas宽度，裁剪多余部分
+                var newWidth = canvas.width * scale;
+                if (newWidth > tempCanvas.width) {
+                    var xOffset = (newWidth - tempCanvas.width) / 2;
+                    tempCtx.drawImage(canvas, -xOffset, 0, newWidth, tempCanvas.height);
+                } else {
+                    // 如果新宽度小于等于Canvas宽度，縮放後左右居中
+                    var xOffset = (tempCanvas.width - newWidth) / 2;
+                    var yOffset = (tempCanvas.height - height * scale) / 2;
+                    tempCtx.drawImage(canvas, xOffset, yOffset, newWidth, height * scale);
+                }
+
+                tempCanvas.toBlob(async (blob) => {
+
+                    if (!blob) return;
+                    const formData = new FormData();
+                    formData.append('componentId', componentsData.value?._id ?? "");
+                    formData.append('screenshot', blob, "screenshot.png");
+                    try {
+                        interface uploadRes {
+                            screenshotFileName: string
+                        }
+                        const res = await $fetch<uploadRes>(`${store.api}/components/screenshot/`, {
+                            method: "POST",
+                            credentials: "include",
+                            body: formData,
+                        });
+                        if (!res) return;
+                        if (!componentsData.value) return;
+                        componentsData.value.screenshotFileName = res.screenshotFileName;
+                        getStorageList();
+                    } catch (err) {
+                        if (err) {
+                            store.pushNotification({
+                                type: "error",
+                                message: err.toString(),
+                                timeout: 5000,
+                            });
+                            return;
+                        }
+                    }
+                });
+            }).catch((err) => {
+                console.log(err);
+            });
+        };
+    }
 }
 
 // 判斷 componentsType 是否存在
@@ -294,84 +455,9 @@ onMounted(async () => {
     cssEl.value = `<pre><code class="language-css">${hljs.highlight(componentsData.value?.style ?? "", {
         language: 'css',
     }).value}</code></pre>`;
-    // 如果 screenshot 不存在，則 iframe 使用 html2canvas 截圖，並將截圖內容填充至600px x 400px的 canvas 中，再將 canvas 轉成 png 並上傳至 api server
     if (!componentsData.value?.screenshotFileName && componentsData.value) {
         await nextTick();
-        const iframe = previewer.value;
-        if (!iframe) return;
-        iframe.onload = function() {
-            if (!iframe) return;
-            const iframeDocument = iframe.contentDocument;
-            if (!iframeDocument) return;
-            const iframeBody = iframeDocument.querySelector("body");
-            if (!iframeBody) return;
-            html2canvas(iframeBody, {
-                scale: 1,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: "#fff",
-            }).then((canvas) => {
-                const height = canvas.height;
-                // fit to 600 x 400
-                const ctx = canvas.getContext("2d");
-                if (!ctx) return;
-                const tempCanvas = document.createElement("canvas");
-                tempCanvas.width = 600;
-                tempCanvas.height = 400;
-                const scale = tempCanvas.height / height;
-                const tempCtx = tempCanvas.getContext("2d");
-                if (!tempCtx) return;
-
-                // 填入白色背景
-                tempCtx.fillStyle = "#f8f8f8";
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    
-                // 如果新宽度大于Canvas宽度，裁剪多余部分
-                var newWidth = canvas.width * scale;
-                if (newWidth > tempCanvas.width) {
-                    var xOffset = (newWidth - tempCanvas.width) / 2;
-                    tempCtx.drawImage(canvas, -xOffset, 0, newWidth, tempCanvas.height);
-                } else {
-                    // 如果新宽度小于等于Canvas宽度，縮放後左右居中
-                    var xOffset = (tempCanvas.width - newWidth) / 2;
-                    var yOffset = (tempCanvas.height - height * scale) / 2;
-                    tempCtx.drawImage(canvas, xOffset, yOffset, newWidth, height * scale);
-                }
-    
-                tempCanvas.toBlob(async (blob) => {
-                    
-                    if (!blob) return;
-                    const formData = new FormData();
-                    formData.append('componentId', componentsData.value?._id ?? "");
-                    formData.append('screenshot', blob, "screenshot.png");
-                    try {
-                        interface uploadRes {
-                            screenshotFileName: string
-                        }
-                        const res = await $fetch<uploadRes>(`${store.api}/components/screenshot/`, {
-                            method: "POST",
-                            credentials: "include",
-                            body: formData,
-                        });
-                        if (!res) return;
-                        if (!componentsData.value) return;
-                        componentsData.value.screenshotFileName = res.screenshotFileName;
-                        getStorageList();
-                    } catch (err) {
-                        if (err) {
-                            store.pushNotification({
-                                type: "error",
-                                message: err.toString(),
-                                timeout: 5000,
-                            });
-                            return;
-                        }
-                    }
-                });
-            }).catch((err) => {
-                console.log(err);
-            });
-        };
+        await updateScreenshot();
     }
 });
 
@@ -490,6 +576,10 @@ onBeforeUnmount(() => {
             letter-spacing: 0.7px;
             color: $mainColor;
 
+            @include media(480) {
+                font-size: 16px;
+            }
+
             &:focus {
                 outline: none;
             }
@@ -499,7 +589,7 @@ onBeforeUnmount(() => {
             }
         }
 
-        .generatorBtn {
+        .generator-btn {
             background: linear-gradient(90deg, $fiveColor 0%, $sixColor 100%);
             background-size: 100% auto;
             height: 52px;
@@ -511,13 +601,27 @@ onBeforeUnmount(() => {
             font-weight: 700;
             line-height: normal;
             letter-spacing: 0.7px;
-            padding: 10px;
-            min-width: 140px;
+            padding: 10px 16px;
+            min-width: 172px;
+            white-space: nowrap;
+            flex-shrink: 0;
             @extend %ts;
             cursor: pointer;
 
+            @include media(768) {
+                min-width: 120px;
+            }
+
+            @include media(480) {
+                font-size: 16px;
+            }
+
             &:hover {
                 background-size: 120% auto;
+            }
+
+            &.fine-tuning {
+                background-image: linear-gradient(90deg, $mainColor 0.3%, rgba(65, 35, 251, 1) 100%);
             }
         }
     }

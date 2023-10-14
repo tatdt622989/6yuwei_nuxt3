@@ -43,11 +43,13 @@ export default defineNuxtConfig({
         prependPath: true,
       },
     },
-    // routeRules: {
-    //   "/api/**": {
-    //     proxy: 'http://localhost:3001/**'
-    //   }
-    // }
+    routeRules: {
+      "/api/**": {
+        proxy: {
+          to: 'http://localhost:3001/**',
+        }
+      }
+    }
   },
   runtimeConfig: {
     public: {

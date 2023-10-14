@@ -7,7 +7,7 @@
       <NuxtLink to="/components" :class="{ current: unitName === 'components' }">Component</NuxtLink>
     </li>
     <li>
-      <a href="https://blog.6yuwei.com">Blog</a>
+      <a href="https://blog.6yuwei.com" target="_blank">Blog</a>
     </li>
     <li>
       <NuxtLink to="/3dcgs" :class="{ current: unitName === '3dcgs' }">3DCGs</NuxtLink>
@@ -18,7 +18,7 @@
     <li v-if="place === 'header'" class="account" :class="{ 'no-login': !store.user }">
       <NuxtLink to="/admin/login/" class="sign-in" v-if="!store.user && store.isUserChecked">Sign in</NuxtLink>
       <NuxtLink to="/admin/account/" id="avatar" v-else-if="store.isUserChecked">
-        <img :src="avatArURL || (store.user?.externalPhoto ?? '')" alt="avatar" v-if="avatArURL || store.user?.externalPhoto">
+        <img :src="avatArURL || (store.user?.externalPhoto as string)" alt="avatar" v-if="avatArURL || (store.user?.externalPhoto)">
         <i class="bi bi-person-fill" v-else></i>
       </NuxtLink>
       <span id="user-name" v-if="userName">{{ userName }}</span>

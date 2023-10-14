@@ -64,7 +64,7 @@
             </tbody>
           </table>
         </div>
-        <Pagination :total="totalPage" :url="'/admin/contact/'" />
+        <Pagination :total="totalPage" :url="'/admin/members/'" />
       </div>
     </div>
   </div>

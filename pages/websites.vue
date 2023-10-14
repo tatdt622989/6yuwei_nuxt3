@@ -120,6 +120,8 @@ store.isLoading = true;
 const { data: websiteRes, error } = await useFetch(`${store.api}/websites/?page=${currentPage.value}&sort=${sort.value}`);
 store.isLoading = false;
 
+console.log(error);
+
 interface ResRef {
   list: Website[];
   total: number;
