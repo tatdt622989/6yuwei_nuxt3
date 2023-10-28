@@ -30,8 +30,8 @@ jobs:
             script: |
               export PATH="${{ secrets.SERVER_PATH  }}"
               cd ~/htdocs/6yuwei.com
-              npm install
-              npm run build
+              pnpm install
+              pnpm run build
             
         - name: Restart PM2
           uses: appleboy/ssh-action@master
