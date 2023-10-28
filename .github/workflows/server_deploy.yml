@@ -19,7 +19,7 @@ jobs:
             username: ${{ secrets.SERVER_USER }}
             key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
             source: "."
-            target: "~/htdocs/api.6yuwei.com"
+            target: "~/htdocs/6yuwei.com"
 
         - name: Build
           uses: appleboy/ssh-action@master
@@ -29,7 +29,7 @@ jobs:
             key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
             script: |
               export PATH="${{ secrets.SERVER_PATH  }}"
-              cd ~/htdocs/api.6yuwei.com
+              cd ~/htdocs/6yuwei.com
               npm install
               npm run build
             
@@ -41,5 +41,5 @@ jobs:
             key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
             script: |
               export PATH="${{ secrets.SERVER_PATH  }}"
-              cd ~/htdocs/api.6yuwei.com
+              cd ~/htdocs/6yuwei.com
               pm2 restart all --update-env
