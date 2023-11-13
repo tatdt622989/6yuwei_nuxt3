@@ -143,7 +143,7 @@ const selectAllItem = () => {
 
 const getList = async () => {
   try {
-    const res = await $fetch<DataRes>(`${store.api}/members/?page=1&limit=12&keyword=${keyword.value}`, {
+    const res = await $fetch<DataRes>(`${store.api}/members/?page=${currentPage.value}&limit=12&keyword=${keyword.value}`, {
       method: "GET",
       credentials: "include",
     });
