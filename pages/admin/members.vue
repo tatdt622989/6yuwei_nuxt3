@@ -211,6 +211,10 @@ const openConfirmModal = (targetFunc: Function, id: string = "") => {
   confirmModal.id = id;
 };
 
+watch(currentPage, async () => {
+  await getList();
+});
+
 onMounted(async () => {
   await getList();
 });
