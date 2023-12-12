@@ -9,7 +9,7 @@
       <div class="intro">
         <h1>Library of AI components <br>
           built with <span>GPT-4</span> !<i class="bi bi-stars"></i></h1>
-        <nuxt-link :to="`/components/generator${componentsTypeList ? '/' + componentsTypeList[0].customURL : ''}`"
+        <nuxt-link :to="`/components/generator/`"
           class="try">Try it!</nuxt-link>
       </div>
       <div class="wrap">

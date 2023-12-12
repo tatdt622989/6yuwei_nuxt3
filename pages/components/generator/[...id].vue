@@ -107,7 +107,7 @@
             </div>
             <ComponentsTypeModal :is-open="componentsTypeModal.open"
                 :active-component-type="componentsType ?? null"
-                @close-modal="componentsTypeModal.open = false" />
+                @close-modal="componentsTypeModal.open = false" :prompt="prompt" />
         </client-only>
     </div>
 </template>
@@ -239,7 +239,7 @@ function getComponentType(type: string) {
 }
 
 async function getStorageList() {
-    if (!store.user) return;
+    if (!store.user || !componentsType.value?._id) return;
     store.isLoading = true;
 
     try {
@@ -264,7 +264,14 @@ async function getStorageList() {
 
 async function componentGenerator() {
     if (!store.user) return navigateTo("/admin/login/?redirect=/components/");
-    if (!componentsType.value) return;
+    if (!componentsType.value) {
+        openModal();
+        return store.pushNotification({
+            type: "error",
+            message: "Please select a component type",
+            timeout: 5000,
+        });
+    }
     if (!prompt.value) {
         return store.pushNotification({
             type: "error",
@@ -432,17 +439,20 @@ onMounted(async () => {
     hljs.registerLanguage('javascript', javascript);
     hljs.registerLanguage('css', CSS);
     hljs.registerLanguage('html', HTML);
-    // 若是 componentsType 不存在，則跳轉到第一個 componentsType
-    if (componentsTypeList.value && componentsTypeList.value.length > 0 && !componentsTypeIsExist) {
-        const firstComponentType = componentsTypeList.value[0] ?? null;
-        navigateTo(`/components/generator/${firstComponentType.customURL}/`);
+    if (route.query.prompt) {
+        prompt.value = route.query.prompt as string;
     }
+    // 若是 componentsType 不存在，則跳轉到第一個 componentsType
+    // if (componentsTypeList.value && componentsTypeList.value.length > 0 && !componentsTypeIsExist) {
+    //     const firstComponentType = componentsTypeList.value[0] ?? null;
+    //     navigateTo(`/components/generator/${firstComponentType.customURL}/`);
+    // }
     // 若是 componentsType 不存在，且 componentsTypeList 不存在，且請求錯誤，則跳轉到 generator 頁面
     if (componentsError?.value || typeListError?.value || componentsTypeList.value?.length === 0) {
         navigateTo("/components/");
     }
-    // 若是第一次進入，則打開選擇 componentsType 的 modal
-    if (typeURL.value && localStorage.getItem("firstIn") !== "1") {
+    // 若是第一次進入，或是沒有typeID，則打開選擇 componentsType 的 modal
+    if (typeURL.value && localStorage.getItem("firstIn") !== "1" || !componentsType.value) {
         componentsTypeModal.value.open = true;
         localStorage.setItem("firstIn", "1");
     }

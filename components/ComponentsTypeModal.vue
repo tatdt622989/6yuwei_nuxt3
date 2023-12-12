@@ -2,7 +2,7 @@
     <ClientOnly>
         <transition name="modal-fade">
             <div v-if="props.isOpen" id="componentsTypeModal" :class="['modal', { open: props.isOpen }]" tabindex="-1"
-                aria-labelledby="componentsTypeModalLabel" aria-hidden="true" @click="emit('close-modal')">
+                aria-labelledby="componentsTypeModalLabel" aria-hidden="true" >
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content" @click="(e) => e.stopPropagation()">
                         <div class="modal-header">
@@ -44,6 +44,7 @@ const props = defineProps({
     isOpen: Boolean,
     unitName: String,
     activeComponentType: Object as PropType<ComponentType | null>,
+    prompt: String,
 });
 
 const emit = defineEmits(["close-modal"]);
@@ -54,7 +55,12 @@ const currentType = ref<ComponentType | null>(null);
 
 const apply = () => {
     if (!currentType.value) return;
-    navigateTo(`/components/generator/${currentType.value.customURL}`);
+    navigateTo({
+        path: `/components/generator/${currentType.value.customURL}`,
+        query: {
+            prompt: props.prompt,
+        },
+    });
     emit("close-modal");
 };
 
