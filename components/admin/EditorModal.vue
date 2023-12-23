@@ -49,7 +49,7 @@
                       <img
                         v-if="file.progress === 100"
                         v-show="file.isLoaded"
-                        :src="`${store.api}/admin/uploads/${file.data?.url}`"
+                        :src="`${store.api}/admin/uploads/${file.data?.url}?v=${fileTs}`"
                         :alt="file.data?.url"
                         @load="file.isLoaded = true"
                       />
@@ -366,6 +366,7 @@ const validation = reactive<Validation>({
 });
 const swiperInstance = ref<any | null>(null);
 const action = ref<'edit'|'add'>('edit');
+const fileTs = ref(Date.now());
 
 function onSwiper(swiper: any) {
   swiperInstance.value = swiper;
@@ -566,6 +567,7 @@ const uploadImg = async (files: FileList, id: string) => {
       timeout: 3000,
     });
     swiperInstance.value?.slideTo(0);
+    fileTs.value = Date.now();
   } catch (err: any) {
     const status = err.response?.status;
     status === 403 && navigateTo("/admin/login");

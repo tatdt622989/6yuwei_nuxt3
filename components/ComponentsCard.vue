@@ -6,7 +6,7 @@
                     <span>{{ props.component.componentsType.title }}</span>
                     <img src="@/assets/images/arrow.png" alt="arrow">
                 </div>
-                <button class="favorites" @click="toggleFavorite" v-if="!route.path.startsWith('/components/favorite')">
+                <button class="favorites" @click="toggleFavorite" >
                     <i class="bi bi-star-fill" v-if="props.favoritesIdList.includes(props.component._id)"></i>
                     <i class="bi bi-star" v-else></i>
                 </button>
@@ -17,8 +17,8 @@
             </div>
             <div class="content">
                 <nuxt-link :to="`/components/generator/${props.component.componentsType.customURL}/${props.component._id}`">
-                    <img :src="`${store.api}/components/screenshot/${props.component.screenshotFileName}`"
-                        :alt="props.component.title" v-if="props.component.screenshotFileName">
+                    <img :src="`${store.dataApi}/screenshot/?componentId=${props.component._id}&v=${fileTs}`"
+                        :alt="props.component.title" v-if="imgShow">
                 </nuxt-link>
             </div>
             <div class="info">
@@ -57,6 +57,8 @@ const props = defineProps({
 const emit = defineEmits(["delete-component", "update-favorites-list"]);
 const store = useStore();
 const route = useRoute();
+const fileTs = Date.now();
+const imgShow = ref(false);
 
 function timeFormat(time: string) {
     const date = new Date(time);
@@ -98,6 +100,15 @@ async function toggleFavorite() {
 }
 
 onMounted(() => {
+    // checkImg
+    const img = new Image();
+    img.src = `${store.dataApi}/screenshot/?componentId=${props.component._id}&v=${fileTs}`;
+    img.onload = () => {
+        imgShow.value = true;
+    };
+    img.onerror = () => {
+        imgShow.value = false;
+    };
 });
 </script>
 
@@ -178,13 +189,13 @@ onMounted(() => {
     }
 
     .content {
-        height: 270px;
+        min-height: 243px;
         border-radius: 10px;
         border: 2px solid #737373;
         overflow: hidden;
 
         @include media(480) {
-            height: 200px;
+            // height: 200px;
         }
 
         a {
@@ -194,8 +205,8 @@ onMounted(() => {
 
             img {
                 width: 100%;
-                height: 100%;
-                object-fit: cover;
+                // height: 100%;
+                // object-fit: cover;
             }
         }
     }

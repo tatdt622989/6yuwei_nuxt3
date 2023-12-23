@@ -169,10 +169,15 @@ watch(currentPage, async () => {
   await getList();
 });
 
+watch(() => store.user, async () => {
+    if (store.user) {
+        await getFavoriteIDList();
+    }
+}, {
+    immediate: true,
+});
+
 onMounted(async () => {
-  if (store.user) {
-    await getFavoriteIDList();
-  }
 });
 </script>
 

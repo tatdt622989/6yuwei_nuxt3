@@ -99,8 +99,10 @@ export interface Component {
   componentsType: ComponentType;
   title: string;
   styleFileName: string;
+  javascriptFileName: string;
   screenshotFileName: string;
   createdAt: string;
   updatedAt: string;
   style?: string;
+  html?: string;
 }

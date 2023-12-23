@@ -20,7 +20,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/admin/login/");
   }
   if (data) {
-    store.setUser(data.user);
+    store.user = data.user;
   } else {
     return navigateTo("/admin/login/");
   }

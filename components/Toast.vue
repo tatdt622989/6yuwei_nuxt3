@@ -1,6 +1,6 @@
 <template>
   <div aria-live="polite" aria-atomic="true" class="position-relative">
-    <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="toast-container position-fixed end-0 p-3">
       <transition-group name="toasts">
         <div
           v-for="item in notifications"
@@ -21,7 +21,7 @@
           <div class="d-flex">
             <div class="toast-body">{{ item.message }}</div>
             <button
-              @click="removeNotification(item.id)"
+              @click="removeNotification(item.id || 0)"
               type="button"
               class="btn-close btn-close-white me-2 m-auto"
               data-bs-dismiss="toast"
@@ -48,6 +48,7 @@ const removeNotification = (id: number) => {
 @import "bootstrap/scss/bootstrap";
 
 .toast-container {
+  top: 10px;
   z-index: 9999;
   .toast {
     box-shadow: 0 0 15px rgba($mainColor, 0.5);

@@ -64,7 +64,7 @@
                         <div class="preview-box"
                             @click=" emit('openEditorModal', 'edit', unitItem)">
                             <img v-if="unitItem.photos[0]"
-                                :src="`${store.api}/admin/uploads/${unitItem.photos[0].url}`"
+                                :src="`${store.api}/admin/uploads/${unitItem.photos[0].url}?v=${fileTs}`"
                                 :alt="unitItem.title" />
                             <span class="material-symbols-outlined">nature_people</span>
                         </div>
@@ -146,7 +146,7 @@
                     <td>
                         <div class="preview-box">
                             <img v-if="dragData.photos[0]"
-                                :src="`${store.api}/admin/uploads/${dragData.photos[0].url}`"
+                                :src="`${store.api}/admin/uploads/${dragData.photos[0].url}?v=${fileTs}`"
                                 :alt="dragData.title" />
                             <span class="material-symbols-outlined">nature_people</span>
                         </div>
@@ -234,6 +234,7 @@ const dragstartPos = reactive({
     x: 0,
     y: 0,
 });
+const fileTs = ref(Date.now());
 const dragCloneElCSS = reactive<CSSProperties>({
     transform: 'translate(0, 0)',
     position: 'absolute',
@@ -337,6 +338,7 @@ watch(selector, (val) => {
 // 覆寫資料
 watch(() => props.unitItems, (val) => {
     if (val) unitItems.value = val;
+    fileTs.value = Date.now();
 }, { immediate: true });
 watch(() => props.isAllSelected, (val) => {
     if (val) isAllSelected.value = val;

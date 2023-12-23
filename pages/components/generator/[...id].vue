@@ -51,7 +51,7 @@
                                 frameborder="0"
                                 v-if="iframeSrc"
                                 ref="previewer"
-                                sandbox="allow-same-origin allow-scripts"></iframe>
+                                sandbox="allow-scripts allow-same-origin"></iframe>
                         </div>
                         <div class="style">
                             <span class="title">CSS</span>
@@ -70,7 +70,7 @@
                                 <div class="code"
                                     v-html="javascriptEl"></div>
                                 <button class="copy"
-                                    @click="() => componentsType?.html ? copyToClipboard(componentsType.javascript) : ''">
+                                    @click="() => componentsType?.html ? copyToClipboard(componentsType?.javascript) : ''">
                                     <span class="material-symbols-outlined">
                                         file_copy
                                     </span>
@@ -92,13 +92,11 @@
                     <div class="storage"
                         v-show="storageList.length > 0">
                         <div class="storage-item"
-                            v-for="item in storageList"
+                            v-for="(item, i) in storageList"
                             :key="item._id">
                             <div class="item">
                                 <nuxt-link :to="`/components/generator/${componentsType?.customURL}/${item._id}`">
-                                    <img :src="`/api/components/screenshot/${item.screenshotFileName}`"
-                                        alt=""
-                                        v-if="item.screenshotFileName">
+                                    <img :src="`${store.dataApi}/screenshot/?componentId=${item?._id}&v=${fileTs}`" v-if="storageImgShow[i]">
                                 </nuxt-link>
                             </div>
                         </div>
@@ -115,7 +113,7 @@
 <script lang="ts" setup>
 import { useStore } from "~/store";
 import { Component, ComponentType } from "~/types";
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
 import CSS from 'highlight.js/lib/languages/css';
@@ -145,6 +143,7 @@ const router = useRouter();
 const URL = ref(route.params.id);
 const typeURL = computed(() => URL.value[0]);
 const componentId = computed(() => URL.value[1]);
+const fileTs = ref(Date.now());
 store.isLoading = true;
 const { data: componentsRes, error: componentsError } = componentId.value ? await useFetch(`${store.api}/components/${componentId.value}/`) : { data: null, error: null };
 const storageList = ref<Component[]>([]);
@@ -157,7 +156,8 @@ const componentsType = computed<null | ComponentType>(() => getComponentType(typ
 const iframeSrc = computed(() => {
     if (!componentsData.value) return "";
     if (!componentsType.value) return "";
-    return `/api/components/sandbox/?typeId=${componentsType.value._id}&componentId=${componentsData.value._id}`;
+    const api = process.env.NODE_ENV === 'development' ? 'http://localhost:3001/components/sandbox/' : 'https://api.6yuwei.com/components/sandbox/';
+    return `${api}?typeId=${componentsType.value._id}&componentId=${componentsData.value._id}`;
 });
 const copyToClipboard = useCopyToClipboard();
 const htmlEl = ref('');
@@ -169,6 +169,7 @@ const componentsTypeModal = ref({
 });
 const previewer = ref<HTMLIFrameElement | null>(null);
 const prompt = ref("");
+const storageImgShow = ref<Boolean[]>([]);
 
 if (componentsRes) {
     componentsData.value = componentsRes.value as Component;
@@ -206,7 +207,7 @@ async function getComponentsData() {
         await nextTick();
         iframe.src = iframeSrc.value;
         // update code
-        htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsType.value?.html ?? "", {
+        htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsData.value?.html ?? "", {
             language: 'html',
         }).value}</code></pre>`;
         javascriptEl.value = `<pre><code class="language-javascript">${hljs.highlight(componentsType.value?.javascript ?? "", {
@@ -238,6 +239,25 @@ function getComponentType(type: string) {
     return result;
 }
 
+async function checkStorageImgShow() {
+    const req = [];
+    for(let i = 0; i < storageList.value.length; i++) {
+        const promise = new Promise<Boolean>((resolve, reject) => {
+            const img = new Image();
+            img.src = `${store.dataApi}/screenshot/?componentId=${storageList.value[i]?._id}&v=${fileTs.value}`;
+            img.onload = () => {
+                resolve(true);
+            }
+            img.onerror = () => {
+                resolve(false);
+            }
+        });
+        req.push(promise);
+    }
+    const res = await Promise.all(req);
+    storageImgShow.value = res;
+}
+
 async function getStorageList() {
     if (!store.user || !componentsType.value?._id) return;
     store.isLoading = true;
@@ -249,6 +269,10 @@ async function getStorageList() {
         });
         if (!res) return;
         storageList.value = res.components;
+        for(let i = 0; i < storageList.value.length; i++) {
+            storageImgShow.value.push(false);
+        }
+        await checkStorageImgShow();
     } catch (err) {
         if (err) {
             store.pushNotification({
@@ -263,7 +287,11 @@ async function getStorageList() {
 }
 
 async function componentGenerator() {
-    if (!store.user) return navigateTo("/admin/login/?redirect=/components/");
+    if (!store.user) return store.pushNotification({
+        type: "error",
+        message: "Please login first",
+        timeout: 5000,
+    });
     if (!componentsType.value) {
         openModal();
         return store.pushNotification({
@@ -319,8 +347,8 @@ async function componentGenerator() {
         store.user.balance = balanceRes.balance;
         if (canFineTuning.value) {
             await getComponentsData();
-            await updateScreenshot();
             await getStorageList();
+            updateScreenshot();
             return;
         }
         navigateTo(`/components/generator/${componentsType.value.customURL}/${res._id}`);
@@ -338,84 +366,43 @@ async function componentGenerator() {
     store.isLoading = false;
 }
 
-// screenshot 使用 html2canvas 並根據 iframe 截圖，截圖內容填充至600px x 400px的 canvas 中，再將 canvas 轉成 png 並上傳至 api server
-async function updateScreenshot() {
+async function updateScreenshot(forceUpdate = false) {
     if (componentsData.value) {
-        const iframe = previewer.value;
-        if (!iframe) return;
-        iframe.onload = function () {
-            if (!iframe) return;
-            const iframeDocument = iframe.contentDocument;
-            if (!iframeDocument) return;
-            const iframeBody = iframeDocument.querySelector("body");
-            if (!iframeBody) return;
-            html2canvas(iframeBody, {
-                scale: 1,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: "#fff",
-            }).then((canvas) => {
-                const height = canvas.height;
-                // fit to 600 x 400
-                const ctx = canvas.getContext("2d");
-                if (!ctx) return;
-                const tempCanvas = document.createElement("canvas");
-                tempCanvas.width = 600;
-                tempCanvas.height = 400;
-                const scale = tempCanvas.height / height;
-                const tempCtx = tempCanvas.getContext("2d");
-                if (!tempCtx) return;
-
-                // 填入白色背景
-                tempCtx.fillStyle = "#f8f8f8";
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-                // 如果新宽度大于Canvas宽度，裁剪多余部分
-                var newWidth = canvas.width * scale;
-                if (newWidth > tempCanvas.width) {
-                    var xOffset = (newWidth - tempCanvas.width) / 2;
-                    tempCtx.drawImage(canvas, -xOffset, 0, newWidth, tempCanvas.height);
-                } else {
-                    // 如果新宽度小于等于Canvas宽度，縮放後左右居中
-                    var xOffset = (tempCanvas.width - newWidth) / 2;
-                    var yOffset = (tempCanvas.height - height * scale) / 2;
-                    tempCtx.drawImage(canvas, xOffset, yOffset, newWidth, height * scale);
-                }
-
-                tempCanvas.toBlob(async (blob) => {
-
-                    if (!blob) return;
-                    const formData = new FormData();
-                    formData.append('componentId', componentsData.value?._id ?? "");
-                    formData.append('screenshot', blob, "screenshot.png");
-                    try {
-                        interface uploadRes {
-                            screenshotFileName: string
-                        }
-                        const res = await $fetch<uploadRes>(`${store.api}/components/screenshot/`, {
-                            method: "POST",
-                            credentials: "include",
-                            body: formData,
-                        });
-                        if (!res) return;
-                        if (!componentsData.value) return;
-                        componentsData.value.screenshotFileName = res.screenshotFileName;
-                        getStorageList();
-                    } catch (err) {
-                        if (err) {
-                            store.pushNotification({
-                                type: "error",
-                                message: err.toString(),
-                                timeout: 5000,
-                            });
-                            return;
-                        }
-                    }
+        // 檢查截圖是否存在
+        if (!forceUpdate) {
+            try {
+                const res = await $fetch(`${store.dataApi}/screenshot`, {
+                    method: "GET",
+                    credentials: "include",
+                    query: {
+                        componentId: componentsData.value._id,
+                    },
                 });
-            }).catch((err) => {
-                console.log(err);
-            });
-        };
+                if (!res) return;
+            } catch (err) {
+                if (err) {
+                    console.log(err);
+                }
+            }
+        }
+        const formData = new FormData();
+        formData.append("typeId", componentsType.value?._id ?? "");
+        formData.append("componentId", componentsData.value._id);
+        const screenshotRes = await $fetch(`${store.dataApi}/screenshot/`, {
+            method: "POST",
+            body: formData,
+        });
+        if (!screenshotRes) return;
+        let storageCurrentIndex = -1;
+        storageList.value.forEach((item, index) => {
+            if (item._id === componentsData.value?._id) {
+                storageCurrentIndex = index;
+            }
+        });
+        if (storageCurrentIndex > -1) {
+            storageImgShow.value[storageCurrentIndex] = true;
+        }
+        fileTs.value = Date.now();
     }
 }
 
@@ -456,7 +443,7 @@ onMounted(async () => {
         componentsTypeModal.value.open = true;
         localStorage.setItem("firstIn", "1");
     }
-    htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsType.value?.html ?? "", {
+    htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsData.value?.html ?? "", {
         language: 'html',
     }).value}</code></pre>`;
     javascriptEl.value = `<pre><code class="language-javascript">${hljs.highlight(componentsType.value?.javascript ?? "", {
@@ -465,10 +452,8 @@ onMounted(async () => {
     cssEl.value = `<pre><code class="language-css">${hljs.highlight(componentsData.value?.style ?? "", {
         language: 'css',
     }).value}</code></pre>`;
-    if (!componentsData.value?.screenshotFileName && componentsData.value) {
-        await nextTick();
-        await updateScreenshot();
-    }
+    await nextTick();
+    updateScreenshot();
 });
 
 onBeforeUnmount(() => {

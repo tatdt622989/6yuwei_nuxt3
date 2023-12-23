@@ -4,7 +4,8 @@
             <div class="head">
                 <div class="wrap">
                     <div class="left-layout">
-                        <nuxt-link to="/components/" class="btn circle">
+                        <nuxt-link to="/components/"
+                            class="btn circle">
                             <i class="bi bi-arrow-left"></i>
                         </nuxt-link>
                         <div class="titleBox">
@@ -16,32 +17,47 @@
             </div>
             <div class="wrap">
                 <div class="search-box">
-                    <input type="text" placeholder="Search for components created by everyone" v-model="keyword" @keyup="(e) => {
-                        if (e.code === 'Enter') {
-                            search();
-                        }
-                    }" />
-                    <button class="search-btn" @click="search">
+                    <input type="text"
+                        placeholder="Search for components created by everyone"
+                        v-model="keyword"
+                        @keyup="(e) => {
+                            if (e.code === 'Enter') {
+                                search();
+                            }
+                        }" />
+                    <button class="search-btn"
+                        @click="search">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
                 <div class="tag-box">
-                    <button class="tag-item" v-for="item in componentsTypeList" :key="item._id"
+                    <button class="tag-item"
+                        v-for="item in componentsTypeList"
+                        :key="item._id"
                         @click="typeSearch(item.title)">
                         <span>{{ item.title }}</span>
                     </button>
                 </div>
                 <div class="content">
-                    <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id" @delete-component="() => {
-                        confirmModal.open = true;
-                        confirmModal.id = item._id;
-                    }" />
+                    <ComponentsCard v-for="item in componentsList"
+                        :component="item"
+                        :key="item._id"
+                        @delete-component="() => {
+                            confirmModal.open = true;
+                            confirmModal.id = item._id;
+                        }"
+                        :favorites-id-list="favoritesIDList" 
+                        @update-favorites-list="getFavoriteIDList"
+                    />
                 </div>
-                <Pagination :total="totalPage" :url="'/components/storage'" />
+                <Pagination :total="totalPage"
+                    :url="'/components/storage'" />
             </div>
         </div>
-        <AdminConfirmModal :is-open="confirmModal.open" :action="confirmModal.action"
-            @close-modal="confirmModal.open = false" @on-confirm="deleteComponent" />
+        <AdminConfirmModal :is-open="confirmModal.open"
+            :action="confirmModal.action"
+            @close-modal="confirmModal.open = false"
+            @on-confirm="deleteComponent" />
     </div>
 </template>
 
@@ -74,6 +90,11 @@ interface deleteComponentRes {
     msg: string
 };
 
+interface FavoriteRes {
+    msg: string
+    idList: string[]
+}
+
 const store = useStore();
 const route = useRoute();
 
@@ -82,6 +103,7 @@ const { data: componentsTypeList, error: typeListError } = await useFetch<Compon
 store.isLoading = false;
 
 const componentsList = ref<Component[]>([]);
+const favoritesIDList = ref<string[]>([]);
 const keyword = ref("");
 const totalPage = ref(1);
 const currentPage = computed(() => {
@@ -177,8 +199,38 @@ async function deleteComponent() {
     }
 }
 
+async function getFavoriteIDList() {
+    store.isLoading = true;
+    try {
+        const res = await $fetch<FavoriteRes>(`${store.api}/components/favorites/id/`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res) return;
+        favoritesIDList.value = res.idList;
+    } catch (err) {
+        if (err) {
+            store.pushNotification({
+                type: "error",
+                message: err.toString(),
+                timeout: 5000,
+            });
+            return;
+        }
+    }
+    store.isLoading = false;
+}
+
 watch(currentPage, async () => {
     await getComponents();
+});
+
+watch(() => store.user, async () => {
+    if (store.user) {
+        await getFavoriteIDList();
+    }
+}, {
+    immediate: true,
 });
 
 onMounted(() => {
@@ -233,11 +285,11 @@ onMounted(() => {
     }
 
     :deep(.tool-box) {
-        
+
         @include media(768) {
             width: auto;
             flex-grow: 0;
-            
+
         }
     }
 
@@ -370,19 +422,19 @@ onMounted(() => {
         @include media(768) {
             padding: 0 10px;
         }
-        
+
         &:hover {
             background: $mainColor;
             color: $secColor;
         }
-        
+
         span {
             font-size: 20px;
             line-height: 36px;
+
             @include media(768) {
                 font-size: 18px;
             }
         }
     }
-}
-</style>
+}</style>

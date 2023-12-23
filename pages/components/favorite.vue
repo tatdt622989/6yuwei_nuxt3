@@ -16,7 +16,13 @@
             </div>
             <div class="wrap">
                 <div class="content">
-                    <ComponentsCard v-for="item in componentsList" :component="item" :key="item._id"/>
+                    <ComponentsCard 
+                        v-for="item in componentsList"
+                        :component="item"
+                        :key="item._id"
+                        :favorites-id-list="favoritesIDList"
+                        @update-favorites-list="getFavoriteIDList"
+                    />
                 </div>
             </div>
         </div>
@@ -48,15 +54,16 @@ interface ComponentsRes {
     totalPage: number
 };
 
+interface FavoriteRes {
+    msg: string
+    idList: string[]
+}
+
 const store = useStore();
 const route = useRoute();
 
-store.isLoading = true;
-const { data: componentsTypeList, error: typeListError } = await useFetch<ComponentType[]>(`${store.api}/components/types/`);
-store.isLoading = false;
-
 const componentsList = ref<Component[]>([]);
-const keyword = ref("");
+const favoritesIDList = ref<string[]>([]);
 const totalPage = ref(1);
 const currentPage = computed(() => {
     return route.query.page ? parseInt(route.query.page as string, 10) : 1;
@@ -86,7 +93,41 @@ async function getComponents() {
     }
 }
 
+async function getFavoriteIDList() {
+    store.isLoading = true;
+    try {
+        const res = await $fetch<FavoriteRes>(`${store.api}/components/favorites/id/`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!res) return;
+        favoritesIDList.value = res.idList;
+    } catch (err) {
+        if (err) {
+            store.pushNotification({
+                type: "error",
+                message: err.toString(),
+                timeout: 5000,
+            });
+            return;
+        }
+    }
+    store.isLoading = false;
+}
+
 watch(currentPage, async () => {
+    await getComponents();
+});
+
+watch(() => store.user, async () => {
+    if (store.user) {
+        await getFavoriteIDList();
+    }
+}, {
+    immediate: true,
+});
+
+watch(favoritesIDList, async () => {
     await getComponents();
 });
 
