@@ -70,7 +70,7 @@
                                 <div class="code"
                                     v-html="javascriptEl"></div>
                                 <button class="copy"
-                                    @click="() => componentsType?.html ? copyToClipboard(componentsType?.javascript) : ''">
+                                    @click="() => componentsType?.javascript ? copyToClipboard(componentsType?.javascript) : ''">
                                     <span class="material-symbols-outlined">
                                         file_copy
                                     </span>
@@ -81,7 +81,7 @@
                                 <div class="code"
                                     v-html="htmlEl"></div>
                                 <button class="copy"
-                                    @click="() => componentsType?.html ? copyToClipboard(componentsType.html) : ''">
+                                    @click="() => componentsData?.html ? copyToClipboard(componentsData.html) : (componentsType?.html ? copyToClipboard(componentsType?.html) : '')">
                                     <span class="material-symbols-outlined">
                                         file_copy
                                     </span>
@@ -207,7 +207,7 @@ async function getComponentsData() {
         await nextTick();
         iframe.src = iframeSrc.value;
         // update code
-        htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsData.value?.html ?? "", {
+        htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsData.value?.html ?? componentsType.value?.html ?? '', {
             language: 'html',
         }).value}</code></pre>`;
         javascriptEl.value = `<pre><code class="language-javascript">${hljs.highlight(componentsType.value?.javascript ?? "", {
@@ -439,11 +439,10 @@ onMounted(async () => {
         navigateTo("/components/");
     }
     // 若是第一次進入，或是沒有typeID，則打開選擇 componentsType 的 modal
-    if (typeURL.value && localStorage.getItem("firstIn") !== "1" || !componentsType.value) {
-        componentsTypeModal.value.open = true;
-        localStorage.setItem("firstIn", "1");
+    if (!componentsType.value) {
+        openModal();
     }
-    htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsData.value?.html ?? "", {
+    htmlEl.value = `<pre><code class="language-html">${hljs.highlight(componentsData.value?.html ?? componentsType.value?.html ?? '', {
         language: 'html',
     }).value}</code></pre>`;
     javascriptEl.value = `<pre><code class="language-javascript">${hljs.highlight(componentsType.value?.javascript ?? "", {

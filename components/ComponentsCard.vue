@@ -196,6 +196,7 @@ onMounted(() => {
 
         @include media(480) {
             // height: 200px;
+            min-height: 150px;
         }
 
         a {
