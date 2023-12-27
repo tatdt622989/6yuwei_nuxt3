@@ -29,7 +29,7 @@ export default defineNuxtConfig({
           additionalData: '@use "@/assets/scss/main.scss" as *;'
         }
       }
-    }
+    },
   },
   router: {},
   // typescript: {
