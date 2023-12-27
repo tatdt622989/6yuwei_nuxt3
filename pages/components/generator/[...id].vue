@@ -2,22 +2,23 @@
     <div class="inner-page">
         <div class="head">
             <div class="wrap">
-                <div class="left-layout">
-                    <nuxt-link to="/components/"
+                <div class="left-layout" v-if="componentsData || componentsType">
+                    <!-- <nuxt-link to="/components/"
                         class="btn circle">
                         <i class="bi bi-arrow-left"></i>
-                    </nuxt-link>
+                    </nuxt-link> -->
                     <div class="titleBox">
                         <h1 v-if="componentsType"><span>{{ componentsType?.title }}</span> {{ componentsData?.title ? '- ' +
                             componentsData?.title : '' }}</h1>
                     </div>
                 </div>
-                <ComponentsToolbar @open-modal="openModal" />
+                <ComponentsToolbar @open-modal="openModal" :can-fine-tuning="canFineTuning" />
             </div>
         </div>
         <client-only>
             <div class="wrap">
-                <div class="generator-box">
+                <div class="generator-box"
+                    v-if="canFineTuning || !componentsData">
                     <input type="text"
                         placeholder="Describe your components"
                         v-model="prompt" />
@@ -31,13 +32,13 @@
                         :slides-per-view="'auto'"
                         :space-between="10"
                         v-show="storageList.length > 0">
-                        <swiper-slide v-for="item in storageList"
+                        <swiper-slide v-for="(item, i) in storageList"
                             :key="item._id">
                             <div class="item">
                                 <nuxt-link :to="`/components/generator/${componentsType?.customURL}/${item._id}`">
-                                    <img :src="`/api/components/screenshot/${item.screenshotFileName}`"
+                                    <img :src="`${store.dataApi}/screenshot/?componentId=${item?._id}&v=${fileTs}`"
                                         alt=""
-                                        v-if="item.screenshotFileName">
+                                        v-if="storageImgShow[i]">
                                 </nuxt-link>
                             </div>
                         </swiper-slide>
@@ -96,7 +97,8 @@
                             :key="item._id">
                             <div class="item">
                                 <nuxt-link :to="`/components/generator/${componentsType?.customURL}/${item._id}`">
-                                    <img :src="`${store.dataApi}/screenshot/?componentId=${item?._id}&v=${fileTs}`" v-if="storageImgShow[i]">
+                                    <img :src="`${store.dataApi}/screenshot/?componentId=${item?._id}&v=${fileTs}`"
+                                        v-if="storageImgShow[i]">
                                 </nuxt-link>
                             </div>
                         </div>
@@ -105,7 +107,8 @@
             </div>
             <ComponentsTypeModal :is-open="componentsTypeModal.open"
                 :active-component-type="componentsType ?? null"
-                @close-modal="componentsTypeModal.open = false" :prompt="prompt" />
+                @close-modal="componentsTypeModal.open = false"
+                :prompt="prompt" />
         </client-only>
     </div>
 </template>
@@ -241,7 +244,7 @@ function getComponentType(type: string) {
 
 async function checkStorageImgShow() {
     const req = [];
-    for(let i = 0; i < storageList.value.length; i++) {
+    for (let i = 0; i < storageList.value.length; i++) {
         const promise = new Promise<Boolean>((resolve, reject) => {
             const img = new Image();
             img.src = `${store.dataApi}/screenshot/?componentId=${storageList.value[i]?._id}&v=${fileTs.value}`;
@@ -269,7 +272,7 @@ async function getStorageList() {
         });
         if (!res) return;
         storageList.value = res.components;
-        for(let i = 0; i < storageList.value.length; i++) {
+        for (let i = 0; i < storageList.value.length; i++) {
             storageImgShow.value.push(false);
         }
         await checkStorageImgShow();
@@ -485,16 +488,17 @@ onBeforeUnmount(() => {
 
     .head {
         display: flex;
-
+        
         .wrap {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             flex-direction: row;
-            padding: 50px 20px 40px;
+            padding: 50px 20px 28px;
+            flex-direction: column;
 
             @include media(768) {
                 flex-wrap: wrap;
-                padding: 30px 20px 20px;
+                padding: 20px 20px 20px;
             }
 
         }
@@ -502,20 +506,57 @@ onBeforeUnmount(() => {
         .left-layout {
             display: flex;
             align-items: center;
+            width: 100%;
+            border-radius: 10px;
+            padding-bottom: 10px;
 
             @include media(768) {
                 width: 100%;
-                margin-bottom: 24px;
-                // order: 2;
+                margin-bottom: 0px;
+                padding-top: 10px;
             }
 
             >.btn {
-                margin-right: 30px;
+                margin-right: 20px;
                 flex-shrink: 0;
             }
         }
 
         .titleBox {
+            display: flex;
+            align-items: center;
+            .component-type-selector {
+                border-radius: 10px;
+                padding: 6px 12px;
+                padding-left: 0;
+                font-size: 24px;
+                font-weight: bold;
+                margin-right: 14px;
+                color: $mainColor;
+                @extend %ts;
+                position: relative;
+                padding-right: 30px;
+                cursor: pointer;
+                @include after {
+                    content: "";
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 12px 6px 0 6px;
+                    border-color: $mainColor transparent transparent transparent;
+                    position: absolute;
+                    right: 9px;
+                    @include center(transform, y);
+                }
+                &.no-change {
+                    cursor: default;
+                    padding-right: 12px;
+                    @include after {
+                        display: none;
+                    }
+                }
+            }
+
             .category {
                 color: $mainColor;
                 font-size: 20px;
@@ -526,7 +567,10 @@ onBeforeUnmount(() => {
 
             h1 {
                 margin: 0;
-                font-size: 28px;
+                font-size: 26px;
+                font-weight: bold;
+                line-height: 32px;
+                color: $secColor;
                 @include clamp(2);
 
                 @include media(768) {
@@ -875,5 +919,4 @@ onBeforeUnmount(() => {
         }
     }
 
-}
-</style>
+}</style>
