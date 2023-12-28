@@ -82,7 +82,7 @@ function goAuthPage(url: string) {
         margin-bottom: 10px;
     }
 
-    @include media(374) {
+    @include media(480) {
         flex-wrap: wrap;
         justify-content: flex-end;
     }
@@ -159,10 +159,6 @@ function goAuthPage(url: string) {
         }
 
         @include media(480) {
-            min-width: 70px;
-        }
-
-        @include media(374) {
             margin-right: auto;
             min-height: 36px;
             width: 100%;

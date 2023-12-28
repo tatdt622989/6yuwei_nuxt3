@@ -18,10 +18,10 @@
     "vue-tsc": "^1.0.13"
   },
   "overrides": {
-    "vue": "latest"
+    "vue": "3.4.0-beta.3"
   },
   "dependencies": {
-    "@pinia/nuxt": "^0.4.7",
+    "@pinia/nuxt": "^0.5.1",
     "@tiptap/extension-code-block-lowlight": "^2.0.0-beta.220",
     "@tiptap/extension-color": "^2.0.0-beta.220",
     "@tiptap/extension-hard-break": "^2.0.3",
@@ -42,7 +42,7 @@
     "highlight.js": "^11.8.0",
     "html2canvas": "^1.4.1",
     "lowlight": "^2.8.1",
-    "pinia": "^2.0.33",
+    "pinia": "^2.1.7",
     "swiper": "^9.2.4",
     "vue-easy-lightbox": "^1.16.0",
     "vue-recaptcha": "^3.0.0-alpha.2",
