@@ -455,7 +455,7 @@ onMounted(async () => {
         language: 'css',
     }).value}</code></pre>`;
     await nextTick();
-    updateScreenshot();
+    // updateScreenshot();
 });
 
 onBeforeUnmount(() => {
