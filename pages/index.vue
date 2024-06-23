@@ -205,7 +205,7 @@ import { useStore } from "~/store";
 import { Pagination, Autoplay, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
-import { Website, ThreeDCG } from "~/types";
+import type { Website, ThreeDCG } from "~/types";
 
 interface Post {
   data: string;

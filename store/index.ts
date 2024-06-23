@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { User } from "~/types";
+import type { User } from "~/types";
 
 interface Toast {
   id?: number;

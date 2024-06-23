@@ -282,7 +282,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { Photo, Editor } from "~~/types";
+import type { Photo, Editor } from "~/types";
 import { Pagination, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import axios from "axios";

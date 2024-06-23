@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ThreeDCG } from "~/types";
+import type { ThreeDCG } from "~/types";
 import { useStore } from "~/store";
 
 useHead({

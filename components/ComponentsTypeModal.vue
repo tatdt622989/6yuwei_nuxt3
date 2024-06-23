@@ -39,7 +39,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { ComponentType } from "~/types";
+import type { ComponentType } from "~/types";
 const props = defineProps({
     isOpen: Boolean,
     unitName: String,

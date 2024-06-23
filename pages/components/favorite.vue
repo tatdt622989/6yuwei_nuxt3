@@ -31,7 +31,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { Component, ComponentType } from "~/types";
+import type { Component, ComponentType } from "~/types";
 
 useHead({
     title: "Components - Favorite",

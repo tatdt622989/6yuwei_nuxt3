@@ -97,20 +97,32 @@
                     </td>
                     <td>
                         <div class="action-wrap">
-                            <button class="action copy"
-                                @click="emit('openConfirmModal', null, unitItem._id, 'copy')">
-                                <span class="material-symbols-outlined icon">
-                                    content_copy
-                                </span>
-                                <span class="text">Copy</span>
-                            </button>
-                            <button class="action delete"
-                                @click="emit('openConfirmModal', null, unitItem._id, 'delete')">
-                                <span class="material-symbols-outlined icon">
-                                    delete
-                                </span>
-                                <span class="text">Delete</span>
-                            </button>
+                            <div class="action-layout">
+                                <button class="action copy"
+                                    @click="emit('openConfirmModal', null, unitItem._id, 'copy')">
+                                    <span class="material-symbols-outlined icon">
+                                        content_copy
+                                    </span>
+                                    <span class="text">Copy</span>
+                                </button>
+                            </div>
+                            <div class="action-layout">
+                                <button class="action delete"
+                                    @click="emit('openConfirmModal', null, unitItem._id, 'delete')">
+                                    <span class="material-symbols-outlined icon">
+                                        delete
+                                    </span>
+                                    <span class="text">Delete</span>
+                                </button>
+                            </div>
+                            <div class="action-layout">
+                                <router-link class="action link" :to="`/${props.unit?.substring(0, props.unit?.length - 1)}/${unitItem._id}`">
+                                    <span class="material-symbols-outlined icon">
+                                        link
+                                    </span>
+                                    <span class="text">Link</span>
+                                </router-link>
+                            </div>
                         </div>
                     </td>
                     <td>
@@ -173,18 +185,30 @@
                     </td>
                     <td>
                         <div class="action-wrap">
-                            <button class="action copy">
-                                <span class="material-symbols-outlined icon">
-                                    content_copy
-                                </span>
-                                <span class="text">Copy</span>
-                            </button>
-                            <button class="action delete">
-                                <span class="material-symbols-outlined icon">
-                                    delete
-                                </span>
-                                <span class="text">Delete</span>
-                            </button>
+                            <div class="action-layout">
+                                <button class="action copy">
+                                    <span class="material-symbols-outlined icon">
+                                        content_copy
+                                    </span>
+                                    <span class="text">Copy</span>
+                                </button>
+                            </div>
+                            <div class="action-layout">
+                                <button class="action delete">
+                                    <span class="material-symbols-outlined icon">
+                                        delete
+                                    </span>
+                                    <span class="text">Delete</span>
+                                </button>
+                            </div>
+                            <div class="action-layout">
+                                <button class="action link">
+                                    <span class="material-symbols-outlined icon">
+                                        link
+                                    </span>
+                                    <span class="text">Link</span>
+                                </button>
+                            </div>
                         </div>
                     </td>
                     <td>
@@ -201,9 +225,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Website, Animation, ThreeDCG } from "~/types";
+import type { Website, Animation, ThreeDCG } from "~/types";
 import { useStore } from "~/store";
-import { CSSProperties } from "nuxt/dist/app/compat/vue-demi";
+import type * as CSS from 'csstype';
 
 const emit = defineEmits(['openEditorModal', 'openConfirmModal', 'selectAllItem', 'updateTop',
     'updateVisibility', 'updateHomepage', 'deleteItem', 'copyItem', 'setUnitItems', 'setIsAllSelected', 'setSelector','updateSortData']);
@@ -215,6 +239,7 @@ const props = defineProps({
     isConfirm: Boolean,
     confirmAction: String,
     confirmId: String,
+    unit: String
 });
 
 const store = useStore();
@@ -235,7 +260,7 @@ const dragstartPos = reactive({
     y: 0,
 });
 const fileTs = ref(Date.now());
-const dragCloneElCSS = reactive<CSSProperties>({
+const dragCloneElCSS = reactive<CSS.Properties>({
     transform: 'translate(0, 0)',
     position: 'absolute',
     zIndex: '999',
@@ -316,6 +341,7 @@ const colMouseUp = () => {
 onMounted(() => {
     document.body.addEventListener('mousemove', bodyMove);
     document.body.addEventListener('mouseup', bodyMouseUp);
+    console.log(props.unitItems);
 });
 
 onBeforeUnmount(() => {
@@ -402,7 +428,7 @@ watch(() => props.isConfirm, (val) => {
             width: 5%;
 
             @include media(1200) {
-                width: 64px;
+                width: 5%;
                 text-align: center;
             }
         }
@@ -414,13 +440,17 @@ watch(() => props.isConfirm, (val) => {
             @include media(1700) {
                 width: 8%;
             }
+
+            @include media(1200) {
+                width: 7%;
+            }
         }
 
         &:nth-of-type(3) {
             width: 10%;
 
             @include media(1200) {
-                width: 120px;
+                width: 9%;
                 padding: 20px 0;
             }
         }
@@ -446,9 +476,17 @@ watch(() => props.isConfirm, (val) => {
         }
 
         &:nth-of-type(8) {
-            width: 10%;
+            width: 15%;
 
-            @include media(1700) {
+            @include media(1800) {
+                width: 17%;
+            }
+
+            @include media(1400) {
+                width: 19%;
+            }
+
+            @include media(1200) {
                 width: 15%;
             }
         }
@@ -477,21 +515,27 @@ watch(() => props.isConfirm, (val) => {
         letter-spacing: 0.8px;
         font-size: 16px;
         @extend %ts;
-
+        
+        
         &:nth-of-type(1) {
             @include media(1200) {
                 text-align: center;
             }
         }
-
+        
         &:nth-of-type(2) {
             text-align: center;
         }
-
+        
         &:nth-of-type(3) {
             @include media(1200) {
                 padding: 10px 0;
             }
+        }
+
+        &:nth-of-type(5) {
+            font-weight: bold;
+            color: darken($mainColor, 10%);
         }
 
         &:last-of-type {
@@ -595,22 +639,48 @@ watch(() => props.isConfirm, (val) => {
 
     .action-wrap {
         margin: 0 -10px;
-        display: inline-block;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .action-layout {
+        display: flex;
+        width: 50%;
+        justify-content: flex-start;
+        margin-bottom: 6px;
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+        
+        @include media(1200) {
+            width: 100%;
+            margin-bottom: 4px;
+            &:last-of-type {
+                margin-bottom: 0;
+            }
+        }
     }
 
     .action {
         background: transparent;
         border: 0;
-        display: block;
-        line-height: 1;
+        display: inline-block;
+        line-height: 32px;
         vertical-align: middle;
-        padding: 6px;
-        // border: 1px solid $terColor;
+        text-align: left;
+        padding: 0 10px;
         border-radius: 12px;
+        white-space: nowrap;
+        text-decoration: none;
+        color: #000;
         @extend %ts;
 
-        &:first-of-type {
-            margin-bottom: 4px;
+        @include media(1700) {
+            padding: 0 7px;
+        }
+
+        @include media(1200) {
+            line-height: 26px;
         }
 
         &:hover {
@@ -640,7 +710,7 @@ watch(() => props.isConfirm, (val) => {
         .text {
             @extend %ts;
             vertical-align: middle;
-            font-weight: bold;
+            font-weight: 500;
             letter-spacing: 0.8px;
         }
     }

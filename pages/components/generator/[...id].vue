@@ -115,7 +115,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { Component, ComponentType } from "~/types";
+import type { Component, ComponentType } from "~/types";
 // import html2canvas from 'html2canvas';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';

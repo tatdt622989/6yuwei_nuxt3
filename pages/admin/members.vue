@@ -71,9 +71,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Editor, User } from "~/types";
+import type { Editor, User } from "~/types";
 import { useStore } from "~/store";
-import { Console } from "console";
 
 interface UpdateData {
   _id: string;
@@ -214,6 +213,14 @@ const openConfirmModal = (targetFunc: Function, id: string = "") => {
 watch(currentPage, async () => {
   await getList();
 });
+
+watch(
+  () => keyword.value,
+  () => {
+    navigateTo(`/admin/members/?keyword=${keyword.value}&page=1`);
+    getList();
+  }
+);
 
 onMounted(async () => {
   await getList();

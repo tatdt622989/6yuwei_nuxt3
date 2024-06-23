@@ -107,7 +107,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Contact } from "~/types";
+import type { Contact } from "~/types";
 import { useStore } from "~/store";
 
 useHead({

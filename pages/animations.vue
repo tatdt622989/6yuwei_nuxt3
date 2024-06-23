@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Animation } from "~/types";
+import type { Animation } from "~/types";
 import { useStore } from "~/store";
 
 useHead({

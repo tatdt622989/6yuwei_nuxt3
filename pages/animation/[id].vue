@@ -37,7 +37,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { Editor, Animation, BreadCrumb } from "~~/types";
+import type { Editor, Animation, BreadCrumb } from "~/types";
 import VueEasyLightbox from "vue-easy-lightbox";
 
 const store = useStore();

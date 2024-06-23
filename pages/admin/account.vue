@@ -122,7 +122,7 @@
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { useStore } from "~/store";
-import { User } from "~/types";
+import type { User } from "~/types";
 
 // 需要驗證身份
 definePageMeta({

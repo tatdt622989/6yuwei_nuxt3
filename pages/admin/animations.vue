@@ -30,7 +30,9 @@
           :total="total"
           :is-confirm="confirmModal.isConfirm"
           :confirm-action="confirmModal.action"
-          :confirm-id="confirmModal.id" />
+          :confirm-id="confirmModal.id" 
+          :unit="'animations'"
+          />
         <Pagination :total="totalPage"
           :url="'/admin/animations/'" />
       </div>
@@ -57,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Editor, Animation } from "~/types";
+import type { Editor, Animation } from "~/types";
 import { useStore } from "~/store";
 
 interface UpdateData {

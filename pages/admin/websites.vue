@@ -28,7 +28,9 @@
           :total="total"
           :is-confirm="confirmModal.isConfirm"
           :confirm-action="confirmModal.action"
-          :confirm-id="confirmModal.id" />
+          :confirm-id="confirmModal.id"
+          :unit="'websites'"
+           />
         <Pagination :total="totalPage"
           :url="'/admin/websites/'" />
       </div>
@@ -55,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Editor, Website } from "~/types";
+import type { Editor, Website } from "~/types";
 import { useStore } from "~/store";
 
 interface UpdateData {

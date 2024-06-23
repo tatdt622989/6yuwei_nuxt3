@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Component, ComponentType } from "~/types";
+import type { Component, ComponentType } from "~/types";
 import { useStore } from "~/store";
 
 interface FavoriteRes {

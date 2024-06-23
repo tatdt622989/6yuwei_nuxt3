@@ -1,4 +1,4 @@
-import { Website, ThreeDCG, Animation, Editor } from "~/types";
+import type { Website, ThreeDCG, Animation, Editor } from "~/types";
 
 export const useChangeToEditor = () => {
     return (data: Website | ThreeDCG | Animation): Editor => {

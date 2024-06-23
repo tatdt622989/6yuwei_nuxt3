@@ -85,7 +85,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Website } from "~/types";
+import type { Website } from "~/types";
 import { useStore } from "~/store";
 
 useHead({

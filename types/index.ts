@@ -69,7 +69,7 @@ export interface Animation {
   sort: number;
 }
 
-export type Editor = Website & ThreeDCG & Animation;
+export interface Editor extends Website, ThreeDCG, Animation {}
 
 export interface BreadCrumb {
   name: string;

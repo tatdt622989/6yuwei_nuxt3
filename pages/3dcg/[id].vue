@@ -50,7 +50,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import { ThreeDCG, BreadCrumb } from "~~/types";
+import type { ThreeDCG, BreadCrumb } from "~/types";
 import VueEasyLightbox from "vue-easy-lightbox";
 
 const store = useStore();

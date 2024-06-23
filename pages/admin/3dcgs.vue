@@ -30,7 +30,9 @@
           :total="total"
           :is-confirm="confirmModal.isConfirm"
           :confirm-action="confirmModal.action"
-          :confirm-id="confirmModal.id" />
+          :confirm-id="confirmModal.id"
+          :unit="'3dcgs'"
+           />
         <Pagination :total="totalPage"
           :url="'/admin/3dcgs/'" />
       </div>
@@ -57,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Editor, ThreeDCG } from "~/types";
+import type { Editor, ThreeDCG } from "~/types";
 import { useStore } from "~/store";
 
 interface UpdateData {

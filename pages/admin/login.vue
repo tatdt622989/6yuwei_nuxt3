@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-import { User } from '~/types';
+import type { User } from '~/types';
 import { useStore } from '~/store';
 
 definePageMeta({
