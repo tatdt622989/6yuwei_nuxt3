@@ -527,7 +527,7 @@ const uploadImg = async (files: FileList, id: string) => {
           },
           withCredentials: true,
           onUploadProgress: (progressEvent: ProgressEvent): void => {
-            console.log(JSON.stringify(fileInfoList.value), JSON.stringify(files[i]));
+            console.log(JSON.stringify(fileInfoList.value), JSON.stringify(files), i);
             const index = fileInfoList.value.findIndex(
               (item: FileInfo) => item?.data?.url === files[i].name
             );
