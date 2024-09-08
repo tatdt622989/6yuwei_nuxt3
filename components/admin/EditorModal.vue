@@ -426,38 +426,50 @@ const save = async () => {
     description: description.value,
     textEditor: textEditorHTML.value,
   };
-  const method = {
+  interface ResData {
+    data: Editor;
+  }
+  const method: {
+    add: () => Promise<{ resData: Editor; error?: undefined; } | { error: unknown; resData?: undefined; }>;
+    edit: () => Promise<{ resData: Editor; error?: undefined; } | { error: unknown; resData?: undefined; }>;
+  } = {
     add: async () => {
-      const res = await useFetch(api, {
-        method: "POST",
-        body: JSON.stringify({
-          data,
-        }),
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const error = res.error.value as Error | null;
-      const resData = res.data.value as { data: Editor } | null;
-      action.value = "edit";
-      return { error, resData };
+      try {
+        const res = await $fetch<ResData>(api, {
+          method: "POST",
+          body: JSON.stringify({
+            data,
+          }),
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const resData = res.data;
+        action.value = "edit";
+        return { resData };
+      } catch (error) {
+        return { error };
+      }
     },
     edit: async () => {
-      const res = await useFetch(api, {
-        method: "PUT",
-        body: JSON.stringify({
-          _id: props.data?._id,
-          data,
-        }),
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const error = res.error.value as Error | null;
-      const resData = res.data.value as { data: Editor } | null;
-      return { error, resData };
+      try {
+        const res = await $fetch<ResData>(api, {
+          method: "PUT",
+          body: JSON.stringify({
+            _id: props.data?._id,
+            data,
+          }),
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const resData = res.data;
+        return { resData };
+      } catch (error) {
+        return { error };
+      }
     },
   };
   if (store.isLoading) return;
@@ -466,12 +478,13 @@ const save = async () => {
     store.isLoading = false;
     return;
   }
-  const res = await method[action.value]();
+  const actionKey = action.value === "edit" ? "edit" : "add";
+  const res = await method[actionKey]();
   if (res.error) {
     navigateTo("/admin/login");
     return store.pushNotification({
       type: "error",
-      message: res.error.message,
+      message: res.error as string,
       timeout: 5000,
     });
   }
@@ -481,7 +494,7 @@ const save = async () => {
       message: "Saved successfully",
       timeout: 3000,
     });
-    emit("set-editor-data", res.resData.data);
+    emit("set-editor-data", res.resData);
     store.isLoading = false;
     emit("update-category");
     emit("reload-list");
@@ -490,6 +503,12 @@ const save = async () => {
 
 const uploadImg = async (files: FileList, id: string) => {
   const reqList = [];
+  const filesArr = Array.from(files).map((file) => {
+    return {
+      name: file.name,
+      size: file.size,
+    };
+  });
 
   if (files.length === 0) {
     return;
@@ -526,13 +545,12 @@ const uploadImg = async (files: FileList, id: string) => {
             "Content-Type": "multipart/form-data",
           },
           withCredentials: true,
-          onUploadProgress: (progressEvent: ProgressEvent): void => {
-            console.log(JSON.stringify(fileInfoList.value), JSON.stringify(files), i);
+            onUploadProgress: (progressEvent: AxiosProgressEvent): void => {
             const index = fileInfoList.value.findIndex(
-              (item: FileInfo) => item?.data?.url === files[i].name
+              (item: FileInfo) => item?.data?.url === filesArr[i].name
             );
             if (index < 0) {
-              console.error(`Cannot find file info for ${files[i].name}`);
+              console.error(`Cannot find file info for ${filesArr[i].name}`);
               return;
             }
             const percentCompleted = Math.round(
@@ -547,14 +565,14 @@ const uploadImg = async (files: FileList, id: string) => {
         })
         .then((res) => {
           const index = fileInfoList.value.findIndex(
-              (item) => item.data?.url === files[i].name
+              (item) => item.data?.url === filesArr[i].name
             );
           fileInfoList.value[index].data = res.data.data;
           resolve(res.data);
         })
         .catch((err) => {
           const index = fileInfoList.value.findIndex(
-              (item) => item.data?.url === files[i].name
+              (item) => item.data?.url === filesArr[i].name
             );
           fileInfoList.value[index].progress = 0;
           reject(err);
@@ -636,7 +654,11 @@ const fileDelete = async () => {
   if (store.isLoading) return;
   store.isLoading = true;
   try {
-    const res = await useFetch(api, {
+    interface ResData {
+      data: Photo;
+      msg: string;
+    }
+    const res = await $fetch<ResData>(api, {
       method: "DELETE",
       body: JSON.stringify(data),
       credentials: "include",
@@ -645,21 +667,7 @@ const fileDelete = async () => {
       },
     });
 
-    const error = res.error.value;
-    if (error) {
-      const status = error.status;
-      status === 403 && navigateTo("/admin/login");
-      return store.pushNotification({
-        type: "error",
-        message: error.message,
-        timeout: 5000,
-      });
-    }
-
-    const resData = res.data.value as {
-      data: Editor;
-      msg: string;
-    } | null;
+    const resData = res.data;
     if (resData) {
       store.pushNotification({
         type: "success",
@@ -667,7 +675,7 @@ const fileDelete = async () => {
         timeout: 3000,
       });
       fileInfoList.value = fileInfoList.value.filter(
-        (fileInfo) => fileInfo.data?._id !== props.confirmModal?.id
+        (fileInfo: FileInfo) => fileInfo.data?._id !== props.confirmModal?.id
       );
       store.isLoading = false;
     }

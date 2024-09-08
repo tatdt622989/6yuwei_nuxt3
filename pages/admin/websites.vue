@@ -258,6 +258,7 @@ const getCategory = async () => {
       method: "GET",
       credentials: "include",
     });
+    console.log('getCategory', res);
 
     const error = res.error.value;
     if (error) {
