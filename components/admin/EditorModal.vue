@@ -379,7 +379,7 @@ const updateData = (data: Editor) => {
     category.value = data.category;
     description.value = data.description;
     textEditorHTML.value = data.textEditor;
-    fileInfoList.value = data.photos.map((item) => {
+    fileInfoList.value = data.photos.map((item: Photo) => {
       return {
         data: item,
         progress: 100,
@@ -527,14 +527,22 @@ const uploadImg = async (files: FileList, id: string) => {
             "Content-Type": "multipart/form-data",
           },
           withCredentials: true,
-          onUploadProgress: (progressEvent) => {
+          onUploadProgress: (progressEvent: ProgressEvent): void => {
             const index = fileInfoList.value.findIndex(
-              (item) => item.data?.url === files[i].name
+              (item: FileInfo) => item?.data?.url === files[i].name
             );
+            if (index < 0) {
+              console.error(`Cannot find file info for ${files[i].name}`);
+              return;
+            }
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
             );
-            fileInfoList.value[index].progress = percentCompleted;
+            try {
+              fileInfoList.value[index].progress = percentCompleted;
+            } catch (err) {
+              console.error(err);
+            }
           },
         })
         .then((res) => {
@@ -579,7 +587,7 @@ const uploadImg = async (files: FileList, id: string) => {
     fileInputRef.value && (fileInputRef.value.value = "");
   }
   fileInfoList.value = fileInfoList.value.filter(
-    (fileInfo) => fileInfo.progress === 100
+    (fileInfo: FileInfo) => fileInfo.progress === 100
   );
   emit("reload-list");
 };

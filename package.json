@@ -12,8 +12,7 @@
     "@types/aos": "^3.0.4",
     "@types/node": "^18.15.3",
     "nuxi": "^3.8.3",
-    "nuxt": "^3.12.2",
-    "sass": "^1.59.3",
+    "nuxt": "^3.13.1",
     "vue-tsc": "^1.0.13"
   },
   "dependencies": {
@@ -40,6 +39,7 @@
     "html2canvas": "^1.4.1",
     "lowlight": "^2.8.1",
     "pinia": "^2.1.7",
+    "sass": "1.77.6",
     "swiper": "^9.2.4",
     "vue": "^3.4.27",
     "vue-easy-lightbox": "^1.16.0",

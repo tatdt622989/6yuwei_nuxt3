@@ -18,10 +18,13 @@ export default defineNuxtConfig({
     //   mode: 'out-in' // default
     // }
   },
+
   modules: [
     '@pinia/nuxt',
   ],
+
   css: ['bootstrap-icons/font/bootstrap-icons.css', 'aos/dist/aos.css'],
+
   vite: {
     css: {
       preprocessorOptions: {
@@ -31,7 +34,9 @@ export default defineNuxtConfig({
       }
     },
   },
+
   router: {},
+
   // typescript: {
   //   typeCheck: true
   // },
@@ -51,9 +56,12 @@ export default defineNuxtConfig({
       }
     }
   },
+
   runtimeConfig: {
     public: {
       gtagId: 'G-HW6MDZLN6Z',
     }
-  }
+  },
+
+  compatibilityDate: '2024-09-08'
 })
