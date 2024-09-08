@@ -741,6 +741,7 @@ const textGenerator = async (inputType: "describe" | "content") => {
 
 onMounted(() => {
   window.addEventListener("keyup", keyupHandler);
+  console.log(props.category);
 });
 
 onUnmounted(() => {

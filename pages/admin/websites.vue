@@ -30,7 +30,7 @@
           :confirm-action="confirmModal.action"
           :confirm-id="confirmModal.id"
           :unit="'websites'"
-           />
+        />
         <Pagination :total="totalPage"
           :url="'/admin/websites/'" />
       </div>
@@ -254,25 +254,13 @@ const getCategory = async () => {
   store.isLoading = true;
   const api = `${store.api}/websites/admin/category/`;
   try {
-    const res = await useFetch(api, {
+    const res = await $fetch(api, {
       method: "GET",
       credentials: "include",
     });
     console.log('getCategory', res);
 
-    const error = res.error.value;
-    if (error) {
-      const status = error.status;
-      status === 403 && navigateTo("/admin/login");
-      store.pushNotification({
-        type: "error",
-        message: error.data,
-        timeout: 5000,
-      });
-      return store.isLoading = false;
-    }
-
-    const data = res.data.value as {
+    const data = res as {
       msg: string;
       list: Array<string>;
       category: [];

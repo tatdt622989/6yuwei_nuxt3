@@ -257,24 +257,12 @@ const getCategory = async () => {
   store.isLoading = true;
   const api = `${store.api}/animations/admin/category/`;
   try {
-    const res = await useFetch(api, {
+    const res = await $fetch(api, {
       method: "GET",
       credentials: "include",
     });
 
-    const error = res.error.value;
-    if (error) {
-      const status = error.status;
-      status === 403 && navigateTo("/admin/login");
-      store.pushNotification({
-        type: "error",
-        message: error.data,
-        timeout: 5000,
-      });
-      return store.isLoading = false;
-    }
-
-    const data = res.data.value as {
+    const data = res as {
       msg: string;
       list: Array<string>;
       category: [];
@@ -289,6 +277,7 @@ const getCategory = async () => {
       timeout: 5000,
     });
   }
+  store.isLoading = false;
   store.isLoading = false;
 };
 
