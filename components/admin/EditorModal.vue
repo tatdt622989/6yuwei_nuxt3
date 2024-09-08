@@ -508,7 +508,7 @@ const uploadImg = async (files: FileList, id: string) => {
     const formData = new FormData();
     formData.append("file", files[i]);
     formData.append("unitId", id);
-    const tempFileInfo: FileInfo = {
+    fileInfoList.value.unshift({
       data: {
         _id: "",
         url: files[i].name,
@@ -518,8 +518,7 @@ const uploadImg = async (files: FileList, id: string) => {
       },
       progress: 0,
       isLoaded: false,
-    };
-    fileInfoList.value.unshift(tempFileInfo);
+    });
     const res = new Promise((resolve, reject) => {
       axios
         .post(`${store.api}/${props.unit}/admin/photo/`, formData, {
@@ -528,6 +527,7 @@ const uploadImg = async (files: FileList, id: string) => {
           },
           withCredentials: true,
           onUploadProgress: (progressEvent: ProgressEvent): void => {
+            console.log(JSON.stringify(fileInfoList.value), JSON.stringify(files[i]));
             const index = fileInfoList.value.findIndex(
               (item: FileInfo) => item?.data?.url === files[i].name
             );
