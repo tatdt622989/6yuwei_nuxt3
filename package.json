@@ -52,6 +52,10 @@
   "pnpm": {
     "overrides": {
       "vue": "^3.5.0"
+    },
+    "supportedArchitectures": {
+      "os": ["linux", "darwin"],
+      "cpu": ["x64", "arm64"]
     }
   }
 }
