@@ -2,12 +2,16 @@ FROM node:20.19.5-bookworm-slim AS build
 
 WORKDIR /app
 
+ARG NUXT_API_PROXY_TARGET
+ENV NUXT_API_PROXY_TARGET=$NUXT_API_PROXY_TARGET
+
 RUN npm install -g pnpm@9
 
 COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+RUN test -n "$NUXT_API_PROXY_TARGET"
 RUN pnpm build
 
 FROM node:20.19.5-bookworm-slim AS runtime
