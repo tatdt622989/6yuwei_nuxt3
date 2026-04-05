@@ -1,5 +1,5 @@
 import { useStore } from "~~/store";
-import { User } from "~~/types";
+import type { User } from "~~/types";
 
 interface LoginStatusRes {
     msg: string;

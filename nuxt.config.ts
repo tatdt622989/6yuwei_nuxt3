@@ -71,6 +71,8 @@ export default defineNuxtConfig({
       gtagId: 'G-HW6MDZLN6Z',
     }
   },
-
+  experimental: {
+    appManifest: false
+  },
   compatibilityDate: '2024-09-08'
 })
