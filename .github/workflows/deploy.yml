@@ -1,16 +1,20 @@
-name: Build and Push Image
+name: Build and Deploy
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
   packages: write
 
+env:
+  IMAGE_NAME: ghcr.io/tatdt622989/6yuwei_nuxt3:latest
+
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,10 +36,12 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/tatdt622989/6yuwei_nuxt3:latest
+          tags: ${{ env.IMAGE_NAME }}
           build-args: |
             NUXT_API_PROXY_TARGET=${{ secrets.NUXT_API_PROXY_TARGET }}
 
       - name: Trigger Coolify Deploy
         run: |
-          curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}"
+          curl --fail --silent --show-error \
+            --request GET "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}"
