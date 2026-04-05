@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const apiProxyTarget = process.env.NUXT_API_PROXY_TARGET || 'http://localhost:3001'
+
 export default defineNuxtConfig({
   app: {
     head: {
@@ -50,7 +52,7 @@ export default defineNuxtConfig({
   nitro: {
     devProxy: {
       "/api": {
-        target: "http://localhost:3001",
+        target: apiProxyTarget,
         changeOrigin: true,
         prependPath: true,
       },
@@ -58,7 +60,7 @@ export default defineNuxtConfig({
     routeRules: {
       "/api/**": {
         proxy: {
-          to: 'http://localhost:3001/**',
+          to: `${apiProxyTarget}/**`,
         }
       }
     }
