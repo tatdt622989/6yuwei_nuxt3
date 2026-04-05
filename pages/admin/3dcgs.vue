@@ -361,6 +361,7 @@ const updateTop = async (id: string, top: boolean) => {
     _id: id,
     data: {
       top,
+      sort: 0,
     },
   });
 };

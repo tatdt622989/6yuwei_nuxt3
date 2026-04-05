@@ -258,7 +258,6 @@ const getCategory = async () => {
       method: "GET",
       credentials: "include",
     });
-    console.log('getCategory', res);
 
     const data = res as {
       msg: string;
@@ -352,12 +351,36 @@ const updateHomepage = async (id: string, homepage: boolean) => {
   });
 };
 const updateTop = async (id: string, top: boolean) => {
-  updateData({
-    _id: id,
-    data: {
-      top,
-    },
+  store.isLoading = true;
+  const api = `${store.api}/websites/admin/top/`;
+  const res = await useFetch(api, {
+    method: "PUT",
+    credentials: "include",
+    body: JSON.stringify({ id, top }),
   });
+  const error = res.error.value;
+  const resData = res.data.value as { msg: string };
+  if (error) {
+    const status = error.status;
+    status === 403 && navigateTo("/admin/login");
+    store.pushNotification({
+      type: "error",
+      message: error.data,
+      timeout: 5000,
+    });
+    return store.isLoading = false;
+  }
+  if (resData) {
+    store.pushNotification({
+      type: "success",
+      message: resData.msg,
+      timeout: 5000,
+    });
+
+    // 更新列表
+    await getList();
+  }
+  store.isLoading = false;
 };
 const updateSortData = async (unitItems: Website[]) => {
   store.isLoading = true;

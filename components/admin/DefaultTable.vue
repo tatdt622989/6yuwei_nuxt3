@@ -322,16 +322,16 @@ const colMouseUp = () => {
     if (!dragData.value) return;
     if (!props.total) return;
     const pageSize = 12;
-    const initPageNum = props.total - (currentPage.value - 1) * pageSize;
-    // 處理置頂排序
-    unitItems.value.sort((a, b) => Number(b.top) - Number(a.top));
-    // 取得排序資料
+    const initialSortNumber = props.total - (currentPage.value - 1) * pageSize;
+    let sortNumber = initialSortNumber;
+
+    // 處理排序
     const sortData = unitItems.value.map((item) => {
-        return {
-        _id: item._id,
-        sort: initPageNum - unitItems.value.findIndex((unitItem) => unitItem._id === item._id),
-        };
+        item.sort = sortNumber;
+        sortNumber--;
+        return item;
     });
+
     emit('updateSortData', sortData);
     dragData.value = null;
     dragOverId.value = '';
