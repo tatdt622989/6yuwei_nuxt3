@@ -157,7 +157,7 @@ const submit = async () => {
 
 const googleLogin = (e: Event) => {
   e.preventDefault();
-  window.location.href = `${store.api}/googleLogin/`;
+  window.location.href = '/auth/google';
 };
 
 onMounted(async () => {
