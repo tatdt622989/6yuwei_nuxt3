@@ -67,6 +67,7 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    apiProxyTarget,
     public: {
       gtagId: 'G-HW6MDZLN6Z',
     }
