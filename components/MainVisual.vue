@@ -2,7 +2,9 @@
   <div class="visualWrap">
     <!-- <canvas ref="main" /> -->
     <div class="videoBox">
-      <video src="@/assets/videos/main.mp4?v=4" muted autoplay loop playsinline></video>
+      <video muted autoplay loop playsinline>
+        <source src="@/assets/videos/main-mobile.mp4" type="video/mp4" />
+      </video>
     </div>
   </div>
 </template>
