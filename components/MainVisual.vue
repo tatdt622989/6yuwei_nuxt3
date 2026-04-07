@@ -3,7 +3,7 @@
     <!-- <canvas ref="main" /> -->
     <div class="videoBox">
       <video muted autoplay loop playsinline>
-        <source src="@/assets/videos/main-mobile.mp4" type="video/mp4" />
+        <source src="/videos/main.mp4" type="video/mp4" />
       </video>
     </div>
   </div>
