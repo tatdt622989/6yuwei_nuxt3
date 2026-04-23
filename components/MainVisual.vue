@@ -2,7 +2,7 @@
   <div class="visualWrap">
     <!-- <canvas ref="main" /> -->
     <div class="videoBox">
-      <video muted autoplay loop playsinline>
+      <video ref="videoEl" muted autoplay loop playsinline poster="/images/main_poster.jpg">
         <source src="/videos/main.mp4" type="video/mp4" />
       </video>
     </div>
@@ -10,6 +10,30 @@
 </template>
 
 <script lang="ts" setup>
+const videoEl = ref<HTMLVideoElement | null>(null)
+
+onMounted(() => {
+  if (videoEl.value) {
+    // 嘗試播放，如果失敗則顯示poster
+    videoEl.value.play().catch(() => {
+      // iOS可能阻止autoplay，顯示poster
+      console.log('Autoplay blocked, showing poster')
+    })
+  }
+})
+
+// 添加用戶交互事件來播放影片
+const playVideo = () => {
+  if (videoEl.value) {
+    videoEl.value.play()
+  }
+}
+
+// 監聽用戶交互
+onMounted(() => {
+  document.addEventListener('touchstart', playVideo, { once: true })
+  document.addEventListener('click', playVideo, { once: true })
+})
 </script>
 
 <style lang="scss" scoped>
