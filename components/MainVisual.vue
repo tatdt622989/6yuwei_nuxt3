@@ -2,37 +2,54 @@
   <div class="visualWrap">
     <!-- <canvas ref="main" /> -->
     <div class="videoBox">
-      <video ref="videoEl" muted autoplay loop playsinline poster="/images/main_poster.jpg">
+      <video ref="videoEl" muted loop playsinline poster="/images/main_poster.jpg" @click="playVideo" @touchstart="playVideo">
         <source src="/videos/main.mp4" type="video/mp4" />
       </video>
+      <!-- 如果影片沒有自動播放，顯示播放按鈕 -->
+      <div v-if="!isPlaying" class="playButton" @click="playVideo" @touchstart="playVideo">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="white">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 const videoEl = ref<HTMLVideoElement | null>(null)
+const isPlaying = ref(false)
 
-onMounted(() => {
-  if (videoEl.value) {
-    // 嘗試播放，如果失敗則顯示poster
-    videoEl.value.play().catch(() => {
-      // iOS可能阻止autoplay，顯示poster
-      console.log('Autoplay blocked, showing poster')
-    })
-  }
-})
-
-// 添加用戶交互事件來播放影片
 const playVideo = () => {
-  if (videoEl.value) {
-    videoEl.value.play()
+  if (videoEl.value && !isPlaying.value) {
+    videoEl.value.play().then(() => {
+      isPlaying.value = true
+    }).catch((error) => {
+      console.log('播放失敗:', error)
+    })
   }
 }
 
-// 監聽用戶交互
+// 影片播放事件
+const onPlay = () => {
+  isPlaying.value = true
+}
+
+// 影片暫停事件
+const onPause = () => {
+  isPlaying.value = false
+}
+
+// 影片結束事件
+const onEnded = () => {
+  isPlaying.value = false
+}
+
 onMounted(() => {
-  document.addEventListener('touchstart', playVideo, { once: true })
-  document.addEventListener('click', playVideo, { once: true })
+  if (videoEl.value) {
+    videoEl.value.addEventListener('play', onPlay)
+    videoEl.value.addEventListener('pause', onPause)
+    videoEl.value.addEventListener('ended', onEnded)
+  }
 })
 </script>
 
@@ -44,6 +61,7 @@ onMounted(() => {
   display: flex;
   width: 100%;
   transform: rotate(0deg);
+  position: relative; // 添加相對定位
   video {
     transform: rotate(0deg);
     border-radius: 30px;
@@ -53,6 +71,30 @@ onMounted(() => {
     @include media(540) {
       object-fit: cover;
     }
+  }
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  svg {
+    margin-left: 4px; // 稍微調整播放圖標位置
   }
 }
 

@@ -365,29 +365,35 @@ onUnmounted(() => {
   paginationElList.value = [];
 });
 
-const getImgLink = async () => {
-  const resAry: Promise<Boolean>[] = [];
-  if (!posts.value) return;
-  // 檢查圖片是否存在
-  posts.value.forEach((item) => {
+const checkImage = (url: string): Promise<string | null> => {
+  return new Promise((resolve) => {
     const img = new Image();
-    img.src = `${item.permalink}cover.jpg`;
-    const res: Promise<Boolean> = new Promise((resolve, reject) => {
-      img.onload = () => {
-        resolve(true);
-      };
-      img.onerror = (err) => {
-        resolve(false);
-      };
-    });
-    resAry.push(res);
+    img.onload = () => resolve(url);
+    img.onerror = () => resolve(null);
+    img.src = url;
   });
-  await Promise.all(resAry).then((res) => {
-    res.forEach((item, index) => {
-      if (item && posts.value) {
-        posts.value[index].imgUrl = `${posts.value[index].permalink}cover.jpg`;
+};
+
+const getImgLink = async () => {
+  if (!posts.value) return;
+  // 檢查圖片是否存在，依序 jpg -> png -> webp
+  const promises = posts.value.map(async (item) => {
+    const extensions = ["jpg", "png", "webp"];
+    for (const ext of extensions) {
+      const url = `${item.permalink}cover.${ext}`;
+      const foundUrl = await checkImage(url);
+      if (foundUrl) {
+        return foundUrl;
       }
-    });
+    }
+    return null;
+  });
+
+  const urls = await Promise.all(promises);
+  urls.forEach((url, index) => {
+    if (posts.value && url) {
+      posts.value[index].imgUrl = url;
+    }
   });
 };
 const scrollDown = () => {
