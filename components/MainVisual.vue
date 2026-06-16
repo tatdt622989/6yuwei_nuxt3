@@ -4,20 +4,24 @@
     <div class="videoBox">
       <video
         ref="videoEl"
+        src="/videos/main.mp4"
+        :muted="true"
         autoplay
-        muted
         loop
         playsinline
-        webkit-playsinline="true"
-        preload="auto"
+        webkit-playsinline
+        preload="metadata"
         poster="/images/main_poster.jpg"
-        @loadedmetadata="tryPlay"
-        @canplay="tryPlay"
-      >
-        <source src="/videos/main.mp4" type="video/mp4" />
-      </video>
+      />
+      <!-- 覆蓋的預覽圖，確保在影片未播放前絕對能看見 -->
+      <img
+        v-if="!videoPlaying"
+        src="/images/main_poster.jpg"
+        alt="Banner Preview"
+        class="videoPosterFallback"
+      />
       <button
-        v-if="showPlayFallback"
+        v-if="showPlayFallback && !videoPlaying"
         type="button"
         class="playButton"
         aria-label="Play video"
@@ -34,6 +38,16 @@
 <script lang="ts" setup>
 const videoEl = ref<HTMLVideoElement | null>(null)
 const showPlayFallback = ref(false)
+const videoPlaying = ref(false)
+
+const handlePlay = () => {
+  videoPlaying.value = true
+  showPlayFallback.value = false
+}
+
+const handlePause = () => {
+  videoPlaying.value = false
+}
 
 const tryPlay = async (userInitiated = false) => {
   const video = videoEl.value
@@ -43,13 +57,15 @@ const tryPlay = async (userInitiated = false) => {
   }
 
   try {
+    video.muted = true
     await video.play()
+    videoPlaying.value = true
     showPlayFallback.value = false
   } catch (error) {
+    videoPlaying.value = false
     if (!userInitiated) {
       showPlayFallback.value = true
     }
-
     console.log("影片播放失敗:", error)
   }
 }
@@ -65,11 +81,30 @@ const handleVisibilityChange = () => {
 }
 
 onMounted(() => {
+  const video = videoEl.value
+  if (video) {
+    video.muted = true
+    video.setAttribute('muted', '')
+    video.setAttribute('playsinline', '')
+    video.setAttribute('webkit-playsinline', '')
+    
+    // 監聽原生播放與暫停事件
+    video.addEventListener('play', handlePlay)
+    video.addEventListener('playing', handlePlay)
+    video.addEventListener('pause', handlePause)
+  }
+
   void tryPlay()
   document.addEventListener("visibilitychange", handleVisibilityChange)
 })
 
 onBeforeUnmount(() => {
+  const video = videoEl.value
+  if (video) {
+    video.removeEventListener('play', handlePlay)
+    video.removeEventListener('playing', handlePlay)
+    video.removeEventListener('pause', handlePause)
+  }
   document.removeEventListener("visibilitychange", handleVisibilityChange)
 })
 </script>
@@ -90,6 +125,22 @@ onBeforeUnmount(() => {
     width: 100%;
     height: 100%;
     object-fit: contain;
+
+    @include media(540) {
+      object-fit: cover;
+    }
+  }
+
+  .videoPosterFallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 30px;
 
     @include media(540) {
       object-fit: cover;
