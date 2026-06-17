@@ -49,7 +49,8 @@ const handlePause = () => {
   videoPlaying.value = false
 }
 
-const tryPlay = async (userInitiated = false) => {
+// tryPlay 用於自動播放嘗試
+const tryPlay = async () => {
   const video = videoEl.value
 
   if (!video) {
@@ -63,15 +64,47 @@ const tryPlay = async (userInitiated = false) => {
     showPlayFallback.value = false
   } catch (error) {
     videoPlaying.value = false
-    if (!userInitiated) {
-      showPlayFallback.value = true
-    }
-    console.log("影片播放失敗:", error)
+    showPlayFallback.value = true
+    console.log("自動影片播放失敗:", error)
   }
 }
 
+// handleManualPlay 用於使用者點擊按鈕時的「同步」播放
+// iOS 要求 play() 必須同步發生在 click 的 Call Stack 內，否則會阻擋
 const handleManualPlay = () => {
-  void tryPlay(true)
+  const video = videoEl.value
+  if (!video) {
+    return
+  }
+
+  // 同步設定為靜音，確保符合各瀏覽器播放限制
+  video.muted = true
+
+  try {
+    const playPromise = video.play()
+    
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          videoPlaying.value = true
+          showPlayFallback.value = false
+          console.log("手動播放成功")
+        })
+        .catch((error) => {
+          videoPlaying.value = false
+          showPlayFallback.value = true
+          console.error("手動播放被拒絕:", error)
+        })
+    } else {
+      // 舊版瀏覽器相容處理
+      videoPlaying.value = true
+      showPlayFallback.value = false
+    }
+  } catch (error) {
+    videoPlaying.value = false
+    showPlayFallback.value = true
+    console.error("手動播放同步呼叫失敗:", error)
+  }
 }
 
 const handleVisibilityChange = () => {

@@ -31,9 +31,10 @@
 - 將 `preload` 設為 `"metadata"`（有些 iOS 裝置在 `preload="auto"` 時會因為 Range 請求限制而完全卡死，改為 `metadata` 能順利觸發隨後的播放流）。
 - 明確綁定 `:muted="true"`。
 
-### C. 生命週期與播放邏輯強化
+### C. 生命週期與播放邏輯強化（包含手動播放同步呼叫）
 - 在 `onMounted` 階段，透過 JavaScript 明確將 `video.muted = true` 並且呼叫 `video.setAttribute('muted', '')` 與 `video.setAttribute('playsinline', '')`，以確保 iOS 核心能百分之百識別為靜音且行內播放。
 - 監聽影片的 `@play`、`@playing` 與 `@pause` 事件，即時更新播放狀態，控制自訂預覽圖與手動播放按鈕的顯隱。
+- **iOS Safari 同步調用限制修復**：iOS Safari 對手動播放有極為嚴苛的安全規定，`video.play()` 必須在點擊事件的同步呼叫棧 (Call Stack) 中被直接執行。若點擊後調用包含 `async/await` 的非同步方法，會被判定為非使用者直接觸發而阻擋。因此我們將手動播放邏輯 `handleManualPlay` 重構為純粹同步方法，直接調用 `video.play()`，保證在低耗電或手動點擊時百分之百能成功播放。
 
 ### D. CSS 樣式微調
 - 新增 `.videoPosterFallback` 樣式，使其絕對定位填滿父容器，並設定 `pointer-events: none` 確保它不會干擾任何使用者對影片的點擊或操作。
