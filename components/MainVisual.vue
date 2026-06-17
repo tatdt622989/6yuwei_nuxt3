@@ -20,29 +20,16 @@
         alt="Banner Preview"
         class="videoPosterFallback"
       />
-      <button
-        v-if="showPlayFallback && !videoPlaying"
-        type="button"
-        class="playButton"
-        aria-label="Play video"
-        @click="handleManualPlay"
-      >
-        <svg width="80" height="80" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 const videoEl = ref<HTMLVideoElement | null>(null)
-const showPlayFallback = ref(false)
 const videoPlaying = ref(false)
 
 const handlePlay = () => {
   videoPlaying.value = true
-  showPlayFallback.value = false
 }
 
 const handlePause = () => {
@@ -61,49 +48,9 @@ const tryPlay = async () => {
     video.muted = true
     await video.play()
     videoPlaying.value = true
-    showPlayFallback.value = false
   } catch (error) {
     videoPlaying.value = false
-    showPlayFallback.value = true
     console.log("自動影片播放失敗:", error)
-  }
-}
-
-// handleManualPlay 用於使用者點擊按鈕時的「同步」播放
-// iOS 要求 play() 必須同步發生在 click 的 Call Stack 內，否則會阻擋
-const handleManualPlay = () => {
-  const video = videoEl.value
-  if (!video) {
-    return
-  }
-
-  // 同步設定為靜音，確保符合各瀏覽器播放限制
-  video.muted = true
-
-  try {
-    const playPromise = video.play()
-    
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          videoPlaying.value = true
-          showPlayFallback.value = false
-          console.log("手動播放成功")
-        })
-        .catch((error) => {
-          videoPlaying.value = false
-          showPlayFallback.value = true
-          console.error("手動播放被拒絕:", error)
-        })
-    } else {
-      // 舊版瀏覽器相容處理
-      videoPlaying.value = true
-      showPlayFallback.value = false
-    }
-  } catch (error) {
-    videoPlaying.value = false
-    showPlayFallback.value = true
-    console.error("手動播放同步呼叫失敗:", error)
   }
 }
 
@@ -181,26 +128,7 @@ onBeforeUnmount(() => {
   }
 }
 
-.playButton {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 88px;
-  height: 88px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 2;
 
-  svg {
-    margin-left: 4px;
-  }
-}
 
 canvas {
   min-width: 0;
