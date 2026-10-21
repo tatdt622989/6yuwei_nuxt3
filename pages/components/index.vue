@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Component, ComponentType } from "~/types";
+import type { SiteComponent as Component, ComponentType } from "~/types";
 import { useStore } from "~/store";
 
 useHead({
@@ -47,7 +47,6 @@ useHead({
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: "Library of AI components built with GPT-4!",
     },

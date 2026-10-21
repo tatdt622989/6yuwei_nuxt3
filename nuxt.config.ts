@@ -2,6 +2,9 @@
 const apiProxyTarget = process.env.NUXT_API_PROXY_TARGET || 'http://localhost:3001'
 
 export default defineNuxtConfig({
+  srcDir: '.',
+  devtools: { enabled: false },
+  build: { transpile: ['@vuepic/vue-datepicker'] },
   app: {
     head: {
       script: [

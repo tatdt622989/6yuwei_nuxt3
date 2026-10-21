@@ -72,6 +72,7 @@
 <script lang="ts" setup>
 import type { User } from '~/types';
 import { useStore } from '~/store';
+import { apiErrorMessage } from '~/utils/api-error';
 
 definePageMeta({
   layout: 'no-layout'
@@ -82,7 +83,6 @@ useHead({
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: "6yuwei - Login",
     },
@@ -130,7 +130,7 @@ const submit = async () => {
     const status = error.status;
     store.pushNotification({
       type: 'error',
-      message: error?.data,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
   }

@@ -93,7 +93,7 @@ export interface ComponentType {
   coverFileName?: string;
 }
 
-export interface Component {
+export interface SiteComponent {
   _id: string;
   userId: string;
   componentsType: ComponentType;

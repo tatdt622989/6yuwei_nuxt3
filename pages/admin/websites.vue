@@ -57,6 +57,7 @@
 </template>
 
 <script lang="ts" setup>
+import { apiErrorMessage } from "~/utils/api-error";
 import type { Editor, Website } from "~/types";
 import { useStore } from "~/store";
 
@@ -76,7 +77,6 @@ useHead({
   titleTemplate: "%s - 6yuwei admin",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: "6yuwei - Websites admin",
     },
@@ -197,7 +197,7 @@ const copyData = async () => {
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
-      message: error.data,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
     return;
@@ -293,7 +293,7 @@ const deleteData = async () => {
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
-      message: error.data,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
     return store.isLoading = false;
@@ -319,7 +319,7 @@ const updateData = async (data: UpdateData) => {
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
-      message: error.data,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
     return store.isLoading = false;

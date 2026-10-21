@@ -76,7 +76,6 @@ useHead({
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: "6yuwei 3DCGs page",
     },

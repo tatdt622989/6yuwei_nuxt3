@@ -1,7 +1,13 @@
+declare global {
+  interface Window {
+    dataLayer: IArguments[];
+  }
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
     const { gtagId } = useRuntimeConfig().public;
     
-    function gtag() {
+    function gtag(..._args: unknown[]) {
       window.dataLayer.push(arguments);
     }
     

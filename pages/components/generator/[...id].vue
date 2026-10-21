@@ -115,7 +115,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import type { Component, ComponentType } from "~/types";
+import type { SiteComponent as Component, ComponentType } from "~/types";
 // import html2canvas from 'html2canvas';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -143,9 +143,9 @@ const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
-const URL = ref(route.params.id);
-const typeURL = computed(() => URL.value[0]);
-const componentId = computed(() => URL.value[1]);
+const URL = ref(Array.isArray(route.params.id) ? route.params.id : route.params.id ? [route.params.id] : []);
+const typeURL = computed(() => URL.value[0] ?? "");
+const componentId = computed(() => URL.value[1] ?? "");
 const fileTs = ref(Date.now());
 store.isLoading = true;
 const { data: componentsRes, error: componentsError } = componentId.value ? await useFetch(`${store.api}/components/${componentId.value}/`) : { data: null, error: null };
@@ -183,7 +183,6 @@ useHead({
     titleTemplate: "%s - 6yuwei",
     meta: [
         {
-            hid: "description",
             name: "description",
             content: `${componentsData.value?.title ?? "generator"}`,
         },

@@ -15,6 +15,8 @@ export const useChangeToEditor = () => {
             createdAt: data.createdAt,
             visible: data.visible,
             homepage: data.homepage,
+            top: data.top,
+            sort: data.sort,
         };
     }
 }

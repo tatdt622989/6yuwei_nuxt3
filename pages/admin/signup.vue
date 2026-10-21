@@ -53,6 +53,7 @@
 </template>
 
 <script lang="ts" setup>
+import { apiErrorMessage } from "~/utils/api-error";
 import type { User } from '~/types';
 import { useStore } from '~/store';
 
@@ -65,7 +66,6 @@ useHead({
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: "6yuwei - Signup",
     },
@@ -103,7 +103,7 @@ const submit = async () => {
   if (error) {
     store.pushNotification({
       type: 'error',
-      message: error.data,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
     store.isLoading = false;

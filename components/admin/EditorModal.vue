@@ -283,9 +283,9 @@
 <script lang="ts" setup>
 import { useStore } from "~/store";
 import type { Photo, Editor } from "~/types";
-import { Pagination, Autoplay } from "swiper";
+import { Pagination, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/vue";
-import axios from "axios";
+import axios, { type AxiosProgressEvent } from "axios";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -524,14 +524,16 @@ const uploadImg = async (files: FileList, id: string) => {
   }
 
   for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (!file) continue;
     const formData = new FormData();
-    formData.append("file", files[i]);
+    formData.append("file", file);
     formData.append("unitId", id);
     fileInfoList.value.unshift({
       data: {
         _id: "",
-        url: files[i].name,
-        size: files[i].size,
+        url: file.name,
+        size: file.size,
         updatedAt: "",
         createdAt: "",
       },
@@ -547,17 +549,18 @@ const uploadImg = async (files: FileList, id: string) => {
           withCredentials: true,
             onUploadProgress: (progressEvent: AxiosProgressEvent): void => {
             const index = fileInfoList.value.findIndex(
-              (item: FileInfo) => item?.data?.url === filesArr[i].name
+              (item: FileInfo) => item?.data?.url === file.name
             );
             if (index < 0) {
-              console.error(`Cannot find file info for ${filesArr[i].name}`);
+              console.error(`Cannot find file info for ${file.name}`);
               return;
             }
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total ?? 0)
             );
             try {
-              fileInfoList.value[index].progress = percentCompleted;
+              const entry = fileInfoList.value[index];
+              if (entry) entry.progress = percentCompleted;
             } catch (err) {
               console.error(err);
             }
@@ -565,16 +568,18 @@ const uploadImg = async (files: FileList, id: string) => {
         })
         .then((res) => {
           const index = fileInfoList.value.findIndex(
-              (item) => item.data?.url === filesArr[i].name
+              (item) => item.data?.url === file.name
             );
-          fileInfoList.value[index].data = res.data.data;
+          const entry = fileInfoList.value[index];
+          if (entry) entry.data = res.data.data;
           resolve(res.data);
         })
         .catch((err) => {
           const index = fileInfoList.value.findIndex(
-              (item) => item.data?.url === filesArr[i].name
+              (item) => item.data?.url === file.name
             );
-          fileInfoList.value[index].progress = 0;
+          const entry = fileInfoList.value[index];
+          if (entry) entry.progress = 0;
           reject(err);
         });
     });

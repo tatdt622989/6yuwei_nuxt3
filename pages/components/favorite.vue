@@ -31,14 +31,13 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import type { Component, ComponentType } from "~/types";
+import type { SiteComponent as Component, ComponentType } from "~/types";
 
 useHead({
     title: "Components - Favorite",
     titleTemplate: "%s - 6yuwei",
     meta: [
         {
-            hid: "description",
             name: "description",
             content: "Components - Favorite",
         },

@@ -304,7 +304,9 @@ const colMoveEnter = (id: string) => {
     const dragOverIndex = unitItems.value.findIndex((item) => item._id === id);
     // exchange data
     const temp = unitItems.value[dragIndex];
-    unitItems.value[dragIndex] = unitItems.value[dragOverIndex];
+    const over = unitItems.value[dragOverIndex];
+    if (!temp || !over) return;
+    unitItems.value[dragIndex] = over;
     unitItems.value[dragOverIndex] = temp;
 };
 

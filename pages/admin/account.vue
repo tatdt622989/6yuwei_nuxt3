@@ -48,7 +48,7 @@
                 </div>
                 <div class="item">
                   <label for="birth" class="form-label">Birth</label>
-                  <Datepicker v-model="user.birth" :enable-time-picker="false" :format="format" />
+                  <Datepicker v-model="user.birth" :time-config="{ enableTimePicker: false }" :formats="{ input: format }" />
                 </div>
                 <div class="item submit">
                   <div class="create-at">
@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts" setup>
-import Datepicker from "@vuepic/vue-datepicker";
+import { VueDatePicker as Datepicker } from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { useStore } from "~/store";
 import type { User } from "~/types";
@@ -135,7 +135,6 @@ useHead({
   titleTemplate: "%s - 6yuwei admin",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: "6yuwei - Account admin",
     },
@@ -560,7 +559,7 @@ onMounted(async () => {
     }
   }
 
-  :deep(.dp__input) {
+  :deep(.dp--input) {
     background-color: $terColor;
     height: 52px;
     border-radius: 12px;
@@ -577,13 +576,13 @@ onMounted(async () => {
     }
   }
 
-  :deep(.dp__action_button) {
+  :deep(.dp--action-button) {
     @include center;
     padding: 4px 8px;
     height: auto;
   }
 
-  :deep(.dp__theme_light) {
+  :deep(.dp--theme-light) {
     --dp-primary-color: #28cb92;
   }
 }

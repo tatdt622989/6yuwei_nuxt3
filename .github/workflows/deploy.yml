@@ -10,6 +10,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: 6yuwei-official-production
+  cancel-in-progress: false
+
 env:
   IMAGE_NAME: ghcr.io/tatdt622989/6yuwei_nuxt3:latest
 
@@ -31,17 +35,44 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build and push image
+        id: image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ env.IMAGE_NAME }}
+          tags: |
+            ${{ env.IMAGE_NAME }}
+            ghcr.io/tatdt622989/6yuwei_nuxt3:sha-${{ github.sha }}
           build-args: |
             NUXT_API_PROXY_TARGET=${{ secrets.NUXT_API_PROXY_TARGET }}
+            SOURCE_COMMIT=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test production runtime
+        env:
+          SMOKE_IMAGE: ghcr.io/tatdt622989/6yuwei_nuxt3:sha-${{ github.sha }}
+        run: |
+          docker run --detach --name official-smoke \
+            --env PORT=80 --env HOST=0.0.0.0 \
+            --publish 127.0.0.1:30080:80 "$SMOKE_IMAGE"
+          trap 'docker rm --force official-smoke >/dev/null' EXIT
+          ready=0
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:30080/health; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          test "$ready" = 1
+          docker exec official-smoke node -e \
+            "if(process.version !== 'v26.12.1' || process.getuid() !== 1000) process.exit(1); console.log(process.version, 'uid', process.getuid())"
+          printf 'Image digest: %s\n' '${{ steps.image.outputs.digest }}' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Trigger Coolify Deploy
         run: |
           curl --fail --silent --show-error \
-            --request GET "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            --request POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}"

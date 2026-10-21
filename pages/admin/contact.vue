@@ -107,6 +107,7 @@
 </template>
 
 <script lang="ts" setup>
+import { apiErrorMessage } from "~/utils/api-error";
 import type { Contact } from "~/types";
 import { useStore } from "~/store";
 
@@ -115,7 +116,6 @@ useHead({
   titleTemplate: "%s - 6yuwei admin",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: "6yuwei - Contact admin",
     },
@@ -191,7 +191,7 @@ const getList = async () => {
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
-      message: error.data,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
     return store.isLoading = false;
@@ -226,7 +226,7 @@ const deleteData = async () => {
     status === 403 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
-      message: error.data,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
     return store.isLoading = false;

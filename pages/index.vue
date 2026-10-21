@@ -179,7 +179,7 @@
               <div class="item">
                 <div class="img-box">
                   <NuxtLink :to="`/3dcg/${item._id}`">
-                    <img :src="`${store.api}/admin/uploads/${item.photos[0].url}`" alt="my-topic" />
+                    <img v-if="item.photos[0]" :src="`${store.api}/admin/uploads/${item.photos[0].url}`" alt="my-topic" />
                   </NuxtLink>
                 </div>
                 <div class="text-box">
@@ -202,7 +202,7 @@
 
 <script setup lang="ts">
 import { useStore } from "~/store";
-import { Pagination, Autoplay, Navigation } from "swiper";
+import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import type { Website, ThreeDCG } from "~/types";
@@ -222,7 +222,6 @@ useHead({
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: "6yuwei home page",
     },
@@ -391,8 +390,9 @@ const getImgLink = async () => {
 
   const urls = await Promise.all(promises);
   urls.forEach((url, index) => {
-    if (posts.value && url) {
-      posts.value[index].imgUrl = url;
+    const post = posts.value?.[index];
+    if (post && url) {
+      post.imgUrl = url;
     }
   });
 };

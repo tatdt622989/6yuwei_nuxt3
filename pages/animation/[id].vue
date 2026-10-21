@@ -67,7 +67,6 @@ useHead({
   titleTemplate: "%s - 6yuwei",
   meta: [
     {
-      hid: "description",
       name: "description",
       content: `${animation.value?.description}`,
     },
@@ -100,7 +99,7 @@ breadcrumb.value = [
 
 const changeShowcase = (index: number) => {
   indexRef.value = index;
-  showcaseURL.value = imgsRef.value[index];
+  showcaseURL.value = imgsRef.value[index] ?? "";
 };
 
 const openLightbox = () => {

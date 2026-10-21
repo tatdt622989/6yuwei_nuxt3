@@ -50,6 +50,7 @@
 </template>
 
 <script lang="ts" setup>
+import { apiErrorMessage } from "~/utils/api-error";
 import { useStore } from "~/store";
 import { ReCaptchaInstance, load } from "recaptcha-v3";
 
@@ -104,7 +105,7 @@ const send = async () => {
   if (error) {
     store.pushNotification({
       type: "error",
-      message: error.data,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
     return store.isLoading = false;
