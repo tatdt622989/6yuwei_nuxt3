@@ -206,6 +206,7 @@ import { Pagination, Autoplay, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import type { Website, ThreeDCG } from "~/types";
+import { postsFromBlogFeed } from "~/utils/blog-feed.mjs";
 
 interface Post {
   data: string;
@@ -346,9 +347,8 @@ const onScroll = () => {
 
 onMounted(() => {
   if (blogsJson.value) {
-    posts.value = JSON.parse(blogsJson.value as string).posts as Post[];
-    if (posts.value.length > 3) {
-      posts.value = posts.value.slice(0, 3);
+    posts.value = postsFromBlogFeed(blogsJson.value) as Post[];
+    if (posts.value.length) {
       getImgLink();
     }
   }
