@@ -181,15 +181,16 @@ header {
 }
 
 .toggler {
-  @include media(-1200) {
-    display: none;
-  }
   @include center;
   border: 0;
   background-color: transparent;
   display: flex;
   width: 60px;
   height: 60px;
+  // Keep this override after the flex declarations with modern Sass ordering.
+  @include media(-1201) {
+    display: none;
+  }
   span {
     display: block;
     height: 4px;

@@ -463,7 +463,12 @@ const scrollDown = () => {
     font-size: 52px;
     margin: 0;
     letter-spacing: 0.8px;
-    color: $secColor;
+    // Paint one horizontal gradient across the complete heading and punctuation.
+    background: linear-gradient(to right, $mainColor, $secColor);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
     line-height: 1.4;
 
@@ -484,11 +489,6 @@ const scrollDown = () => {
       font-size: 32px;
     }
 
-    span {
-      background: -webkit-linear-gradient(180deg, $mainColor, $secColor);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
   }
 
   p {
