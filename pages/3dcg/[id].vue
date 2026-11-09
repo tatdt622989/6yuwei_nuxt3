@@ -61,6 +61,9 @@ const { data: threeDCGReq, error } = await useFetch(
   `${store.api}/3dcgs/${id.value}/`
 ); // get 3dcg by id
 store.isLoading = false;
+if (error.value) {
+  throw createError({ statusCode: error.value.statusCode ?? 500, fatal: true });
+}
 const threeDCG = ref<ThreeDCG | null>(null);
 const breadcrumb = ref<BreadCrumb[]>([]);
 const showcaseURL = ref("");

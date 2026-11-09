@@ -61,6 +61,9 @@ const { data: websiteReq, error } = await useFetch(
   `${store.api}/websites/${id.value}/`
 ); // get website by id
 store.isLoading = false;
+if (error.value) {
+  throw createError({ statusCode: error.value.statusCode ?? 500, fatal: true });
+}
 const website = ref<Website | null>(null);
 const breadcrumb = ref<BreadCrumb[]>([]);
 const showcaseURL = ref("");

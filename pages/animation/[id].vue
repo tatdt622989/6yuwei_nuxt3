@@ -48,6 +48,9 @@ const { data: animationReq, error } = await useFetch(
   `${store.api}/animations/${id.value}/`
 ); // get animation by id
 store.isLoading = false;
+if (error.value) {
+  throw createError({ statusCode: error.value.statusCode ?? 500, fatal: true });
+}
 const animation = ref<Animation | null>(null);
 const breadcrumb = ref<BreadCrumb[]>([]);
 const showcaseURL = ref("");
