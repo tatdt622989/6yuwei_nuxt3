@@ -6,7 +6,16 @@
         <span class="material-icons"> arrow_back </span>
       </NuxtLink>
     </div>
-    <form method="POST"
+    <AdminEmailCodeForm
+      v-if="awaitingCode"
+      :email="email"
+      :password="password"
+      send-on-open
+      @verified="enter"
+      @back="awaitingCode = false"
+    />
+    <form v-else
+      method="POST"
       @submit.prevent="submit">
       <div class="logo">
         <img src="@/assets/images/logo.svg"
@@ -42,6 +51,9 @@
         Don't have an account? <NuxtLink to="/admin/signup/">
           Signup
         </NuxtLink>
+      </p>
+      <p class="note text-center mt-1">
+        <a href="/api/account/forgot-password/">Forgot password?</a>
       </p>
       <p class="or">or</p>
       <button type="button" class="googleLogin" @click="googleLogin">
@@ -95,6 +107,7 @@ const email = ref('');
 const password = ref('');
 const isLoading = computed(() => store.isLoading);
 const redirect = route.query.redirect as string;
+const awaitingCode = ref(false);
 
 interface LoginRes {
   msg: string;
@@ -126,8 +139,9 @@ const submit = async () => {
   });
 
   const error = res.error.value;
-  if (error) {
-    const status = error.status;
+  if (error && apiErrorMessage(error) === 'Email not verified') {
+    awaitingCode.value = true;
+  } else if (error) {
     store.pushNotification({
       type: 'error',
       message: apiErrorMessage(error),
@@ -139,19 +153,21 @@ const submit = async () => {
   if (res.data.value) {
     const data = res.data.value as LoginRes;
     const { user } = data;
-    if (user) {
-      store.user = user;
-      store.pushNotification({
-        type: 'success',
-        message: 'Login successfully!',
-        timeout: 3000,
-      });
-      if (redirect) {
-        navigateTo(redirect);
-      } else {
-        navigateTo('/admin/account/');
-      }
-    }
+    if (user) enter(user);
+  }
+};
+
+const enter = (user: User) => {
+  store.user = user;
+  store.pushNotification({
+    type: 'success',
+    message: 'Login successfully!',
+    timeout: 3000,
+  });
+  if (redirect) {
+    navigateTo(redirect);
+  } else {
+    navigateTo('/admin/account/');
   }
 };
 

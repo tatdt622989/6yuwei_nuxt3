@@ -5,7 +5,14 @@
         <span class="material-icons"> arrow_back </span>
       </NuxtLink>
     </div>
-    <form method="POST" @submit.prevent="submit">
+    <AdminEmailCodeForm
+      v-if="awaitingCode"
+      :email="email"
+      :password="password"
+      @verified="enterAccount"
+      @back="awaitingCode = false"
+    />
+    <form v-else method="POST" @submit.prevent="submit">
       <div class="logo">
         <img src="@/assets/images/logo.svg" alt="6yuwei">
         <!-- <h1>6yuwei</h1> -->
@@ -77,10 +84,22 @@ const username = ref('');
 const email = ref('');
 const password = ref('');
 const isLoading = computed(() => store.isLoading);
+const awaitingCode = ref(false);
+
+const enterAccount = async (user: User) => {
+  store.setUser(user);
+  store.pushNotification({
+    type: 'success',
+    message: 'Register successfully!',
+    timeout: 3000,
+  });
+  await navigateTo('/admin/account/');
+};
 
 interface SignupRes {
   msg: string;
   user?: User;
+  verificationRequired?: boolean;
 }
 
 const submit = async () => {
@@ -112,15 +131,11 @@ const submit = async () => {
 
   const data = res.data.value as SignupRes;
   if (res.data.value) {
-    const { user } = data;
-    if (user) {
-      store.setUser(user);
-      store.pushNotification({
-        type: 'success',
-        message: 'Register successfully!',
-        timeout: 3000,
-      });
-      await navigateTo('/admin/account/');
+    const { user, verificationRequired } = data;
+    if (verificationRequired) {
+      awaitingCode.value = true;
+    } else if (user) {
+      await enterAccount(user);
     }
   }
   store.isLoading = false;
