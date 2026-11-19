@@ -80,6 +80,8 @@ const authUrl = useRuntimeConfig().public.authUrl;
 const route = useRoute();
 // The header search box fills this (layouts/adminDefault.vue), like the other admin pages
 const keyword = inject("keyword") as Ref<string>;
+// The member admin page at the identity provider links here with ?q=<email>
+if (typeof route.query.q === "string" && route.query.q) keyword.value = route.query.q;
 const currentPage = computed(() => Number(route.query.page) || 1);
 const limit = 20;
 const items = ref<Profile[]>([]);
