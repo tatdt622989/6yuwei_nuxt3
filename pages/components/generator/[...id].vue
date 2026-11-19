@@ -341,7 +341,7 @@ async function componentGenerator() {
             timeout: 5000,
         });
         // update balance
-        const balanceRes = await $fetch<BalanceRes>(`${store.api}/user/balance/`, {
+        const balanceRes = await $fetch<BalanceRes>(`${store.api}/me/`, {
             method: "GET",
             credentials: "include",
         });

@@ -1,27 +1,13 @@
 import { useStore } from "~/store";
-import type { User } from "~~/types";
 
-export default defineNuxtRouteMiddleware(async (to, from) => {
-  if (process.server) return;
+// Pages under /admin need a signed-in account; visitors go to the identity provider and come back
+export default defineNuxtRouteMiddleware(async (to) => {
+  if (import.meta.server) return;
   const store = useStore();
-  const api = `${store.api}/loginStatus/`;
-  const res = await useFetch(api, {
-    method: "GET",
-    credentials: "include",
-  });
-  const data = res.data.value as { msg: string; user: User };
-  const error = res.error.value as Error;
-  if (error) {
-    store.pushNotification({
-      type: "error",
-      message: error.message,
-      timeout: 5000,
-    });
-    return navigateTo("/admin/login/");
-  }
-  if (data) {
-    store.user = data.user;
-  } else {
-    return navigateTo("/admin/login/");
+  const { load, login } = useAuth();
+  if (!store.user) await load();
+  if (!store.user) {
+    login(to.fullPath);
+    return abortNavigation();
   }
 });

@@ -16,7 +16,7 @@
       <NuxtLink to="/animations" :class="{ current: unitName === 'animations' }">Animations</NuxtLink>
     </li>
     <li v-if="place === 'header'" class="account" :class="{ 'no-login': !store.user }">
-      <NuxtLink to="/admin/login/" class="sign-in" v-if="!store.user && store.isUserChecked">Sign in</NuxtLink>
+      <a href="#" class="sign-in" v-if="!store.user && store.isUserChecked" @click.prevent="login()">Sign in</a>
       <NuxtLink to="/admin/account/" id="avatar" v-else-if="store.isUserChecked">
         <img :src="avatArURL || (store.user?.externalPhoto as string)" alt="avatar" v-if="avatArURL || (store.user?.externalPhoto)">
         <i class="bi bi-person-fill" v-else></i>
@@ -51,8 +51,8 @@ const route = useRoute();
 const unitName = computed(() => route.path.split("/")[1]);
 const store = useStore();
 const avatArURL = computed(() => {
-  if (store.user && store.user.photo) {
-    return `${store.api}/admin/uploads/${store.user._id}/${store.user.photo}`;
+  if (store.user && store.user.externalPhoto) {
+    return store.user.externalPhoto as string;
   }
   return '';
 });
@@ -65,27 +65,7 @@ let resize = () => {
   emit('close-menu');
 }
 
-async function logout() {
-  try {
-    const res = await $fetch<{ msg: string }>(`${store.api}/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    if (res.msg === "Successful logout") {
-      store.user = null;
-      store.isUserChecked = true;
-      store.pushNotification({
-        type: "success",
-        message: res.msg,
-        timeout: 5000,
-      });
-      return navigateTo("/");
-    }
-
-  } catch (err) {
-    console.log(err);
-  }
-}
+const { login, logout } = useAuth();
 
 onMounted(() => {
   window.addEventListener('resize', resize);

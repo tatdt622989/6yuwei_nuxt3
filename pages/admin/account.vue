@@ -22,40 +22,28 @@
                   <i class="bi bi-person-fill"></i>
                   <img v-if="preview || user.photo || user.externalPhoto" :src="preview || userPhotoPath || (user.externalPhoto as string)" :alt="user.username" />
                 </div>
-                <div class="upload">
-                  <label>
-                    <span>Upload</span>
-                    <input type="file" @change="handlePhoto" ref="userFileInput" />
-                  </label>
-                </div>
+
               </div>
               <div class="form-area">
                 <div class="item">
                   <label for="username" class="form-label">Username</label>
-                  <input type="text" class="form-control" id="username" placeholder="" v-model="user.username" />
+                  <input type="text" class="form-control" id="username" placeholder="" v-model="user.username" readonly />
                 </div>
                 <div class="item">
                   <label for="phone" class="form-label">Phone</label>
-                  <input type="text" class="form-control" id="phone" placeholder="" v-model="user.phone" />
+                  <input type="text" class="form-control" id="phone" placeholder="" v-model="user.phone" readonly />
                 </div>
                 <div class="item">
                   <label for="country" class="form-label">Country</label>
-                  <input type="text" class="form-control" id="country" placeholder="" v-model="user.country" />
+                  <input type="text" class="form-control" id="country" placeholder="" v-model="user.country" readonly />
                 </div>
                 <div class="item">
                   <label for="email" class="form-label">Email</label>
                   <input type="email" class="form-control" id="email" placeholder="" v-model="user.email" readonly />
                 </div>
-                <div class="item">
-                  <label for="birth" class="form-label">Birth</label>
-                  <Datepicker v-model="user.birth" :time-config="{ enableTimePicker: false }" :formats="{ input: format }" />
-                </div>
                 <div class="item submit">
-                  <div class="create-at">
-                    <p class="title">Create at</p>
-                    <p class="date">{{ createdAt }}</p>
-                  </div>
-                  <button class="save" @click="saveUser">Save</button>
+                  <p class="managed">名稱、頭像、電話、國家、生日和密碼都在 6yuwei 帳號設定修改。</p>
+                  <a class="save" :href="store.user?.accountUrl" target="_blank" rel="noopener">帳號設定</a>
                 </div>
               </div>
             </form>
@@ -164,10 +152,7 @@ const user = ref<User>({
   externalPhoto: "",
   balance: 0,
 });
-const userPhotoPath = computed(() => {
-  if (!user.value.photo) return "";
-  return `${store.api}/admin/uploads/${user.value._id}/${user.value.photo}`;
-});
+const userPhotoPath = computed(() => "");
 const createdAt = computed(() => {
   const date = new Date(user.value.createdAt);
   const month =
@@ -183,55 +168,6 @@ const format = (date: Date) => {
   const year = date.getFullYear();
 
   return `${year}-${month}-${day}`;
-};
-
-const handlePhoto = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onload = () => {
-    preview.value = reader.result as string;
-  };
-  userPhotoFile.value = file;
-};
-
-const saveUser = async () => {
-  store.isLoading = true;
-  const formData = new FormData();
-  formData.append("username", user.value.username ?? '');
-  formData.append("phone", user.value.phone ?? '');
-  formData.append("country", user.value.country ?? '');
-  formData.append("birth", user.value.birth ?? '');
-  if (userPhotoFile.value) {
-    formData.append("photo", userPhotoFile.value);
-  }
-  const { data: userRef, error } = await useFetch(`${store.api}/user/`, {
-    method: "PUT",
-    credentials: "include",
-    body: formData,
-  });
-  if (error.value) {
-    const status = error.value.status;
-    status === 403 && navigateTo("/admin/login");
-    return store.pushNotification({
-      type: "error",
-      message: error.value.data as string,
-      timeout: 5000,
-    });
-  }
-  const data = (userRef.value as userRef).user;
-  if (data) {
-    user.value = data;
-    store.pushNotification({
-      type: "success",
-      message: "User updated",
-      timeout: 5000,
-    });
-  }
-  userFileInput.value!.value = "";
-  store.isLoading = false;
 };
 
 onMounted(async () => {

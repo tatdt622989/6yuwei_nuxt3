@@ -545,6 +545,8 @@ const uploadImg = async (files: FileList, id: string) => {
         .post(`${store.api}/${props.unit}/admin/photo/`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
+            // The API refuses session uploads without it (6yuwei_api/docs/Session-API.md §4)
+            "X-Requested-With": "6yuwei",
           },
           withCredentials: true,
             onUploadProgress: (progressEvent: AxiosProgressEvent): void => {

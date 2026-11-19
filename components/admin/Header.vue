@@ -42,8 +42,8 @@ const externalKeyword = inject("keyword") as Ref<string>;
 const keyword = ref("");
 const user = computed(() => store.user);
 const userPhotoPath = computed(() => {
-  if (!user.value || !user.value.photo) return "";
-  return `${store.api}/admin/uploads/${user.value._id}/${user.value.photo}`;
+  if (!user.value || !user.value.externalPhoto) return "";
+  return user.value.externalPhoto as string;
 });
 const hasSearch = computed(() => {
   const regex = /\/admin\/(account|dashboard)/;
@@ -66,26 +66,9 @@ onUnmounted(() => {
   window.removeEventListener("keydown", keydownHandler);
 });
 
+const { logout: signOut } = useAuth();
 async function logout() {
-  try {
-    const res: { msg: string } = await $fetch(`${store.api}/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    if (res.msg === "Successful logout") {
-      store.user = null;
-      store.isUserChecked = true;
-      store.pushNotification({
-        type: "success",
-        message: res.msg,
-        timeout: 5000,
-      });
-      return navigateTo("/");
-    }
-
-  } catch (err) {
-    console.log(err);
-  }
+  await signOut();
 }
 
 watch(

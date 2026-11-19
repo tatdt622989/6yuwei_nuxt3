@@ -10,6 +10,8 @@ export interface User {
   photo: string;
   externalPhoto: String,
   balance: number;
+  /** The identity provider's account page (name, picture, password) */
+  accountUrl?: string;
 }
 
 export interface Photo {

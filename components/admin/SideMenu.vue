@@ -45,11 +45,18 @@
           </NuxtLink>
         </li>
         <li v-if="user?.permissions === 'admin'">
-          <NuxtLink to="/admin/members/" :class="{ active: currentPath === '/admin/members/' }">
-            <i class="bi bi-people-fill"></i>
-            <span class="text">Member</span>
+          <NuxtLink to="/admin/points/" :class="{ active: currentPath === '/admin/points/' }">
+            <i class="bi bi-coin"></i>
+            <span class="text">Points</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
+        </li>
+        <li v-if="user?.permissions === 'admin'">
+          <a :href="`${authUrl}/admin/users`" target="_blank" rel="noopener">
+            <i class="bi bi-people-fill"></i>
+            <span class="text">Member</span>
+            <span class="material-icons arrow"> open_in_new </span>
+          </a>
         </li>
         <li>
           <NuxtLink to="/admin/account/" :class="{ active: currentPath === '/admin/account/' }">
@@ -92,6 +99,7 @@ const route = useRoute();
 const currentPath = computed(() => route.path);
 const open = ref(false);
 const user = computed(() => store.user);
+const authUrl = useRuntimeConfig().public.authUrl;
 
 watch(
   () => route.path,
@@ -110,27 +118,10 @@ const handleResize = () => {
   }
 };
 
+const { logout: signOut } = useAuth();
 async function logout() {
   open.value = false;
-  try {
-    const res: { msg: string } = await $fetch(`${store.api}/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    if (res.msg === "Successful logout") {
-      store.user = null;
-      store.isUserChecked = true;
-      store.pushNotification({
-        type: "success",
-        message: res.msg,
-        timeout: 5000,
-      });
-      return navigateTo("/");
-    }
-
-  } catch (err) {
-    console.log(err);
-  }
+  await signOut();
 }
 
 onMounted(() => {

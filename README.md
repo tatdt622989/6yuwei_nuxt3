@@ -27,7 +27,20 @@ Run `pnpm dev` only when a development server is explicitly wanted.
 
 `NUXT_API_PROXY_TARGET` is required for a production image build. Keep the existing Coolify/GitHub secret value for the deployment; do not substitute localhost in production.
 
-The browser uses the same-origin `/api` path. Nitro proxies `/api/**` to the configured backend, preserving the existing shared `6yuwei_api` authentication and cookie contract. The Google sign-in redirect remains `/auth/google`. The API's own permissions still enforce access to member/admin data.
+The browser uses the same-origin `/api` path. Nitro proxies `/api/**` to the configured backend. The API's own permissions still enforce access to member/admin data.
+
+Sign-in uses the shared identity provider (`auth.6yuwei.com`) through the API's token handler; see `6yuwei_api/docs/Session-API.md`:
+
+- The site never handles passwords or tokens. `useAuth()` reads `/api/session/me`, sends visitors to `/api/session/login?app=main&return=<path>`, and signs out with `POST /api/session/logout`.
+- The session cookie is set on `6yuwei.com` through the proxy, so the API's callback URL for this site is `https://6yuwei.com/api/session/callback`.
+- Every request to the API carries `X-Requested-With: 6yuwei` (`plugins/apiHeaders.client.ts`; the axios upload in `EditorModal.vue` sets it itself). The API refuses session requests that change data without it.
+- A failed sign-in comes back as `/?login_error=<code>`; `plugins/loginError.client.ts` shows the reason.
+- `/admin/login/` and `/admin/signup/` only forward to the identity provider, so old links still work.
+- Account details (name, picture, password) are edited at the identity provider; `/admin/account/` only shows them. Admins adjust points at `/admin/points/`, and manage accounts at `auth.6yuwei.com/admin/users`.
+
+| Variable | Purpose |
+| --- | --- |
+| `NUXT_PUBLIC_AUTH_URL` | Identity provider URL for the account and member links. Default `https://auth.6yuwei.com`; set `https://auth-stg.6yuwei.com` on staging. |
 
 The homepage accepts both the old text response and the parsed JSON response from `https://blog.6yuwei.com/api.php`. An invalid feed no longer prevents the rest of the homepage from rendering.
 
