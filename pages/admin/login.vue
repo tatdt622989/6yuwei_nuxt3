@@ -12,10 +12,9 @@ useHead({ meta: [{ name: "robots", content: "noindex" }] });
 
 const route = useRoute();
 const { login } = useAuth();
-const safe = (value: unknown) => (typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "/admin/account/");
 
 onMounted(() => {
-  login(safe(route.query.redirect));
+  login(signInReturnPath(route.query.redirect));
 });
 </script>
 

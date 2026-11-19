@@ -20,6 +20,27 @@ interface Me {
   balance: number;
 }
 
+const isSitePath = (value: unknown): value is string =>
+  typeof value === "string" && value.startsWith("/") && !value.startsWith("//") && !value.startsWith("/\\");
+
+/**
+ * Where /admin/login and /admin/signup send people back to: the ?redirect they were given,
+ * else the page they came from (vue-router keeps it in history.state.back), else the account page.
+ */
+export const signInReturnPath = (redirect: unknown): string => {
+  if (isSitePath(redirect)) return redirect;
+  const back = typeof window === "undefined" ? undefined : window.history.state?.back;
+  if (isSitePath(back) && !/^\/admin\/(login|signup)\b/.test(back)) return back;
+  return "/admin/account/";
+};
+
+// A page can ask to sign in more than once while it opens: the auth middleware first, then a
+// request that came back 401 and calls navigateTo("/admin/login"). Only the first one may leave,
+// or the later one replaces the return address the middleware gave.
+let leavingToSignIn = false;
+// The back button can restore this page from the cache after it left; it may sign in again then
+if (typeof window !== "undefined") window.addEventListener("pageshow", () => { leavingToSignIn = false; });
+
 export const useAuth = () => {
   const store = useStore();
 
@@ -51,6 +72,8 @@ export const useAuth = () => {
 
   /** Goes to the identity provider and comes back to returnTo (a path on this site). */
   const login = (returnTo?: string) => {
+    if (leavingToSignIn) return;
+    leavingToSignIn = true;
     const back = returnTo || window.location.pathname + window.location.search;
     window.location.href = `${store.api}/session/login?app=main&return=${encodeURIComponent(back)}`;
   };
