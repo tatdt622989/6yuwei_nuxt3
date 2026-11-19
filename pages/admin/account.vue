@@ -20,7 +20,7 @@
               <div class="photo-area">
                 <div class="preview">
                   <i class="bi bi-person-fill"></i>
-                  <img v-if="preview || user.photo || user.externalPhoto" :src="preview || userPhotoPath || (user.externalPhoto as string)" :alt="user.username" />
+                  <img v-if="user.externalPhoto" :src="user.externalPhoto as string" :alt="user.username" />
                 </div>
 
               </div>
@@ -107,8 +107,6 @@
 </template>
 
 <script lang="ts" setup>
-import { VueDatePicker as Datepicker } from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
 import { useStore } from "~/store";
 import type { User } from "~/types";
 
@@ -132,13 +130,7 @@ useHead({
 const store = useStore();
 const route = useRoute();
 
-interface userRef {
-  msg: string;
-  user: User;
-}
-const preview = ref<string>("");
-const userPhotoFile = ref<File | null>(null);
-const userFileInput = ref<HTMLInputElement | null>(null);
+// Details are edited at the identity provider; this page only shows them
 const user = ref<User>({
   _id: "",
   username: "",
@@ -152,33 +144,12 @@ const user = ref<User>({
   externalPhoto: "",
   balance: 0,
 });
-const userPhotoPath = computed(() => "");
-const createdAt = computed(() => {
-  const date = new Date(user.value.createdAt);
-  const month =
-    date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
-  const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-  return `${date.getFullYear()}-${month}-${day}`;
-});
-
-const format = (date: Date) => {
-  const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-  const month =
-    date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
-  const year = date.getFullYear();
-
-  return `${year}-${month}-${day}`;
-};
-
 onMounted(async () => {
-  if (!store.user) {
-    navigateTo("/admin/login");
-  }
-
-  const data = store.user;
-  if (data) {
-    user.value = data;
-  }
+  // The page may mount before the sign-in check has finished
+  const { load, login } = useAuth();
+  if (!store.user) await load();
+  if (!store.user) return login(route.fullPath);
+  user.value = store.user;
 });
 </script>
 

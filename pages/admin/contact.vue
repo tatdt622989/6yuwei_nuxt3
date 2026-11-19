@@ -188,7 +188,7 @@ const getList = async () => {
 
   if (error) {
     const status = error.status;
-    status === 403 && navigateTo("/admin/login");
+    status === 401 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),
@@ -223,7 +223,7 @@ const deleteData = async () => {
   const error = res.error.value;
   if (error) {
     const status = error.status;
-    status === 403 && navigateTo("/admin/login");
+    status === 401 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),

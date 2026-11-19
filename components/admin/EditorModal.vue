@@ -481,10 +481,12 @@ const save = async () => {
   const actionKey = action.value === "edit" ? "edit" : "add";
   const res = await method[actionKey]();
   if (res.error) {
-    navigateTo("/admin/login");
+    store.isLoading = false;
+    // 401: the session ended; 403 and the rest: show why
+    if ((res.error as { status?: number }).status === 401) navigateTo("/admin/login");
     return store.pushNotification({
       type: "error",
-      message: res.error as string,
+      message: apiErrorMessage(res.error),
       timeout: 5000,
     });
   }
@@ -603,7 +605,7 @@ const uploadImg = async (files: FileList, id: string) => {
     fileTs.value = Date.now();
   } catch (err: any) {
     const status = err.response?.status;
-    status === 403 && navigateTo("/admin/login");
+    status === 401 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
       message: err.response?.data,
@@ -690,7 +692,7 @@ const fileDelete = async () => {
     store.isLoading = false;
     return store.pushNotification({
       type: "error",
-      message: error as string,
+      message: apiErrorMessage(error),
       timeout: 5000,
     });
   }

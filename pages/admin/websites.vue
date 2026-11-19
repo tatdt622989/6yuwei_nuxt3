@@ -194,7 +194,7 @@ const copyData = async () => {
   const error = res.error.value;
   if (error) {
     const status = error.status;
-    status === 403 && navigateTo("/admin/login");
+    status === 401 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),
@@ -221,7 +221,7 @@ const getList = async () => {
   }).catch((err) => {
     if (err) {
       const status = err.status;
-      status === 403 && navigateTo("/admin/login");
+      status === 401 && navigateTo("/admin/login");
       store.pushNotification({
         type: "error",
         message: 'Can not get websites list',
@@ -271,7 +271,7 @@ const getCategory = async () => {
   } catch (err) {
     store.pushNotification({
       type: "error",
-      message: err as string,
+      message: apiErrorMessage(err),
       timeout: 5000,
     });
   }
@@ -290,7 +290,7 @@ const deleteData = async () => {
   const error = res.error.value;
   if (error) {
     const status = error.status;
-    status === 403 && navigateTo("/admin/login");
+    status === 401 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),
@@ -316,7 +316,7 @@ const updateData = async (data: UpdateData) => {
   const resData = res.data.value as { msg: string; website: Website };
   if (error) {
     const status = error.status;
-    status === 403 && navigateTo("/admin/login");
+    status === 401 && navigateTo("/admin/login");
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),
