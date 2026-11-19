@@ -57,6 +57,9 @@ export default defineNuxtConfig({
       "/api/**": {
         proxy: {
           to: `${apiProxyTarget}/**`,
+          // Hand the API's redirects to the browser. Sign-in answers with a 302 and a cookie
+          // (/api/session/login, /api/session/callback); following it here would lose both
+          fetchOptions: { redirect: "manual" },
         }
       }
     }

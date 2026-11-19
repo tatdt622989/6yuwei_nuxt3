@@ -11,11 +11,15 @@ const messages: Record<string, string> = {
   failed,
 };
 
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute();
   const code = route.query.login_error;
   if (typeof code !== "string") return;
   useStore().pushNotification({ type: "error", message: messages[code] ?? failed, timeout: 5000 });
-  const { login_error: _, ...query } = route.query;
-  useRouter().replace({ path: route.path, query, hash: route.hash });
+  // The router ignores a replace before the app has mounted
+  const router = useRouter();
+  nuxtApp.hook("app:mounted", () => {
+    const { login_error: _, ...query } = router.currentRoute.value.query;
+    router.replace({ query });
+  });
 });
