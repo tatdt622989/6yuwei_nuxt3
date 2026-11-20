@@ -26,11 +26,6 @@
                     <h2>{{ props.component.title }}</h2>
                     <p class="by">Create date <span class="author">{{ timeFormat(props.component.createdAt) }}</span></p>
                 </div>
-                <!-- <button class="copy" @click="copyToClipboard(props.component.style)">
-                    <span class="material-symbols-outlined">
-                        file_copy
-                    </span>
-                </button> -->
             </div>
         </div>
     </div>

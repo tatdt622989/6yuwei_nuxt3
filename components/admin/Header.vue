@@ -15,9 +15,9 @@
       </div>
       <div class="member">
         <div class="img-box">
-          <img v-if="user?.photo || user?.externalPhoto" :src="userPhotoPath || (user.externalPhoto as string)" :alt="user?.username" />
+          <img v-if="user?.picture" :src="user.picture" :alt="user.name" />
         </div>
-        <div class="txtBox">{{ user?.username }}</div>
+        <div class="txtBox">{{ user?.name }}</div>
         <div class="user-menu" v-if="store.user">
           <ul>
             <li>
@@ -41,10 +41,6 @@ const isFocus = ref(false);
 const externalKeyword = inject("keyword") as Ref<string>;
 const keyword = ref("");
 const user = computed(() => store.user);
-const userPhotoPath = computed(() => {
-  if (!user.value || !user.value.externalPhoto) return "";
-  return user.value.externalPhoto as string;
-});
 const hasSearch = computed(() => {
   const regex = /\/admin\/(account|dashboard)/;
   return !regex.test(route.path);

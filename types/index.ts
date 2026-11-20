@@ -1,17 +1,15 @@
+/** The signed-in account, from the API's /session/me and /me (composables/useAuth.ts). */
 export interface User {
-  _id: string;
-  username: string;
+  /** The account id at the identity provider (sub) */
+  id: string;
+  name: string;
   email: string;
-  phone: string;
-  country: string;
-  birth: string;
-  permissions: string;
-  createdAt: string;
-  photo: string;
-  externalPhoto: String,
+  /** Profile picture URL, or "" */
+  picture: string;
+  isAdmin: boolean;
   balance: number;
   /** The identity provider's account page (name, picture, password) */
-  accountUrl?: string;
+  accountUrl: string;
 }
 
 export interface Photo {

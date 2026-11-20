@@ -76,6 +76,7 @@ useHead({ title: "Points", titleTemplate: "%s - 6yuwei admin", meta: [{ name: "r
 definePageMeta({ middleware: ["auth"], layout: "admin-default" });
 
 const store = useStore();
+const { login } = useAuth();
 const authUrl = useRuntimeConfig().public.authUrl;
 const route = useRoute();
 // The header search box fills this (layouts/adminDefault.vue), like the other admin pages
@@ -101,7 +102,7 @@ async function getList() {
     items.value = res.items;
     total.value = res.total;
   } catch (error: any) {
-    if (error?.status === 401) return navigateTo("/admin/login");
+    if (error?.status === 401) return login();
     notify("error", apiErrorMessage(error));
   } finally {
     loaded.value = true;

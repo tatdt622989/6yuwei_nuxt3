@@ -129,6 +129,7 @@ definePageMeta({
 });
 
 const store = useStore();
+const { login } = useAuth();
 const route = useRoute();
 const confirmModal = reactive({
   open: false,
@@ -188,7 +189,7 @@ const getList = async () => {
 
   if (error) {
     const status = error.status;
-    status === 401 && navigateTo("/admin/login");
+    status === 401 && login();
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),
@@ -223,7 +224,7 @@ const deleteData = async () => {
   const error = res.error.value;
   if (error) {
     const status = error.status;
-    status === 401 && navigateTo("/admin/login");
+    status === 401 && login();
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),

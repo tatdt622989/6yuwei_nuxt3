@@ -107,18 +107,6 @@
                   </datalist>
                 </div>
               </div>
-              <!-- <div class="col-12">
-                <div class="mb-2">
-                  <label for="FormControlTextarea1" class="form-label has-btn">
-                    <span class="text">Youtube URL</span>
-                  </label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    v-model="youtubeLink"
-                  />
-                </div>
-              </div> -->
               <div class="col-12">
                 <div class="mb-2">
                   <label for="FormControlTextarea1" class="form-label has-btn">
@@ -350,7 +338,6 @@ const emit = defineEmits([
 const isOpen = ref(props.isOpen);
 const title = ref("");
 const externalLink = ref("");
-// const youtubeLink = ref("");
 const category = ref("");
 const description = ref("");
 const textEditorHTML = ref("");
@@ -358,6 +345,7 @@ const textEditorRef = ref<TextEditorRef | null>(null); // 取得text editor 暴�
 const fileInfoList = ref<FileInfo[]>([]);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const store = useStore();
+const { login } = useAuth();
 const fileSizeConverter = useFileSizeConverter();
 const inDropZone = ref(false);
 const validation = reactive<Validation>({
@@ -483,7 +471,7 @@ const save = async () => {
   if (res.error) {
     store.isLoading = false;
     // 401: the session ended; 403 and the rest: show why
-    if ((res.error as { status?: number }).status === 401) navigateTo("/admin/login");
+    if ((res.error as { status?: number }).status === 401) login();
     return store.pushNotification({
       type: "error",
       message: apiErrorMessage(res.error),
@@ -605,7 +593,7 @@ const uploadImg = async (files: FileList, id: string) => {
     fileTs.value = Date.now();
   } catch (err: any) {
     const status = err.response?.status;
-    status === 401 && navigateTo("/admin/login");
+    status === 401 && login();
     store.pushNotification({
       type: "error",
       message: err.response?.data,
@@ -712,12 +700,6 @@ const closeModal = () => {
   emit("close-modal");
 };
 
-const keyupHandler = (e: KeyboardEvent) => {
-  // if (e.key === "Escape") {
-  //   closeModal();
-  // }
-};
-
 const textGenerator = async (inputType: "describe" | "content") => {
   const topic = title.value ?? "";
   if (store.isLoading) return;
@@ -747,15 +729,6 @@ const textGenerator = async (inputType: "describe" | "content") => {
   }
   store.isLoading = false;
 };
-
-onMounted(() => {
-  window.addEventListener("keyup", keyupHandler);
-  console.log(props.category);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("keyup", keyupHandler);
-});
 
 watch(
   () => props.isOpen,

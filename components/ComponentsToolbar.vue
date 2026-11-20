@@ -43,6 +43,7 @@
 import { useStore } from "~/store";
 
 const store = useStore();
+const { login } = useAuth();
 const route = useRoute();
 const emit = defineEmits(["open-modal"]);
 const componentId = computed(() => route.path.split("/")[4]);
@@ -60,7 +61,7 @@ function goAuthPage(url: string) {
             message: "Please login first",
             timeout: 5000,
         });
-        return navigateTo("/admin/login?redirect=/components/");
+        return login("/components/");
     }
     navigateTo(url);
 }

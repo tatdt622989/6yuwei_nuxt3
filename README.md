@@ -35,12 +35,11 @@ Sign-in uses the shared identity provider (`auth.6yuwei.com`) through the API's 
 - The session cookie is set on `6yuwei.com` through the proxy, so the API's callback URL for this site is `https://6yuwei.com/api/session/callback`.
 - Every request to the API carries `X-Requested-With: 6yuwei` (`plugins/apiHeaders.client.ts`; the axios upload in `EditorModal.vue` sets it itself). The API refuses session requests that change data without it.
 - A failed sign-in comes back as `/?login_error=<code>`; `plugins/loginError.client.ts` shows the reason.
-- `/admin/login/` and `/admin/signup/` only forward to the identity provider, so old links still work.
 - Account details (name, picture, password) are edited at the identity provider; `/admin/account/` only shows them. Admins adjust points at `/admin/points/`, and manage accounts at `auth.6yuwei.com/admin/users`.
 
 | Variable | Purpose |
 | --- | --- |
-| `NUXT_PUBLIC_AUTH_URL` | Identity provider URL for the account and member links. Default `https://auth.6yuwei.com`; set `https://auth-stg.6yuwei.com` on staging. |
+| `NUXT_PUBLIC_AUTH_URL` | Identity provider URL for the account and member links. Default `https://auth.6yuwei.com`; set `http://auth.localhost:4000` in local development. |
 
 The homepage accepts both the old text response and the parsed JSON response from `https://blog.6yuwei.com/api.php`. An invalid feed no longer prevents the rest of the homepage from rendering.
 

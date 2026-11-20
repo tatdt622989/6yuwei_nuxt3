@@ -3,8 +3,7 @@ import type { User } from "~/types";
 
 /*
  * Sign-in through the API's token handler (6yuwei_api/docs/Session-API.md). The site never sees
- * a password or a token: the API keeps them and gives the browser an HttpOnly cookie. The
- * user in the store keeps its old shape, so the pages that read it need no change.
+ * a password or a token: the API keeps them and gives the browser an HttpOnly cookie.
  */
 
 interface SessionMe {
@@ -20,23 +19,9 @@ interface Me {
   balance: number;
 }
 
-const isSitePath = (value: unknown): value is string =>
-  typeof value === "string" && value.startsWith("/") && !value.startsWith("//") && !value.startsWith("/\\");
-
-/**
- * Where /admin/login and /admin/signup send people back to: the ?redirect they were given,
- * else the page they came from (vue-router keeps it in history.state.back), else the account page.
- */
-export const signInReturnPath = (redirect: unknown): string => {
-  if (isSitePath(redirect)) return redirect;
-  const back = typeof window === "undefined" ? undefined : window.history.state?.back;
-  if (isSitePath(back) && !/^\/admin\/(login|signup)\b/.test(back)) return back;
-  return "/admin/account/";
-};
-
 // A page can ask to sign in more than once while it opens: the auth middleware first, then a
-// request that came back 401 and calls navigateTo("/admin/login"). Only the first one may leave,
-// or the later one replaces the return address the middleware gave.
+// request that came back 401. Only the first one may leave, or the later one replaces the return
+// address the middleware gave.
 let leavingToSignIn = false;
 // The back button can restore this page from the cache after it left; it may sign in again then
 if (typeof window !== "undefined") window.addEventListener("pageshow", () => { leavingToSignIn = false; });
@@ -50,16 +35,11 @@ export const useAuth = () => {
       const session = await $fetch<SessionMe>(`${store.api}/session/me`, { credentials: "include" });
       const me = await $fetch<Me>(`${store.api}/me/`, { credentials: "include" }).catch(() => null);
       store.user = {
-        _id: session.sub,
-        username: session.name ?? "",
+        id: session.sub,
+        name: session.name ?? "",
         email: session.email ?? "",
-        phone: "",
-        country: "",
-        birth: "",
-        permissions: session.roles.includes("admin") ? "admin" : "general",
-        createdAt: "",
-        photo: "",
-        externalPhoto: session.picture ?? "",
+        picture: session.picture ?? "",
+        isAdmin: session.roles.includes("admin"),
         balance: me?.balance ?? 0,
         accountUrl: session.accountUrl,
       };

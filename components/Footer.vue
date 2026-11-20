@@ -21,7 +21,6 @@
           apply.
         </div>
         <div class="btn-box">
-          <!-- <SocialBar class="footer" /> -->
           <button type="submit" class="btn btn-primary" @click="send">
             Submit
           </button>
@@ -32,8 +31,6 @@
       <div class="logo" data-aos="fade-in" data-aos-offset="0" :class="{ 'aos-animate': forceOpenFooter }">
         <img src="@/assets/images/logo_white.svg" alt="6yuwei" />
       </div>
-      <!-- <Navbar class="nav" :place="'footer'" data-aos="fade-in" data-aos-delay="100" data-aos-offset="50"
-        :class="{ 'aos-animate': forceOpenFooter }" /> -->
       <div class="copyright" :class="{ 'aos-animate': forceOpenFooter }" data-aos="fade-in" data-aos-delay="200"
         data-aos-offset="50">
         <p>

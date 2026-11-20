@@ -92,6 +92,7 @@ definePageMeta({
 });
 
 const store = useStore();
+const { login } = useAuth();
 const route = useRoute();
 const currentPage = computed(() => {
   return route.query.page ? parseInt(route.query.page as string) : 1;
@@ -196,7 +197,7 @@ const copyData = async () => {
   const error = res.error.value;
   if (error) {
     const status = error.status;
-    status === 401 && navigateTo("/admin/login");
+    status === 401 && login();
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),
@@ -223,7 +224,7 @@ const getList = async () => {
   }).catch((err) => {
     if (err) {
       const status = err.status;
-      status === 401 && navigateTo("/admin/login");
+      status === 401 && login();
       store.pushNotification({
         type: "error",
         message: 'Can not get 3DCG list',
@@ -292,7 +293,7 @@ const deleteData = async () => {
   const error = res.error.value;
   if (error) {
     const status = error.status;
-    status === 401 && navigateTo("/admin/login");
+    status === 401 && login();
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),
@@ -318,7 +319,7 @@ const updateData = async (data: UpdateData) => {
   const resData = res.data.value as { msg: string; threeDCGs: ThreeDCG };
   if (error) {
     const status = error.status;
-    status === 401 && navigateTo("/admin/login");
+    status === 401 && login();
     store.pushNotification({
       type: "error",
       message: apiErrorMessage(error),

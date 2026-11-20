@@ -69,7 +69,7 @@ export default defineNuxtConfig({
     apiProxyTarget,
     public: {
       gtagId: 'G-HW6MDZLN6Z',
-      // The identity provider; overridden by NUXT_PUBLIC_AUTH_URL on staging
+      // The identity provider; NUXT_PUBLIC_AUTH_URL overrides it in local development
       authUrl: 'https://auth.6yuwei.com',
     }
   },

@@ -7,10 +7,13 @@
 </template>
 
 <script setup lang="ts">
-const getUserData = useGetUserData();
+import { useStore } from "~/store";
 
-onMounted(async () => {
-  getUserData();
+const store = useStore();
+const { load } = useAuth();
+
+onMounted(() => {
+  if (!store.user) load();
 });
 </script>
 

@@ -11,39 +11,31 @@
               <i class="bi bi-person-circle"></i>
             </div>
             <div class="title">Profile</div>
-            <div class="permissions" :class="user.permissions">
-              <span>{{ user.permissions }}</span>
+            <div class="permissions" :class="role" v-if="user">
+              <span>{{ role }}</span>
             </div>
           </div>
           <div class="content">
-            <form class="form" @submit.prevent>
+            <form class="form" @submit.prevent v-if="user">
               <div class="photo-area">
                 <div class="preview">
                   <i class="bi bi-person-fill"></i>
-                  <img v-if="user.externalPhoto" :src="user.externalPhoto as string" :alt="user.username" />
+                  <img v-if="user.picture" :src="user.picture" :alt="user.name" />
                 </div>
 
               </div>
               <div class="form-area">
                 <div class="item">
                   <label for="username" class="form-label">Username</label>
-                  <input type="text" class="form-control" id="username" placeholder="" v-model="user.username" readonly />
-                </div>
-                <div class="item">
-                  <label for="phone" class="form-label">Phone</label>
-                  <input type="text" class="form-control" id="phone" placeholder="" v-model="user.phone" readonly />
-                </div>
-                <div class="item">
-                  <label for="country" class="form-label">Country</label>
-                  <input type="text" class="form-control" id="country" placeholder="" v-model="user.country" readonly />
+                  <input type="text" class="form-control" id="username" placeholder="" :value="user.name" readonly />
                 </div>
                 <div class="item">
                   <label for="email" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" placeholder="" v-model="user.email" readonly />
+                  <input type="email" class="form-control" id="email" placeholder="" :value="user.email" readonly />
                 </div>
                 <div class="item submit">
                   <p class="managed">名稱、頭像、電話、國家、生日和密碼都在 6yuwei 帳號設定修改。</p>
-                  <a class="save" :href="store.user?.accountUrl" target="_blank" rel="noopener">帳號設定</a>
+                  <a class="save" :href="user.accountUrl" target="_blank" rel="noopener">帳號設定</a>
                 </div>
               </div>
             </form>
@@ -70,34 +62,9 @@
               <div class="application-item">
                 <div class="preview">
                   <img src="@/assets/images/ai_component.png" alt="ai_component">
-                  <!-- <span class="title"> AI Component </span> -->
                 </div>
                 <NuxtLink to="/components" class="btn link-btn">More</NuxtLink>
               </div>
-              <!-- <div class="application-item">
-                <div class="preview">
-                  <span class="title"> Diary Box </span>
-                </div>
-                <NuxtLink to="/admin/application/1" class="btn link-btn"
-                  >Manage</NuxtLink
-                >
-              </div>
-              <div class="application-item">
-                <div class="preview">
-                  <span class="title"> Diary Box </span>
-                </div>
-                <NuxtLink to="/admin/application/1" class="btn link-btn"
-                  >Manage</NuxtLink
-                >
-              </div>
-              <div class="application-item">
-                <div class="preview">
-                  <span class="title"> Diary Box </span>
-                </div>
-                <NuxtLink to="/admin/application/1" class="btn link-btn"
-                  >Manage</NuxtLink
-                >
-              </div> -->
             </div>
           </div>
         </div>
@@ -108,7 +75,6 @@
 
 <script lang="ts" setup>
 import { useStore } from "~/store";
-import type { User } from "~/types";
 
 // 需要驗證身份
 definePageMeta({
@@ -131,25 +97,13 @@ const store = useStore();
 const route = useRoute();
 
 // Details are edited at the identity provider; this page only shows them
-const user = ref<User>({
-  _id: "",
-  username: "",
-  phone: "",
-  country: "",
-  email: "",
-  birth: "",
-  permissions: "user",
-  createdAt: "",
-  photo: "",
-  externalPhoto: "",
-  balance: 0,
-});
+const user = computed(() => store.user);
+const role = computed(() => (store.user?.isAdmin ? "admin" : "general"));
 onMounted(async () => {
   // The page may mount before the sign-in check has finished
   const { load, login } = useAuth();
   if (!store.user) await load();
-  if (!store.user) return login(route.fullPath);
-  user.value = store.user;
+  if (!store.user) login(route.fullPath);
 });
 </script>
 

@@ -1,6 +1,5 @@
 <template>
   <div class="visualWrap">
-    <!-- <canvas ref="main" /> -->
     <div class="videoBox">
       <video
         ref="videoEl"

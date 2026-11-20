@@ -7,51 +7,42 @@
     </div>
     <transition name="fade">
       <ul v-if="open">
-        <!-- <li>
-          <NuxtLink to="/admin/">
-            <i class="bi bi-clipboard-data-fill"></i>
-            <span class="text">Dashboard</span>
-            <span class="material-icons arrow">
-              arrow_forward_ios
-            </span>
-          </NuxtLink>
-        </li> -->
-        <li v-if="user?.permissions === 'admin'">
+        <li v-if="user?.isAdmin">
           <NuxtLink to="/admin/websites/" :class="{ active: currentPath === '/admin/websites/' }">
             <i class="bi bi-window-sidebar"></i>
             <span class="text">Websites</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li v-if="user?.permissions === 'admin'">
+        <li v-if="user?.isAdmin">
           <NuxtLink to="/admin/3dcgs/" :class="{ active: currentPath === '/admin/3dcgs/' }">
             <i class="bi bi-box"></i>
             <span class="text">3DCG</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li v-if="user?.permissions === 'admin'">
+        <li v-if="user?.isAdmin">
           <NuxtLink to="/admin/animations/" :class="{ active: currentPath === '/admin/animations/' }">
             <i class="bi bi-film"></i>
             <span class="text">Animation</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li v-if="user?.permissions === 'admin'">
+        <li v-if="user?.isAdmin">
           <NuxtLink to="/admin/contact/" :class="{ active: currentPath === '/admin/contact/' }">
             <i class="bi bi-person-lines-fill"></i>
             <span class="text">Contact</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li v-if="user?.permissions === 'admin'">
+        <li v-if="user?.isAdmin">
           <NuxtLink to="/admin/points/" :class="{ active: currentPath === '/admin/points/' }">
             <i class="bi bi-coin"></i>
             <span class="text">Points</span>
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <li v-if="user?.permissions === 'admin'">
+        <li v-if="user?.isAdmin">
           <a :href="`${authUrl}/admin/users`" target="_blank" rel="noopener">
             <i class="bi bi-people-fill"></i>
             <span class="text">Member</span>
@@ -65,13 +56,6 @@
             <span class="material-icons arrow"> arrow_forward_ios </span>
           </NuxtLink>
         </li>
-        <!-- <li>
-          <NuxtLink to="/admin/application/" :class="{ active: currentPath === '/admin/application/' }">
-            <i class="bi bi-app-indicator"></i>
-            <span class="text">Application</span>
-            <span class="material-icons arrow"> arrow_forward_ios </span>
-          </NuxtLink>
-        </li> -->
         <li class="user-menu">
           <ul>
             <li>

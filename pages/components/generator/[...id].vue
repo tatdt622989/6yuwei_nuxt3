@@ -154,7 +154,7 @@ const { data: componentsTypeList, error: typeListError } = await useFetch<Compon
 store.isLoading = false;
 
 const componentsData = ref<null | Component>(null);
-const canFineTuning = computed(() => componentId.value && store.user?._id === componentsData.value?.userId ? true : false);
+const canFineTuning = computed(() => componentId.value && store.user?.id === componentsData.value?.userId ? true : false);
 const componentsType = computed<null | ComponentType>(() => getComponentType(typeURL.value));
 const iframeSrc = computed(() => {
     if (!componentsData.value) return "";
